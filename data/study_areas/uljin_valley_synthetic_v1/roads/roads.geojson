@@ -1,0 +1,233 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "EPSG:5187"
+  }
+ },
+ "wg_layer_name": "roads",
+ "wg_feature_kind": "road segment",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      226000.0,
+      479600.0
+     ],
+     [
+      227500.0,
+      479800.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "trunk_w",
+    "road_class": "secondary"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      227500.0,
+      479800.0
+     ],
+     [
+      229200.0,
+      480000.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "trunk_m",
+    "road_class": "secondary"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      229200.0,
+      480000.0
+     ],
+     [
+      232000.0,
+      480300.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "trunk_e",
+    "road_class": "secondary"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      227500.0,
+      479800.0
+     ],
+     [
+      227400.0,
+      481000.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "spur_a1",
+    "road_class": "local"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      227400.0,
+      481000.0
+     ],
+     [
+      227600.0,
+      481600.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "spur_a2",
+    "road_class": "track"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      229200.0,
+      480000.0
+     ],
+     [
+      229600.0,
+      478800.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "loop_b1",
+    "road_class": "local"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      229600.0,
+      478800.0
+     ],
+     [
+      230400.0,
+      478900.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "loop_b2",
+    "road_class": "local"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      230400.0,
+      478900.0
+     ],
+     [
+      230600.0,
+      480100.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "loop_b3",
+    "road_class": "local"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      230600.0,
+      480100.0
+     ],
+     [
+      229200.0,
+      480000.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "loop_b4",
+    "road_class": "local"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      228400.0,
+      479000.0
+     ],
+     [
+      228600.0,
+      481200.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "forest_track",
+    "road_class": "track"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      231200.0,
+      477800.0
+     ],
+     [
+      231500.0,
+      478000.0
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "orphan_spur",
+    "road_class": "track"
+   }
+  }
+ ]
+}

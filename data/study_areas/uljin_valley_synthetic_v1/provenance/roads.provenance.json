@@ -1,0 +1,71 @@
+{
+  "checksum": "32375caf73753400ec0e85743fd7cee674ef0d87571166fec8c297e382ca5517",
+  "checksum_algorithm": "sha256",
+  "data_class": "synthetic",
+  "layer_name": "roads",
+  "nodata_representation": "not_applicable",
+  "notes": "SYNTHETIC. topology is known by construction: hamlet_a=single-egress spur, hamlet_b=two-connection loop, orphan_spur=isolated segment, forest_track=crosses trunk without a node",
+  "original_crs": "EPSG:5187",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "roads"
+  ],
+  "random_seed": null,
+  "resolution_unit": "UNKNOWN",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "acquisition_date": "not_applicable",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_roads",
+      "notes": "SYNTHETIC test input. describes no real place. any resemblance to Korean terrain is limited to the coordinate range used.",
+      "publisher": "wildfireguardian-data (this repository)",
+      "source_date": "not_applicable",
+      "url_or_identifier": "in-repository synthetic generator"
+    }
+  ],
+  "spatial_resolution": null,
+  "temporal_class": "static",
+  "temporal_reference": "not_applicable",
+  "transformations": [
+    {
+      "notes": "hand-constructed geometry with known topology",
+      "operation": "synthesise_korean_valley_roads",
+      "parameters": {
+        "expected": {
+          "forest_track": "crosses trunk without a node",
+          "hamlet_a": "single-egress spur",
+          "hamlet_b": "two-connection loop",
+          "orphan_spur": "isolated segment"
+        },
+        "segments": 11
+      },
+      "timestamp": "2026-09-19T18:10:39.536637+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "whole features kept by 'intersects' test; geometry unmodified",
+      "operation": "clip_vector",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "features_in": 11,
+        "features_out": 11,
+        "features_truncated": 0,
+        "mode": "intersects",
+        "requested_bounds": [
+          226000.0,
+          477000.0,
+          232000.0,
+          483000.0
+        ]
+      },
+      "timestamp": "2026-09-19T18:10:39.537124+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "value_unit": "not_applicable",
+  "vertical_datum": "UNKNOWN"
+}

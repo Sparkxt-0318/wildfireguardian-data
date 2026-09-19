@@ -1,0 +1,128 @@
+[
+  {
+    "settlement_id": "SYN-V-001",
+    "name": "Synthetic Hamlet A (single-egress spur)",
+    "population_total": 38,
+    "count_basis": "synthetic_invented",
+    "reference_date": "not_applicable",
+    "centroid": [
+      227600.0,
+      481600.0
+    ],
+    "centroid_kind": "representative_point",
+    "has_geometry": true,
+    "age_strata": {
+      "strata": [
+        {
+          "lower": 0,
+          "upper": 15,
+          "label": "0-14",
+          "count": 1,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 15,
+          "upper": 65,
+          "label": "15-64",
+          "count": 12,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 65,
+          "upper": null,
+          "label": "65+",
+          "count": 25,
+          "interval": "half_open_[lower,upper)_years"
+        }
+      ],
+      "total_counted": 38,
+      "has_missing_counts": false
+    },
+    "strata_total_matches_total": true,
+    "attributes": {}
+  },
+  {
+    "settlement_id": "SYN-V-002",
+    "name": "Synthetic Hamlet B (loop)",
+    "population_total": 120,
+    "count_basis": "synthetic_invented",
+    "reference_date": "not_applicable",
+    "centroid": [
+      230000.0,
+      478850.0
+    ],
+    "centroid_kind": "representative_point",
+    "has_geometry": true,
+    "age_strata": {
+      "strata": [
+        {
+          "lower": 0,
+          "upper": 15,
+          "label": "0-14",
+          "count": 9,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 15,
+          "upper": 65,
+          "label": "15-64",
+          "count": 66,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 65,
+          "upper": null,
+          "label": "65+",
+          "count": 45,
+          "interval": "half_open_[lower,upper)_years"
+        }
+      ],
+      "total_counted": 120,
+      "has_missing_counts": false
+    },
+    "strata_total_matches_total": true,
+    "attributes": {}
+  },
+  {
+    "settlement_id": "SYN-V-003",
+    "name": "Synthetic Hamlet C (orphan track)",
+    "population_total": 3,
+    "count_basis": "UNKNOWN",
+    "reference_date": "not_applicable",
+    "centroid": [
+      231350.0,
+      477900.0
+    ],
+    "centroid_kind": "representative_point",
+    "has_geometry": true,
+    "age_strata": {
+      "strata": [
+        {
+          "lower": 0,
+          "upper": 15,
+          "label": "0-14",
+          "count": 0,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 15,
+          "upper": 65,
+          "label": "15-64",
+          "count": 1,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 65,
+          "upper": null,
+          "label": "65+",
+          "count": 3,
+          "interval": "half_open_[lower,upper)_years"
+        }
+      ],
+      "total_counted": 4,
+      "has_missing_counts": false
+    },
+    "strata_total_matches_total": false,
+    "attributes": {}
+  }
+]

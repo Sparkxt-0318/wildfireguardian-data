@@ -1,0 +1,133 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "EPSG:5187"
+  }
+ },
+ "wg_layer_name": "villages",
+ "wg_feature_kind": "settlement",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       227380.0,
+       481380.0
+      ],
+      [
+       227820.0,
+       481380.0
+      ],
+      [
+       227820.0,
+       481820.0
+      ],
+      [
+       227380.0,
+       481820.0
+      ],
+      [
+       227380.0,
+       481380.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "settlement_id": "SYN-V-001",
+    "name": "Synthetic Hamlet A (single-egress spur)",
+    "population_total": 38,
+    "pop_0_14": 1,
+    "pop_15_64": 12,
+    "pop_65_plus": 25,
+    "count_basis": "synthetic_invented",
+    "reference_date": "not_applicable"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       229740.0,
+       478590.0
+      ],
+      [
+       230260.0,
+       478590.0
+      ],
+      [
+       230260.0,
+       479110.0
+      ],
+      [
+       229740.0,
+       479110.0
+      ],
+      [
+       229740.0,
+       478590.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "settlement_id": "SYN-V-002",
+    "name": "Synthetic Hamlet B (loop)",
+    "population_total": 120,
+    "pop_0_14": 9,
+    "pop_15_64": 66,
+    "pop_65_plus": 45,
+    "count_basis": "synthetic_invented",
+    "reference_date": "not_applicable"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       231200.0,
+       477750.0
+      ],
+      [
+       231500.0,
+       477750.0
+      ],
+      [
+       231500.0,
+       478050.0
+      ],
+      [
+       231200.0,
+       478050.0
+      ],
+      [
+       231200.0,
+       477750.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "settlement_id": "SYN-V-003",
+    "name": "Synthetic Hamlet C (orphan track)",
+    "population_total": 3,
+    "pop_0_14": 0,
+    "pop_15_64": 1,
+    "pop_65_plus": 3,
+    "count_basis": "UNKNOWN",
+    "reference_date": "not_applicable"
+   }
+  }
+ ]
+}

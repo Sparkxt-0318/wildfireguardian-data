@@ -1,0 +1,87 @@
+[
+  {
+    "facility_id": "SYN-FS-001",
+    "kind": "fire_station",
+    "name": "Synthetic fire station (valley mouth)",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "fire_station",
+    "geometry_type": "Point",
+    "representative_point": [
+      226700.0,
+      479620.0
+    ],
+    "attributes": {},
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  },
+  {
+    "facility_id": "SYN-RB-001",
+    "kind": "responder_base",
+    "name": "Synthetic responder base",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "responder_base",
+    "geometry_type": "Point",
+    "representative_point": [
+      229300.0,
+      480050.0
+    ],
+    "attributes": {},
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  },
+  {
+    "facility_id": "SYN-SH-001",
+    "kind": "shelter",
+    "name": "Synthetic village hall A",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "village_hall",
+    "geometry_type": "Point",
+    "representative_point": [
+      227610.0,
+      481590.0
+    ],
+    "attributes": {},
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  },
+  {
+    "facility_id": "SYN-SH-002",
+    "kind": "shelter",
+    "name": "Synthetic village hall B",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": 60,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "village_hall",
+    "geometry_type": "Point",
+    "representative_point": [
+      230010.0,
+      478860.0
+    ],
+    "attributes": {},
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  },
+  {
+    "facility_id": "SYN-TR-001",
+    "kind": "temporary_refuge_candidate",
+    "name": "Synthetic open field",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "open_field",
+    "geometry_type": "Polygon",
+    "representative_point": [
+      230050.0,
+      479400.0
+    ],
+    "attributes": {},
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  }
+]

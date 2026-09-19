@@ -1,0 +1,26 @@
+# Raw fetched source data is never committed: licences differ per source and a
+# multi-megabyte tile in git history is unreviewable and unremovable.
+# Provenance + checksum + a re-fetch command is the reproducibility mechanism.
+# See docs/DECISIONS.md D-0012.
+data/raw/
+data/interim/
+
+# Built bundles, except the committed example (see data/study_areas/.gitignore)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
+
+# Locally built bundles other than the committed example.
+data/study_areas/*
+!data/study_areas/uljin_valley_synthetic_v1/
+!data/study_areas/uljin_valley_synthetic_v1/**

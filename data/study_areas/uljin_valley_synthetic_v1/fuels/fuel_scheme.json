@@ -1,0 +1,41 @@
+{
+  "name": "synthetic_demo_v1",
+  "data_class": "synthetic",
+  "source": "UNKNOWN",
+  "source_url": "UNKNOWN",
+  "nodata_code": 255,
+  "classes": [
+    {
+      "code": 1,
+      "label": "non_vegetated",
+      "description": "bare ground, rock, built-up, water"
+    },
+    {
+      "code": 2,
+      "label": "grass_or_crop",
+      "description": "herbaceous cover including paddy and dry field"
+    },
+    {
+      "code": 3,
+      "label": "shrub",
+      "description": "shrubland and regenerating cover"
+    },
+    {
+      "code": 4,
+      "label": "broadleaf_forest",
+      "description": "broadleaf-dominated forest canopy"
+    },
+    {
+      "code": 5,
+      "label": "conifer_forest",
+      "description": "conifer-dominated forest canopy"
+    },
+    {
+      "code": 6,
+      "label": "mixed_forest",
+      "description": "mixed broadleaf and conifer canopy"
+    }
+  ],
+  "notes": "SYNTHETIC. invented for testing and for the example bundle; it is not a crosswalk to any Korean forest-type classification and must not be treated as one.",
+  "semantics": "nominal categories; no ordering, no flammability ranking, no spread parameters (docs/ASSUMPTIONS.md A-FU-3)"
+}

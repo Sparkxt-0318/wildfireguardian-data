@@ -1,0 +1,118 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "EPSG:5187"
+  }
+ },
+ "wg_layer_name": "facilities",
+ "wg_feature_kind": "facility",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     226700.0,
+     479620.0
+    ]
+   },
+   "properties": {
+    "facility_id": "SYN-FS-001",
+    "name": "Synthetic fire station (valley mouth)",
+    "kind": "fire_station",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     229300.0,
+     480050.0
+    ]
+   },
+   "properties": {
+    "facility_id": "SYN-RB-001",
+    "name": "Synthetic responder base",
+    "kind": "responder_base",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     227610.0,
+     481590.0
+    ]
+   },
+   "properties": {
+    "facility_id": "SYN-SH-001",
+    "name": "Synthetic village hall A",
+    "kind": "village_hall",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     230010.0,
+     478860.0
+    ]
+   },
+   "properties": {
+    "facility_id": "SYN-SH-002",
+    "name": "Synthetic village hall B",
+    "kind": "village_hall",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": 60
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       229900.0,
+       479300.0
+      ],
+      [
+       230200.0,
+       479300.0
+      ],
+      [
+       230200.0,
+       479500.0
+      ],
+      [
+       229900.0,
+       479500.0
+      ],
+      [
+       229900.0,
+       479300.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "facility_id": "SYN-TR-001",
+    "name": "Synthetic open field",
+    "kind": "open_field",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null
+   }
+  }
+ ]
+}

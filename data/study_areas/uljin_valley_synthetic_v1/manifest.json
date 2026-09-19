@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0.0",
+  "study_area_id": "uljin_valley_synthetic_v1",
+  "crs": "EPSG:5187",
+  "bounds": {
+    "min_x": 226000.0,
+    "min_y": 477000.0,
+    "max_x": 232000.0,
+    "max_y": 483000.0,
+    "crs": "EPSG:5187"
+  },
+  "layers": [
+    {
+      "name": "dem",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/dem.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "m",
+      "shape": [
+        204,
+        204
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 41616,
+      "missing_cells": 0,
+      "checksum_sha256": "8deda840b7215b10b8227380c12651888ea903f53f162c02e94fec3fb759d5dc",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "slope_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/slope_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        204,
+        204
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 40804,
+      "missing_cells": 812,
+      "checksum_sha256": "8b7aba44ab689b57d275e63dee65b741586c209fced0f97f764041de2b93d92a",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "aspect_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/aspect_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        204,
+        204
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 40804,
+      "missing_cells": 812,
+      "checksum_sha256": "ade3dc1d9ae3db93e88f435e3661a5d8e7527dfb7b659db0e1dc0f6229c86c84",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "roads",
+      "component": "roads",
+      "type": "vector",
+      "format": "geojson",
+      "path": "roads/roads.geojson",
+      "extra_files": [],
+      "feature_kind": "road segment",
+      "features": 11,
+      "geom_types": [
+        "LineString"
+      ],
+      "checksum_sha256": "32375caf73753400ec0e85743fd7cee674ef0d87571166fec8c297e382ca5517",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "fuels",
+      "component": "fuels",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "fuels/fuels.tif",
+      "extra_files": [],
+      "kind": "categorical",
+      "value_unit": "class",
+      "shape": [
+        204,
+        204
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "int32",
+      "valid_cells": 41391,
+      "missing_cells": 225,
+      "checksum_sha256": "b72f3abc6fae8750913568278a71db6567a8fd04e3c7cc60da911c45feb71dc2",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "villages",
+      "component": "population",
+      "type": "vector",
+      "format": "geojson",
+      "path": "population/villages.geojson",
+      "extra_files": [],
+      "feature_kind": "settlement",
+      "features": 3,
+      "geom_types": [
+        "Polygon"
+      ],
+      "checksum_sha256": "7b45d81701369b22cbc4d96a5208f06b8425b309e8776163e9893511a987bdb9",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "facilities",
+      "component": "facilities",
+      "type": "vector",
+      "format": "geojson",
+      "path": "facilities/facilities.geojson",
+      "extra_files": [],
+      "feature_kind": "facility",
+      "features": 5,
+      "geom_types": [
+        "Point",
+        "Polygon"
+      ],
+      "checksum_sha256": "3d183dda9b2edffa500e1ab9cf2eb69ba8a1b56d199e6d8a14c75b63b46a591f",
+      "checksum_algorithm": "sha256"
+    }
+  ],
+  "extras": {
+    "roads_qa": "roads/roads_qa.json",
+    "roads_graph_summary": "roads/roads_graph_summary.json",
+    "terrain_statistics": "terrain/terrain_statistics.json",
+    "fuel_scheme": "fuels/fuel_scheme.json",
+    "villages_aggregate": "population/villages_aggregate.json",
+    "facilities_records": "facilities/facilities_records.json",
+    "validation_report": "validation/report.json"
+  },
+  "metadata": {
+    "description": "Synthetic Korean rural valley: two ridges, a valley floor, three hamlets, a single-egress spur, a two-connection loop, an orphan track, and an unnoded crossing. Built so the QA report has positive cases rather than a clean sheet.\n",
+    "notes": "Every layer is DataClass.SYNTHETIC. Deliberate findings: SYN-V-003 has age strata that do not sum to its total, a total below the k-anonymity floor, and an UNKNOWN count basis; the forest track crosses the trunk road with no shared node; one road segment is an orphan.\n",
+    "built_at": "2026-09-19T18:10:39.544653+00:00",
+    "config": {
+      "study_area_id": "uljin_valley_synthetic_v1",
+      "description": "Synthetic Korean rural valley: two ridges, a valley floor, three hamlets, a single-egress spur, a two-connection loop, an orphan track, and an unnoded crossing. Built so the QA report has positive cases rather than a clean sheet.\n",
+      "crs": "EPSG:5187",
+      "bounds": [
+        226000.0,
+        477000.0,
+        232000.0,
+        483000.0
+      ],
+      "notes": "Every layer is DataClass.SYNTHETIC. Deliberate findings: SYN-V-003 has age strata that do not sum to its total, a total below the k-anonymity floor, and an UNKNOWN count basis; the forest track crosses the trunk road with no shared node; one road segment is an orphan.\n",
+      "config_path": "configs/uljin_valley_synthetic.yaml",
+      "terrain": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "korean_valley_dem"
+        },
+        "target_resolution_m": null,
+        "derivatives": [
+          "slope",
+          "aspect"
+        ],
+        "clip_buffer_cells": 2,
+        "resampling": null,
+        "slope_unit": "deg",
+        "vertical_datum": null
+      },
+      "roads": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "korean_valley_roads"
+        },
+        "snap_tolerance_m": 1.0,
+        "boundary_tolerance_m": 30.0,
+        "settlement_snap_m": 450.0,
+        "clip_mode": "intersects",
+        "node_crossings": false,
+        "exit_property": null
+      },
+      "fuels": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "korean_valley_fuels"
+        },
+        "scheme": "synthetic_demo_v1",
+        "class_property": null
+      },
+      "population": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "korean_valley_villages"
+        },
+        "aggregation_level": "synthetic_village",
+        "id_property": "settlement_id",
+        "name_property": "name",
+        "total_property": "population_total",
+        "age_strata": [
+          [
+            "pop_0_14",
+            0,
+            15
+          ],
+          [
+            "pop_15_64",
+            15,
+            65
+          ],
+          [
+            "pop_65_plus",
+            65,
+            null
+          ]
+        ]
+      },
+      "facilities": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "korean_valley_facilities"
+        },
+        "kind_property": "kind",
+        "kind_map": {
+          "fire_station": "fire_station",
+          "responder_base": "responder_base",
+          "village_hall": "shelter",
+          "open_field": "temporary_refuge_candidate"
+        },
+        "unmapped": "error"
+      }
+    },
+    "allow_network": false,
+    "build_notes": [],
+    "pipeline_order": [
+      "load",
+      "reproject_to_analysis_crs",
+      "clip_with_derivative_buffer",
+      "derive_slope_aspect",
+      "assess_road_topology",
+      "assemble"
+    ]
+  },
+  "caveats": [
+    "StudyAreaBundle is internal and unstable; no downstream repository should depend on this layout yet (docs/DECISIONS.md D-0001)",
+    "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)"
+  ],
+  "manifest_checksum_sha256": "3d7c7aee9072f36f6168e378c7777b9130eb0ff5d13297c80e84d1344284392e"
+}

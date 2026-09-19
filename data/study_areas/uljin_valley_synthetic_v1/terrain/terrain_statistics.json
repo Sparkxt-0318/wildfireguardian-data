@@ -1,0 +1,69 @@
+{
+  "elevation": {
+    "layer": "dem",
+    "unit": "m",
+    "crs": "EPSG:5187",
+    "cells_total": 41616,
+    "cells_valid": 41616,
+    "cells_missing": 0,
+    "missing_fraction": 0.0,
+    "min": 148.23129272460938,
+    "max": 582.3155517578125,
+    "mean": 393.5069562779258,
+    "std": 120.71612887682247,
+    "percentiles": {
+      "p5": 191.5588150024414,
+      "p25": 273.1674346923828,
+      "p50": 449.9830627441406,
+      "p75": 494.9554901123047,
+      "p95": 535.0299835205078
+    }
+  },
+  "relief_m": 434.0842590332031,
+  "cell_size": [
+    30.0,
+    30.0
+  ],
+  "grid_shape": [
+    204,
+    204
+  ],
+  "crs": "EPSG:5187",
+  "valid_area_m2": 37454400.0,
+  "slope": {
+    "layer": "slope_deg",
+    "unit": "deg",
+    "crs": "EPSG:5187",
+    "cells_total": 41616,
+    "cells_valid": 40804,
+    "cells_missing": 812,
+    "missing_fraction": 0.019511726259131102,
+    "min": 0.013007767498493195,
+    "max": 23.33161735534668,
+    "mean": 7.989336540538435,
+    "std": 4.68398054397683,
+    "percentiles": {
+      "p5": 1.7068250834941865,
+      "p25": 4.192085027694702,
+      "p50": 7.147301912307739,
+      "p75": 11.411778688430786,
+      "p95": 16.623850059509277
+    },
+    "note": "derivative layers lose the array edge and every cell beside missing data, so cells_missing here exceeds the DEM's (docs/DECISIONS.md D-0005)"
+  },
+  "aspect": {
+    "layer": "aspect_deg",
+    "unit": "deg_azimuth_grid_north",
+    "circular_mean": {
+      "mean_deg": 62.51952115963326,
+      "resultant_length": 0.07251928982728237,
+      "count_used": 40804,
+      "count_ignored": 812,
+      "interpretation": "no dominant direction (resultant_length < 0.1); mean_deg is not meaningful"
+    },
+    "cells_total": 41616,
+    "cells_valid": 40804,
+    "cells_missing": 812,
+    "note": "NaN here means either an incomplete neighbourhood or exactly flat ground; the two are not distinguished in the array. arithmetic means of azimuths are wrong and are not offered (docs/FAILURE_MODES.md F-TER-4)."
+  }
+}

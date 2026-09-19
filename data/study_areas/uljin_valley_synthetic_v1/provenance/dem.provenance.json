@@ -1,0 +1,93 @@
+{
+  "checksum": "8deda840b7215b10b8227380c12651888ea903f53f162c02e94fec3fb759d5dc",
+  "checksum_algorithm": "sha256",
+  "data_class": "synthetic",
+  "layer_name": "dem",
+  "nodata_representation": "nan",
+  "notes": "SYNTHETIC. composite synthetic terrain for the example bundle. NOT a model of any real Korean valley, and not a DSM or DTM of anywhere. includes 4 cells of margin so slope covers the study area",
+  "original_crs": "EPSG:5187",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "dem"
+  ],
+  "random_seed": 20260919,
+  "resolution_unit": "m",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "acquisition_date": "not_applicable",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_dem",
+      "notes": "SYNTHETIC test input. describes no real place. seed=20260919. any resemblance to Korean terrain is limited to the coordinate range used.",
+      "publisher": "wildfireguardian-data (this repository)",
+      "source_date": "not_applicable",
+      "url_or_identifier": "in-repository synthetic generator"
+    }
+  ],
+  "spatial_resolution": [
+    30.0,
+    30.0
+  ],
+  "temporal_class": "static",
+  "temporal_reference": "not_applicable",
+  "transformations": [
+    {
+      "notes": "closed-form construction; deterministic",
+      "operation": "synthesise_korean_valley_dem",
+      "parameters": {
+        "cell_size_m": 30.0,
+        "form": "valley axis + two gaussian ridges + eastward gradient",
+        "intended_elevation_range_m": "approximately 170-800",
+        "margin_cells": 4,
+        "noise_sigma_m": 3.0,
+        "seed": 20260919,
+        "shape": [
+          208,
+          208
+        ],
+        "study_area_size_m": 6000.0
+      },
+      "timestamp": "2026-09-19T18:10:39.516262+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "bounds snapped outward to whole source cells; grid origin and cell size unchanged, so the clip stays aligned with its parent",
+      "operation": "clip_raster",
+      "parameters": {
+        "buffer_cells": 2,
+        "crs": "EPSG:5187",
+        "requested_bounds": [
+          226000.0,
+          477000.0,
+          232000.0,
+          483000.0
+        ],
+        "requested_window_truncated": false,
+        "shape_after": [
+          204,
+          204
+        ],
+        "shape_before": [
+          208,
+          208
+        ],
+        "snapped_to_source_grid": true,
+        "window_cols": [
+          2,
+          206
+        ],
+        "window_rows": [
+          2,
+          206
+        ]
+      },
+      "timestamp": "2026-09-19T18:10:39.516932+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "value_unit": "m",
+  "vertical_datum": "not_applicable (synthetic)"
+}

@@ -1,0 +1,100 @@
+{
+  "checksum": "b72f3abc6fae8750913568278a71db6567a8fd04e3c7cc60da911c45feb71dc2",
+  "checksum_algorithm": "sha256",
+  "data_class": "synthetic",
+  "layer_name": "fuels",
+  "nodata_representation": "255",
+  "notes": "fuel class scheme: synthetic_demo_v1 (synthetic); source: UNKNOWN. nominal categories only | classes derived from synthetic elevation bands plus seeded noise; seed=20260919. a deliberate 15x15 cell block is nodata",
+  "original_crs": "EPSG:5187",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "fuels"
+  ],
+  "random_seed": null,
+  "resolution_unit": "m",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "acquisition_date": "not_applicable",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_fuels",
+      "notes": "SYNTHETIC test input. describes no real place. seed=20260919. any resemblance to Korean terrain is limited to the coordinate range used.",
+      "publisher": "wildfireguardian-data (this repository)",
+      "source_date": "not_applicable",
+      "url_or_identifier": "in-repository synthetic generator"
+    }
+  ],
+  "spatial_resolution": [
+    30.0,
+    30.0
+  ],
+  "temporal_class": "static",
+  "temporal_reference": "not_applicable",
+  "transformations": [
+    {
+      "notes": "categorical layer; only nearest-neighbour resampling is valid",
+      "operation": "fuel_layer_from_array",
+      "parameters": {
+        "classes_present": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          255
+        ],
+        "crs": "EPSG:5187",
+        "dtype": "int32",
+        "nodata_code": 255,
+        "scheme": "synthetic_demo_v1",
+        "scheme_data_class": "synthetic",
+        "shape": [
+          204,
+          204
+        ]
+      },
+      "timestamp": "2026-09-19T18:10:39.543805+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "bounds snapped outward to whole source cells; grid origin and cell size unchanged, so the clip stays aligned with its parent",
+      "operation": "clip_raster",
+      "parameters": {
+        "buffer_cells": 0,
+        "crs": "EPSG:5187",
+        "requested_bounds": [
+          225940.0,
+          476940.0,
+          232060.0,
+          483060.0
+        ],
+        "requested_window_truncated": false,
+        "shape_after": [
+          204,
+          204
+        ],
+        "shape_before": [
+          204,
+          204
+        ],
+        "snapped_to_source_grid": true,
+        "window_cols": [
+          0,
+          204
+        ],
+        "window_rows": [
+          0,
+          204
+        ]
+      },
+      "timestamp": "2026-09-19T18:10:39.544040+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "value_unit": "class",
+  "vertical_datum": "UNKNOWN"
+}

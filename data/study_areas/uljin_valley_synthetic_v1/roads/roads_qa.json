@@ -1,0 +1,277 @@
+{
+  "schema_version": "1.0.0",
+  "safety_disclaimer": "These are topological properties of the road data as digitised. They are NOT statements about whether a road is passable, whether a vehicle of any size can use it, whether an egress is usable during a fire, or whether any community is safe or trapped. Exit nodes inferred from a study-area boundary are artifacts of the clip, not verified real-world exits.",
+  "source_layer": "roads",
+  "crs": "EPSG:5187",
+  "graph": {
+    "nodes": 13,
+    "edges": 11,
+    "total_length_m": 15138.522990585698,
+    "length_unit": "m",
+    "length_note": "planar 2-D length in the layer's projected CRS; not slope-corrected, not geodesic, not a travel distance (docs/ASSUMPTIONS.md A-RD-5)",
+    "directed": false,
+    "snap_tolerance_m": 1.0,
+    "max_intra_cluster_distance_m": 0.0
+  },
+  "connectivity": {
+    "component_count": 3,
+    "components": [
+      {
+        "component_id": 0,
+        "node_count": 9,
+        "edge_count": 9,
+        "total_length_m": 12568.895659601847,
+        "exit_nodes": [
+          0,
+          3
+        ],
+        "settlement_nodes": [
+          5,
+          6
+        ]
+      },
+      {
+        "component_id": 1,
+        "node_count": 2,
+        "edge_count": 1,
+        "total_length_m": 2209.072203437452,
+        "exit_nodes": [],
+        "settlement_nodes": []
+      },
+      {
+        "component_id": 2,
+        "node_count": 2,
+        "edge_count": 1,
+        "total_length_m": 360.5551275463989,
+        "exit_nodes": [],
+        "settlement_nodes": [
+          11
+        ]
+      }
+    ],
+    "node_degree_histogram": {
+      "1": 7,
+      "2": 4,
+      "3": 1,
+      "4": 1
+    },
+    "degree_note": "multigraph degree: a parallel edge counts twice for its two nodes, and a self-loop adds 2 to its node's degree",
+    "dead_end_nodes": [
+      5,
+      9,
+      10,
+      11,
+      12
+    ],
+    "dead_end_count": 5,
+    "isolated_segments": [
+      {
+        "edge": [
+          9,
+          10
+        ],
+        "component_id": 1,
+        "length_m": 2209.072203437452,
+        "feature_index": 9,
+        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
+      },
+      {
+        "edge": [
+          11,
+          12
+        ],
+        "component_id": 2,
+        "length_m": 360.5551275463989,
+        "feature_index": 10,
+        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
+      }
+    ],
+    "self_loop_edges": [],
+    "parallel_edge_pairs": []
+  },
+  "egress": {
+    "exits": {
+      "count": 2,
+      "from_source_tags": [],
+      "from_boundary": [
+        0,
+        3
+      ],
+      "boundary_tolerance_m": 30.0,
+      "clip_boundary_warning": true,
+      "note": "boundary-derived exits exist because the network was clipped; a clip both creates exits (cut ends) and destroys them (a real second egress outside the extent). widen the study area to test whether an egress count is stable."
+    },
+    "settlements": {
+      "count": 3,
+      "node_by_settlement": {
+        "SYN-V-001": 5,
+        "SYN-V-002": 6,
+        "SYN-V-003": 11
+      },
+      "matched_distance_m": {
+        "SYN-V-001": 0.0,
+        "SYN-V-002": 403.113,
+        "SYN-V-003": 180.278
+      },
+      "unmatched_settlements": [],
+      "snap_distance_m": 450.0,
+      "note": "an unmatched settlement is a finding, not a blank: either the road network is incomplete near it, or the settlement centroid is wrong, or the snap distance is too small. it is never treated as having no road access."
+    },
+    "single_egress_candidates": [],
+    "no_egress_components": [
+      {
+        "component_id": 2,
+        "settlement_nodes": [
+          11
+        ],
+        "settlements": [
+          "SYN-V-003"
+        ],
+        "note": "no exit node in this component. most often this means the network was clipped too tightly or is incomplete, NOT that the settlement is unreachable"
+      }
+    ],
+    "candidate_note": "'candidate' is load-bearing: this is a topological count of exits in this graph, not a claim that a community can or cannot get out (docs/DECISIONS.md D-0008)"
+  },
+  "fragility": {
+    "articulation_points": [
+      1,
+      2,
+      4
+    ],
+    "bridge_edges": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        11,
+        12
+      ]
+    ],
+    "critical_links": [
+      {
+        "edge": [
+          0,
+          1
+        ],
+        "length_m": 1513.2745950421556,
+        "settlement_nodes_cut_off": [
+          11
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      },
+      {
+        "edge": [
+          1,
+          2
+        ],
+        "length_m": 1711.724276862369,
+        "settlement_nodes_cut_off": [
+          11
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      },
+      {
+        "edge": [
+          1,
+          4
+        ],
+        "length_m": 1204.1594578792296,
+        "settlement_nodes_cut_off": [
+          5,
+          11
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      },
+      {
+        "edge": [
+          2,
+          3
+        ],
+        "length_m": 2816.0255680657447,
+        "settlement_nodes_cut_off": [
+          11
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      },
+      {
+        "edge": [
+          4,
+          5
+        ],
+        "length_m": 632.4555320336759,
+        "settlement_nodes_cut_off": [
+          5,
+          11
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      },
+      {
+        "edge": [
+          9,
+          10
+        ],
+        "length_m": 2209.072203437452,
+        "settlement_nodes_cut_off": [
+          11
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      },
+      {
+        "edge": [
+          11,
+          12
+        ],
+        "length_m": 360.5551275463989,
+        "settlement_nodes_cut_off": [
+          11
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      }
+    ],
+    "bridge_note": "graph-theoretic bridges (edge cuts), not structural bridges over water; multiplicity-aware (docs/GLOSSARY.md)"
+  },
+  "crossings_without_node": {
+    "count": 1,
+    "samples": [
+      {
+        "edges": [
+          [
+            1,
+            2
+          ],
+          [
+            9,
+            10
+          ]
+        ],
+        "x": 228483.24324324325,
+        "y": 479915.6756756757
+      }
+    ],
+    "note": "lines crossing with no shared node are NOT connected in this graph (docs/DECISIONS.md D-0007). a grade-separated crossing makes that correct; a missing junction node makes it an under-connection. this diagnostic does not distinguish them."
+  },
+  "notes": [
+    "counts describe the network as digitised, after endpoint snapping at 1.0 m"
+  ]
+}

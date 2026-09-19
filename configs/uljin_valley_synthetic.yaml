@@ -1,0 +1,84 @@
+# Example study area built entirely from synthetic fixtures.
+#
+# SYNTHETIC. The identifier says so, every layer's provenance says so, and
+# validation emits BND-006 to say so again. The coordinates fall in the rural
+# hills inland of Uljin (Gyeongsangbuk-do) so that they look like real Korean
+# coordinates -- which makes a CRS mix-up visible rather than plausible -- but
+# no value in this bundle describes any real place.
+#
+# Needs no network, so this is the config CI builds.
+study_area_id: uljin_valley_synthetic_v1
+description: >
+  Synthetic Korean rural valley: two ridges, a valley floor, three hamlets, a
+  single-egress spur, a two-connection loop, an orphan track, and an unnoded
+  crossing. Built so the QA report has positive cases rather than a clean sheet.
+notes: >
+  Every layer is DataClass.SYNTHETIC. Deliberate findings: SYN-V-003 has age
+  strata that do not sum to its total, a total below the k-anonymity floor, and
+  an UNKNOWN count basis; the forest track crosses the trunk road with no shared
+  node; one road segment is an orphan.
+
+# KGD2002 / East Belt 2010 -- the belt covering the eastern Korean coast.
+crs: EPSG:5187
+# (min_x, min_y, max_x, max_y) in the CRS above, i.e. (easting, northing).
+bounds: [226000.0, 477000.0, 232000.0, 483000.0]
+
+terrain:
+  source:
+    kind: synthetic_fixture
+    fixture: korean_valley_dem
+  derivatives: [slope, aspect]
+  slope_unit: deg
+  # >= 1 is required so Horn's 3x3 estimator covers the study-area edge
+  # (docs/DECISIONS.md D-0005); 2 leaves room for a second derivative pass.
+  clip_buffer_cells: 2
+
+roads:
+  source:
+    kind: synthetic_fixture
+    fixture: korean_valley_roads
+  snap_tolerance_m: 1.0
+  boundary_tolerance_m: 30.0
+  # 450 m so Hamlet B's centroid reaches its loop's nearest junction (403 m).
+  # Hamlet C, on the orphan track, still matches its own isolated component,
+  # which is what produces the no-egress finding.
+  settlement_snap_m: 450.0
+  # Keep whole features: truncating a network turns every cut end into a new
+  # degree-1 node that would then read as a dead end (docs/ASSUMPTIONS.md A-RD-4).
+  clip_mode: intersects
+  # Lines crossing without a shared node stay unconnected (docs/DECISIONS.md D-0007).
+  node_crossings: false
+
+fuels:
+  source:
+    kind: synthetic_fixture
+    fixture: korean_valley_fuels
+  scheme: synthetic_demo_v1
+
+population:
+  source:
+    kind: synthetic_fixture
+    fixture: korean_valley_villages
+  aggregation_level: synthetic_village
+  id_property: settlement_id
+  name_property: name
+  total_property: population_total
+  # (property, lower, upper) with half-open [lower, upper) bands in whole years;
+  # upper: null means open-ended (docs/ASSUMPTIONS.md A-POP-4).
+  age_strata:
+    - [pop_0_14, 0, 15]
+    - [pop_15_64, 15, 65]
+    - [pop_65_plus, 65, null]
+
+facilities:
+  source:
+    kind: synthetic_fixture
+    fixture: korean_valley_facilities
+  kind_property: kind
+  # Source tag -> role. Always explicit: a facility's role is never inferred
+  # from its tag's spelling (docs/ASSUMPTIONS.md A-FAC-2).
+  kind_map:
+    fire_station: fire_station
+    responder_base: responder_base
+    village_hall: shelter
+    open_field: temporary_refuge_candidate
