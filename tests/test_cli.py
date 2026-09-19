@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
-
 from wildfireguardian_data.cli.main import (
     EXIT_DATA_ERROR,
     EXIT_NETWORK,

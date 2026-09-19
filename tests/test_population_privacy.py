@@ -8,9 +8,9 @@ limitation explicitly so nobody mistakes it for protection.
 from __future__ import annotations
 
 import pytest
+from helpers import make_provenance
 from shapely.geometry import Point, Polygon
 
-from helpers import make_provenance
 from wildfireguardian_data.errors import ConfigError, IngestError, PrivacyGuardError
 from wildfireguardian_data.population import (
     AgeStrataSet,

@@ -21,7 +21,7 @@ import re
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 from ..errors import ProvenanceError
 
@@ -204,7 +204,7 @@ class SourceRecord:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "SourceRecord":
+    def from_dict(cls, payload: dict[str, Any]) -> SourceRecord:
         known = {f for f in cls.__dataclass_fields__}
         unexpected = set(payload) - known
         if unexpected:
@@ -250,7 +250,7 @@ class Transformation:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "Transformation":
+    def from_dict(cls, payload: dict[str, Any]) -> Transformation:
         known = {f for f in cls.__dataclass_fields__}
         unexpected = set(payload) - known
         if unexpected:
@@ -341,7 +341,7 @@ class ProvenanceRecord:
             )
 
     # -- provenance-preserving updates ------------------------------------- #
-    def with_transformation(self, transformation: Transformation) -> "ProvenanceRecord":
+    def with_transformation(self, transformation: Transformation) -> ProvenanceRecord:
         """Return a copy with one more transformation appended.
 
         Provenance is append-only: an operation never rewrites the history of
@@ -351,7 +351,7 @@ class ProvenanceRecord:
             self, transformations=self.transformations + (transformation,)
         )
 
-    def with_updates(self, **changes: Any) -> "ProvenanceRecord":
+    def with_updates(self, **changes: Any) -> ProvenanceRecord:
         """Return a copy with the given fields replaced (validated again)."""
         unknown = set(changes) - set(self.__dataclass_fields__)
         if unknown:
@@ -363,7 +363,7 @@ class ProvenanceRecord:
         layer_name: str,
         transformation: Transformation,
         **changes: Any,
-    ) -> "ProvenanceRecord":
+    ) -> ProvenanceRecord:
         """Build the provenance of a layer derived from this one.
 
         The child is :attr:`DataClass.DERIVED`, names this layer as a parent,
@@ -449,7 +449,7 @@ class ProvenanceRecord:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "ProvenanceRecord":
+    def from_dict(cls, payload: dict[str, Any]) -> ProvenanceRecord:
         data = dict(payload)
         version = data.pop("schema_version", None)
         if version is not None and version != PROVENANCE_SCHEMA_VERSION:

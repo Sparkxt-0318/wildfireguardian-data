@@ -194,6 +194,34 @@ length is about 15% longer. The QA report states this in-band with every length.
 
 ---
 
+## Vectors
+
+### F-VEC-1 — Projected GeoJSON read as longitude/latitude (CAUGHT)
+RFC 7946 mandates WGS 84 longitude/latitude for GeoJSON. This package writes
+GeoJSON in the **study area's own projected CRS** and declares that CRS in a
+non-standard `"crs"` member as well as in the provenance sidecar.
+
+**Why that trade.** Silently reprojecting every vector layer to EPSG:4326 on
+write and back on read would put two datum-dependent conversions into every
+round trip; refusing to write projected GeoJSON would force every bundle through
+a lossy conversion. Staying in the analysis CRS avoids both, at the cost of a
+file that a standards-strict reader will misplace.
+
+**How it is caught.** `read_geojson` refuses to default an undeclared CRS to
+EPSG:4326 — an unlabelled file raises rather than being read as degrees. Korean
+metre coordinates read as degrees would land near the Gulf of Guinea, which is
+obvious; the dangerous version is a *small* projected extent being read as a
+*small* degree extent, so the default is refusal rather than a guess. If the
+caller passes a CRS and the file declares a different one, that also raises:
+two disagreeing beliefs are a real conflict, not something to resolve by
+precedence.
+
+**Limit.** A third-party reader that ignores the `"crs"` member will misplace
+the geometry. Any consumer outside this repository must read the provenance
+sidecar, as `INTERFACES.md` requires.
+
+---
+
 ## Population and facilities
 
 ### F-POP-1 — The privacy guard is a tripwire, not a boundary (NOT CAUGHT, by admission)

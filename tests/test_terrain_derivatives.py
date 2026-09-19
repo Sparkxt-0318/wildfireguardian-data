@@ -14,8 +14,8 @@ import math
 
 import numpy as np
 import pytest
-
 from helpers import make_raster, planar_surface
+
 from wildfireguardian_data import RasterKind, SlopeUnit
 from wildfireguardian_data.errors import RasterGeometryError, UnitMismatchError
 from wildfireguardian_data.terrain import aspect, gradient_components, slope

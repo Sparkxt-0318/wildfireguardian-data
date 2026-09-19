@@ -12,22 +12,21 @@ Finding codes are grouped by area: ``CRS-*``, ``RAS-*``, ``VEC-*``, ``PRV-*``,
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 
-from ..bounds import Bounds
 from ..crs import (
     authority_axis_order_is_xy,
     crs_axis_length_unit,
     crs_equal,
     crs_to_string,
-    parse_crs,
 )
 from ..errors import CRSError
-from ..population.io import DEFAULT_MIN_AGGREGATE_COUNT, PRIVACY_FORBIDDEN_FIELD_PATTERNS
+from ..population.io import DEFAULT_MIN_AGGREGATE_COUNT
 from ..provenance.models import UNKNOWN, DataClass, ProvenanceRecord, TemporalProvenance
-from ..raster import RasterKind, RasterLayer
+from ..raster import RasterLayer
 from ..units import LengthUnit
 from ..vector import VectorLayer
 from .report import Severity, ValidationReport

@@ -15,13 +15,11 @@ from typing import Any
 
 import numpy as np
 
-from ..bounds import Bounds
-from ..crs import crs_to_string, parse_crs, require_crs
+from ..crs import crs_to_string, require_crs
 from ..errors import (
     ConfigError,
     MissingDataError,
     OptionalDependencyError,
-    RasterGeometryError,
 )
 from ..provenance.models import Transformation
 from ..raster import GridTransform, RasterKind, RasterLayer

@@ -28,9 +28,10 @@ Example (see ``configs/`` for working files)::
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import yaml
 
@@ -111,7 +112,7 @@ class SourceSpec:
         return self.kind in {"copernicus_dem_glo30", "osm_api"}
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any], where: str) -> "SourceSpec":
+    def from_dict(cls, payload: Mapping[str, Any], where: str) -> SourceSpec:
         if not isinstance(payload, Mapping):
             raise ConfigError(f"{where}.source must be a mapping; got {type(payload).__name__}")
         _require_keys(payload, set(cls.__dataclass_fields__), f"{where}.source")
@@ -162,7 +163,7 @@ class TerrainConfig:
             )
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any]) -> "TerrainConfig":
+    def from_dict(cls, payload: Mapping[str, Any]) -> TerrainConfig:
         _require_keys(payload, set(cls.__dataclass_fields__), "terrain")
         data = dict(payload)
         if "source" not in data:
@@ -195,7 +196,7 @@ class RoadsConfig:
             raise ConfigError("roads.snap_tolerance_m must be >= 0")
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any]) -> "RoadsConfig":
+    def from_dict(cls, payload: Mapping[str, Any]) -> RoadsConfig:
         _require_keys(payload, set(cls.__dataclass_fields__), "roads")
         data = dict(payload)
         if "source" not in data:
@@ -213,7 +214,7 @@ class FuelsConfig:
     class_property: str | None = None
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any]) -> "FuelsConfig":
+    def from_dict(cls, payload: Mapping[str, Any]) -> FuelsConfig:
         _require_keys(payload, set(cls.__dataclass_fields__), "fuels")
         data = dict(payload)
         if "source" not in data:
@@ -244,7 +245,7 @@ class PopulationConfig:
         )
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any]) -> "PopulationConfig":
+    def from_dict(cls, payload: Mapping[str, Any]) -> PopulationConfig:
         _require_keys(payload, set(cls.__dataclass_fields__), "population")
         data = dict(payload)
         if "source" not in data:
@@ -276,7 +277,7 @@ class FacilitiesConfig:
             raise ConfigError("facilities.unmapped must be 'error' or 'other'")
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any]) -> "FacilitiesConfig":
+    def from_dict(cls, payload: Mapping[str, Any]) -> FacilitiesConfig:
         _require_keys(payload, set(cls.__dataclass_fields__), "facilities")
         data = dict(payload)
         if "source" not in data:
@@ -361,7 +362,7 @@ class StudyAreaConfig:
         return out
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any], *, config_path: str | None = None) -> "StudyAreaConfig":
+    def from_dict(cls, payload: Mapping[str, Any], *, config_path: str | None = None) -> StudyAreaConfig:
         allowed = {
             "study_area_id",
             "description",
@@ -405,7 +406,7 @@ class StudyAreaConfig:
         )
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "StudyAreaConfig":
+    def from_yaml(cls, path: str | Path) -> StudyAreaConfig:
         source = Path(path)
         if not source.exists():
             raise ConfigError(f"config file not found: {source}")

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from shapely.geometry import Point
 from shapely.geometry.base import BaseGeometry
@@ -85,7 +85,7 @@ class AgeStratum:
     def label(self) -> str:
         return f"{self.lower}+" if self.upper is None else f"{self.lower}-{self.upper - 1}"
 
-    def overlaps(self, other: "AgeStratum") -> bool:
+    def overlaps(self, other: AgeStratum) -> bool:
         """Whether two half-open bands share any age."""
         self_upper = float("inf") if self.upper is None else self.upper
         other_upper = float("inf") if other.upper is None else other.upper

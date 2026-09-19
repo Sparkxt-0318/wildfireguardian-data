@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from helpers import make_provenance, make_raster
 from shapely.geometry import Point, Polygon
 
-from helpers import make_provenance, make_raster
 from wildfireguardian_data import DataClass, RasterKind, SourceRecord, TemporalProvenance
 from wildfireguardian_data.errors import ConfigError, IngestError, MissingDataError
 from wildfireguardian_data.facilities import (

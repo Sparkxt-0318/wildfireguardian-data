@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 from helpers import make_raster, planar_surface
+
 from wildfireguardian_data.bounds import Bounds
 from wildfireguardian_data.errors import ConfigError, MissingDataError, RasterGeometryError
 from wildfireguardian_data.terrain import clip_raster, slope, snap_bounds_to_grid

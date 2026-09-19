@@ -13,7 +13,7 @@ from .io import (
     load_population_layer,
     villages_from_layer,
 )
-from .models import AgeStratum, AgeStrataSet, SettlementCentroidKind, VillagePopulation
+from .models import AgeStrataSet, AgeStratum, SettlementCentroidKind, VillagePopulation
 
 __all__ = [
     "AgeStratum",

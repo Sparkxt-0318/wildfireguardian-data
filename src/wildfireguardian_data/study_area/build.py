@@ -23,15 +23,14 @@ where slope is then computed.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from shapely.geometry import Point
 
 from ..bounds import Bounds
 from ..crs import crs_equal, crs_to_string, parse_crs, transformer_for
-from ..errors import ConfigError, IngestError, NetworkAccessError
+from ..errors import ConfigError, NetworkAccessError
 from ..facilities.io import facilities_from_layer, load_facility_layer
 from ..facilities.models import FacilityKind
 from ..fixtures import synthetic as fixtures
@@ -39,7 +38,6 @@ from ..fuels.classes import SYNTHETIC_DEMO_SCHEME, FuelClassScheme
 from ..fuels.io import read_fuel_geotiff
 from ..population.io import load_population_layer, villages_from_layer
 from ..provenance.models import (
-    NOT_APPLICABLE,
     UNKNOWN,
     DataClass,
     SourceRecord,
@@ -55,7 +53,7 @@ from ..terrain.derivatives import slope as compute_slope
 from ..terrain.io import read_geotiff
 from ..terrain.reproject import reproject_raster
 from ..terrain.stats import terrain_statistics
-from ..vector import VectorLayer, read_geojson
+from ..vector import VectorLayer
 from .bundle import (
     FacilitiesComponent,
     FuelsComponent,
@@ -125,7 +123,7 @@ def _bounds_to_wgs84(bounds: Bounds) -> Bounds:
         (bounds.max_x, bounds.min_y),
         (bounds.max_x, bounds.max_y),
     ]
-    lons, lats = zip(*(transformer.transform(x, y) for x, y in corners))
+    lons, lats = zip(*(transformer.transform(x, y) for x, y in corners), strict=True)
     return Bounds(min(lons), min(lats), max(lons), max(lats), crs="EPSG:4326")
 
 

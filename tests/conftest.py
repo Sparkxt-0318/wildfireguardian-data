@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 from helpers import make_raster, planar_surface
+
 from wildfireguardian_data import RasterLayer
+
 
 @pytest.fixture
 def tilted_plane_layer() -> RasterLayer:

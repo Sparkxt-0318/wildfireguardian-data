@@ -62,3 +62,8 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Package __init__ files re-export the public API; those imports are not unused.
+"src/wildfireguardian_data/**/__init__.py" = ["F401"]
+"src/wildfireguardian_data/__init__.py" = ["F401"]

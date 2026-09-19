@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 from helpers import make_provenance, make_raster, planar_surface
+
 from wildfireguardian_data import (
     DataClass,
     GridTransform,
@@ -19,7 +19,7 @@ from wildfireguardian_data import (
     SourceRecord,
     TemporalProvenance,
 )
-from wildfireguardian_data.provenance import UNKNOWN, ProvenanceRecord
+from wildfireguardian_data.provenance import ProvenanceRecord
 from wildfireguardian_data.validation import (
     Severity,
     ValidationReport,

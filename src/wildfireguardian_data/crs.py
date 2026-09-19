@@ -18,8 +18,9 @@ order so the discrepancy can be recorded rather than discovered.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
 from pyproj import CRS as PyprojCRS
 from pyproj import Transformer

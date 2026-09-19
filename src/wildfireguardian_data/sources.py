@@ -28,9 +28,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ElementTree
-from dataclasses import dataclass
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 from shapely.geometry import LineString
 

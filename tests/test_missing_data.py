@@ -12,12 +12,11 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 from helpers import make_raster, planar_surface
+
 from wildfireguardian_data import RasterKind
 from wildfireguardian_data.errors import MissingDataError, RasterGeometryError
 from wildfireguardian_data.terrain import (
-    aspect,
     clip_raster,
     raster_statistics,
     slope,

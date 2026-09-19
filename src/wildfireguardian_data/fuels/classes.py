@@ -13,8 +13,9 @@ fire-behaviour modelling, which is out of scope (``docs/SCOPE.md``).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping
+from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
+from typing import Any
 
 from ..errors import ConfigError
 from ..provenance.models import UNKNOWN, DataClass
@@ -146,7 +147,7 @@ class FuelClassScheme:
         }
 
     @classmethod
-    def from_dict(cls, payload: Mapping[str, Any]) -> "FuelClassScheme":
+    def from_dict(cls, payload: Mapping[str, Any]) -> FuelClassScheme:
         return cls(
             name=payload["name"],
             classes=tuple(FuelClass(**c) for c in payload["classes"]),

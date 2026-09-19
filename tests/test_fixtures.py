@@ -17,7 +17,6 @@ from wildfireguardian_data import DataClass
 from wildfireguardian_data.bounds import Bounds
 from wildfireguardian_data.errors import CRSMismatchError, GeographicCRSError
 from wildfireguardian_data.fixtures import (
-    FIXTURES,
     disconnected_network,
     fixture_names,
     flat_terrain,
@@ -83,11 +82,11 @@ def test_missing_cells_fixture_returns_two_equivalent_representations():
 
 
 def test_single_exit_and_two_exit_networks_differ_in_critical_links():
+    from wildfireguardian_data.fixtures import SYNTHETIC_ORIGIN
     from wildfireguardian_data.roads import (
         assess_road_network,
         build_road_graph,
     )
-    from wildfireguardian_data.fixtures import SYNTHETIC_ORIGIN
 
     box = Bounds(
         SYNTHETIC_ORIGIN[0],
@@ -115,8 +114,8 @@ def test_single_exit_and_two_exit_networks_differ_in_critical_links():
 
 
 def test_disconnected_network_has_multiple_components_and_a_crossing():
-    from wildfireguardian_data.roads import assess_road_network, build_road_graph
     from wildfireguardian_data.fixtures import SYNTHETIC_ORIGIN
+    from wildfireguardian_data.roads import assess_road_network, build_road_graph
 
     box = Bounds(
         SYNTHETIC_ORIGIN[0],

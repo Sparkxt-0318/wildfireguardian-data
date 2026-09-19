@@ -7,16 +7,12 @@ the caveats that travel with the data (``docs/DECISIONS.md`` D-0009).
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any
 
-from ..crs import crs_to_string
 from ..provenance.models import UNKNOWN
-from ..raster import RasterKind, RasterLayer
+from ..raster import RasterKind
 from ..terrain.stats import categorical_statistics, raster_statistics
 from .bundle import StudyAreaBundle
-from .serialize import MANIFEST_NAME
 
 __all__ = ["summarize_bundle", "format_summary_text"]
 

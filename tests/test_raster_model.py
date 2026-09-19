@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 from helpers import make_provenance, make_raster, planar_surface
+
 from wildfireguardian_data import GridTransform, RasterKind, RasterLayer
 from wildfireguardian_data.errors import RasterGeometryError
 

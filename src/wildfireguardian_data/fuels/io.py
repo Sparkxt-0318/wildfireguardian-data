@@ -10,7 +10,7 @@ arriving without a declared class scheme, data class, or nodata code
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 

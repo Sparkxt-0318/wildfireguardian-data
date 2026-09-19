@@ -12,8 +12,8 @@ Canonical units: length **metre**, slope **degree**, time **second**, area
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from enum import Enum
-from typing import Iterable
 
 from .errors import UnitMismatchError, UnknownUnitError
 

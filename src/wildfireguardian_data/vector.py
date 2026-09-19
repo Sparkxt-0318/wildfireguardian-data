@@ -22,9 +22,10 @@ CRS and to make any reader that ignores the declaration fail loudly, which
 from __future__ import annotations
 
 import json
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any, Callable, Iterable, Iterator, Sequence
+from typing import Any
 
 from shapely.geometry import mapping, shape
 from shapely.geometry.base import BaseGeometry
@@ -151,7 +152,9 @@ class VectorLayer:
         """
         if not self.features:
             return None
-        xs_min, ys_min, xs_max, ys_max = zip(*(f.geometry.bounds for f in self.features))
+        xs_min, ys_min, xs_max, ys_max = zip(
+            *(f.geometry.bounds for f in self.features), strict=True
+        )
         return Bounds(min(xs_min), min(ys_min), max(xs_max), max(ys_max), crs=self.crs)
 
     def filter(
@@ -160,7 +163,7 @@ class VectorLayer:
         *,
         name: str | None = None,
         transformation: Transformation | None = None,
-    ) -> "VectorLayer":
+    ) -> VectorLayer:
         """A new layer containing features satisfying ``predicate``.
 
         When ``transformation`` is given the result is a provenance-derived
@@ -200,7 +203,7 @@ class VectorLayer:
         crs: CRSLike = ...,
         feature_kind: str | None = None,
         provenance_changes: dict[str, Any] | None = None,
-    ) -> "VectorLayer":
+    ) -> VectorLayer:
         """A new layer derived from this one, carrying provenance forward."""
         new_crs = self.crs if crs is ... else parse_crs(crs)
         changes = dict(provenance_changes or {})
@@ -214,7 +217,7 @@ class VectorLayer:
             feature_kind=feature_kind if feature_kind is not None else self.feature_kind,
         )
 
-    def reproject(self, dst_crs: CRSLike, *, name: str | None = None) -> "VectorLayer":
+    def reproject(self, dst_crs: CRSLike, *, name: str | None = None) -> VectorLayer:
         """Reproject explicitly, recording the operation in provenance.
 
         Never called implicitly by anything in this package (D-0002).

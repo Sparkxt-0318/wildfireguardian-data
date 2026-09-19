@@ -16,9 +16,10 @@ repository claims. It requires a ``docs/DECISIONS.md`` entry.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable
+from typing import Any
 
 __all__ = ["Severity", "Finding", "ValidationReport", "REPORT_SCHEMA_VERSION"]
 

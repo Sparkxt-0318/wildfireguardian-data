@@ -24,7 +24,6 @@ import numpy as np
 from ..crs import crs_to_string
 from ..errors import MissingDataError
 from ..raster import RasterKind, RasterLayer
-from ..units import LengthUnit, SlopeUnit
 
 __all__ = [
     "CircularMean",
@@ -169,7 +168,7 @@ def categorical_statistics(layer: RasterLayer) -> dict[str, Any]:
                 "cells": int(count),
                 "fraction_of_valid": float(count / valid.size) if valid.size else None,
             }
-            for cls, count in zip(classes, counts)
+            for cls, count in zip(classes, counts, strict=True)
         ],
         "note": (
             "fractions are of valid cells, not of the whole raster; compare "

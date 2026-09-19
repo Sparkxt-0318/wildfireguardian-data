@@ -28,8 +28,9 @@ What is computed, and why each is exact rather than approximate:
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import networkx as nx
 from shapely.geometry import LineString, Point

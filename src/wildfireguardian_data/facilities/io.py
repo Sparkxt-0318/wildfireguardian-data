@@ -8,8 +8,9 @@ a wildfire-capable shelter is precisely the inference A-FAC-2 forbids.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from ..crs import crs_to_string
 from ..errors import IngestError

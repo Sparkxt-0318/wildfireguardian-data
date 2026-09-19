@@ -32,8 +32,9 @@ must not be mistakable for real data (``AGENTS.md`` §4).
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable
+from typing import Any
 
 import numpy as np
 from shapely.geometry import LineString, Point, Polygon
@@ -43,7 +44,6 @@ from ..crs import crs_to_string
 from ..fuels.classes import SYNTHETIC_DEMO_SCHEME, FuelClassScheme
 from ..fuels.io import fuel_layer_from_array
 from ..provenance.models import (
-    UNKNOWN,
     DataClass,
     ProvenanceRecord,
     SourceRecord,

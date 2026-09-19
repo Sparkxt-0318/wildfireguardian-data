@@ -8,9 +8,9 @@ rather than snapshots.
 from __future__ import annotations
 
 import pytest
+from helpers import make_provenance
 from shapely.geometry import LineString, MultiLineString, Point
 
-from helpers import make_provenance
 from wildfireguardian_data.bounds import Bounds
 from wildfireguardian_data.errors import GraphError
 from wildfireguardian_data.roads import (
@@ -19,7 +19,6 @@ from wildfireguardian_data.roads import (
     bridge_edges,
     build_road_graph,
     critical_links,
-    crossings_without_node,
     identify_exit_nodes,
     identify_settlement_nodes,
 )

@@ -40,12 +40,10 @@ downslope vector ``-grad z = (-dz_dx, -dz_dy)``, i.e.
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 
 from ..crs import crs_to_string, require_projected_metre_crs
-from ..errors import MissingDataError, RasterGeometryError, UnitMismatchError
+from ..errors import RasterGeometryError, UnitMismatchError
 from ..provenance.models import Transformation
 from ..raster import RasterKind, RasterLayer
 from ..units import LengthUnit, SlopeUnit, convert_slope, parse_length_unit, parse_slope_unit

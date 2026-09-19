@@ -27,7 +27,6 @@ from .bounds import Bounds
 from .crs import CRSLike, crs_to_string, parse_crs, require_projected_metre_crs
 from .errors import MissingDataError, RasterGeometryError
 from .provenance.models import ProvenanceRecord, Transformation, require_provenance
-from .units import LengthUnit
 
 __all__ = ["GridTransform", "RasterKind", "RasterLayer"]
 
@@ -113,7 +112,7 @@ class GridTransform:
             crs=crs,
         )
 
-    def offset(self, row_offset: int, col_offset: int) -> "GridTransform":
+    def offset(self, row_offset: int, col_offset: int) -> GridTransform:
         """A grid shifted by whole cells -- used when windowing or clipping."""
         return GridTransform(
             self.x_origin + col_offset * self.x_size,
@@ -145,7 +144,7 @@ class GridTransform:
         return Affine(self.x_size, 0.0, self.x_origin, 0.0, -self.y_size, self.y_origin)
 
     @classmethod
-    def from_affine(cls, affine: Any, *, rotation_tolerance: float = 0.0) -> "GridTransform":
+    def from_affine(cls, affine: Any, *, rotation_tolerance: float = 0.0) -> GridTransform:
         """Build from an ``affine.Affine``, rejecting rotation and south-up grids.
 
         ``rotation_tolerance`` defaults to **exactly zero**: a raster with a
@@ -182,7 +181,7 @@ class GridTransform:
         return cls(c, f, a, -e)
 
     @classmethod
-    def from_gdal(cls, geotransform: Any) -> "GridTransform":
+    def from_gdal(cls, geotransform: Any) -> GridTransform:
         """Build from a 6-element GDAL geotransform tuple."""
         gt = tuple(float(v) for v in geotransform)
         if len(gt) != 6:
@@ -213,7 +212,7 @@ class GridTransform:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "GridTransform":
+    def from_dict(cls, payload: dict[str, Any]) -> GridTransform:
         return cls(
             payload["x_origin"], payload["y_origin"], payload["x_size"], payload["y_size"]
         )
@@ -408,7 +407,7 @@ class RasterLayer:
         value_unit: Any = ...,
         transform: GridTransform | None = None,
         provenance: ProvenanceRecord | None = None,
-    ) -> "RasterLayer":
+    ) -> RasterLayer:
         """A new layer sharing this one's grid and CRS, with new values.
 
         ``provenance`` is required in practice: passing ``None`` keeps this
@@ -438,7 +437,7 @@ class RasterLayer:
         transform: GridTransform | None = None,
         crs: Any = ...,
         provenance_changes: dict[str, Any] | None = None,
-    ) -> "RasterLayer":
+    ) -> RasterLayer:
         """A new layer derived from this one, with provenance carried forward.
 
         The single path by which a new raster comes into existence inside this

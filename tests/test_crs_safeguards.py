@@ -7,8 +7,8 @@ entry.
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
+from helpers import make_raster, planar_surface
 
 from wildfireguardian_data.bounds import Bounds
 from wildfireguardian_data.crs import (
@@ -28,8 +28,6 @@ from wildfireguardian_data.errors import (
     UnknownCRSError,
 )
 from wildfireguardian_data.units import LengthUnit
-
-from helpers import make_raster, planar_surface
 
 
 def test_documented_korean_crs_facts_match_the_proj_database():
@@ -119,12 +117,11 @@ def test_bounds_operations_refuse_mixed_crs():
 
 
 def test_road_graph_refuses_a_geographic_crs():
+    from helpers import make_provenance
     from shapely.geometry import LineString
 
     from wildfireguardian_data.roads import build_road_graph
     from wildfireguardian_data.vector import Feature, VectorLayer
-
-    from helpers import make_provenance
 
     layer = VectorLayer(
         name="degrees_roads",

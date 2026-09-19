@@ -11,13 +11,14 @@ that seemed reasonable in isolation.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 from shapely.geometry import Point
 
-from ..crs import crs_to_string, parse_crs
-from ..errors import ConfigError, IngestError, PrivacyGuardError
+from ..crs import crs_to_string
+from ..errors import IngestError, PrivacyGuardError
 from ..provenance.checksum import sha256_file
 from ..provenance.models import (
     UNKNOWN,
@@ -27,8 +28,8 @@ from ..provenance.models import (
     TemporalProvenance,
     Transformation,
 )
-from ..vector import Feature, VectorLayer, read_geojson
-from .models import AgeStratum, AgeStrataSet, SettlementCentroidKind, VillagePopulation
+from ..vector import VectorLayer, read_geojson
+from .models import AgeStrataSet, AgeStratum, SettlementCentroidKind, VillagePopulation
 
 __all__ = [
     "PRIVACY_FORBIDDEN_FIELD_PATTERNS",

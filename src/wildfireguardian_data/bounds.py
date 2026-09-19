@@ -8,8 +8,9 @@ order is pinned.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
 from .crs import CRSLike, crs_equal, crs_to_string, parse_crs, require_same_crs
 from .errors import ConfigError
@@ -54,7 +55,7 @@ class Bounds:
         """Whether the box has zero width or zero height."""
         return self.width == 0.0 or self.height == 0.0
 
-    def require_nondegenerate(self, context: str = "") -> "Bounds":
+    def require_nondegenerate(self, context: str = "") -> Bounds:
         """Return self, raising if the box has no extent.
 
         Called by study-area config parsing and by clipping, where a
@@ -91,7 +92,7 @@ class Bounds:
     def center(self) -> tuple[float, float]:
         return ((self.min_x + self.max_x) / 2.0, (self.min_y + self.max_y) / 2.0)
 
-    def buffered(self, distance: float) -> "Bounds":
+    def buffered(self, distance: float) -> Bounds:
         """Expand (or, with a negative distance, shrink) by ``distance``.
 
         The distance is in CRS units -- metres for the projected Korean CRSs,
@@ -106,7 +107,7 @@ class Bounds:
             crs=self.crs,
         )
 
-    def intersects(self, other: "Bounds") -> bool:
+    def intersects(self, other: Bounds) -> bool:
         """Whether two same-CRS boxes overlap. Raises on CRS mismatch."""
         require_same_crs([self.crs, other.crs], context="intersecting bounds")
         return not (
@@ -124,7 +125,7 @@ class Bounds:
         """
         return self.min_x <= x < self.max_x and self.min_y <= y < self.max_y
 
-    def intersection(self, other: "Bounds") -> "Bounds":
+    def intersection(self, other: Bounds) -> Bounds:
         """Overlap of two same-CRS boxes. Raises if they do not overlap."""
         require_same_crs([self.crs, other.crs], context="intersecting bounds")
         if not self.intersects(other):
@@ -157,7 +158,7 @@ class Bounds:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "Bounds":
+    def from_dict(cls, payload: dict[str, Any]) -> Bounds:
         crs_text = payload.get("crs")
         return cls(
             payload["min_x"],
@@ -168,7 +169,7 @@ class Bounds:
         )
 
     @classmethod
-    def from_iterable(cls, values: Iterable[float], crs: CRSLike = None) -> "Bounds":
+    def from_iterable(cls, values: Iterable[float], crs: CRSLike = None) -> Bounds:
         vals = [float(v) for v in values]
         if len(vals) != 4:
             raise ConfigError(

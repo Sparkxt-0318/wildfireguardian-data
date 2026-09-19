@@ -19,9 +19,8 @@ from ..bounds import Bounds
 from ..crs import crs_to_string, parse_crs
 from ..errors import BundleError
 from ..provenance.checksum import sha256_file, sha256_json
-from ..provenance.models import ProvenanceRecord
 from ..provenance.store import read_all_provenance, write_provenance
-from ..raster import RasterKind, RasterLayer
+from ..raster import RasterLayer
 from ..terrain.io import RASTER_SIDECAR_SUFFIX, read_raster, write_raster
 from ..vector import VectorLayer, read_geojson, write_geojson
 from .bundle import (
