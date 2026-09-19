@@ -80,7 +80,27 @@ that deliberately straddles a tile boundary.
 - **F-RD-4 (transitive snapping).** Report the distribution of intra-cluster
   spans, not only the maximum. Done when the QA report carries it.
 
-## 7. Continuous integration
+## 7. Close the three items the review round left open
+
+The phase-1 audit and verification fixed 20 defects (see `COMPLETED.md`). Three
+of their observations were deliberately **not** turned into code, and are
+recorded here so they are not lost:
+
+- **`terrain.reproject_raster` has never been cross-checked against
+  `gdalwarp`.** Its missing-data behaviour is tested, but the warp's numerics
+  are not compared with an independent implementation the way slope and aspect
+  now are. Done when a synthetic surface reprojected by both agrees within a
+  stated tolerance, or the disagreement is reported as a quantity.
+- **The real-data bundle's reproducibility is untested**, because rebuilding it
+  needs network access (D-0012) and the AWS tile list is mutable. Done when a
+  network-marked test rebuilds `uljin_real_v1` and compares layer checksums
+  against the committed manifest, reporting a difference as a finding about the
+  *source* rather than a test failure.
+- **The privacy guard is name-based only** (F-POP-1). Done when either a
+  value-level heuristic exists with its false-positive rate stated, or a
+  `DECISIONS.md` entry records that name-based is the deliberate ceiling.
+
+## 8. Continuous integration
 
 **Why.** The synthetic bundle build needs no network and is deterministic, so it
 is a natural CI job; nothing currently runs the suite automatically.

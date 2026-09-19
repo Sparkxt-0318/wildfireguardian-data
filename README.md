@@ -113,7 +113,7 @@ rather than smoothed over.
 | **Population** | Aggregate settlement data — totals, half-open age strata, village geometry, settlement centroids — with a load-time privacy guard |
 | **Facilities** | Generic loaders for shelters, temporary-refuge candidates, responder bases, fire stations. Presence in a dataset is never fitness for purpose |
 | **Provenance** | Source, dates, transformations, original and output CRS, resolution, units, vertical datum, nodata representation, SHA-256 checksum, temporal class |
-| **Validation** | 46 severity-graded checks across CRS, raster, vector, provenance, population, facility, road and bundle integrity |
+| **Validation** | 51 severity-graded checks across CRS, raster, vector, provenance, population, facility, road and bundle integrity |
 
 ## What it deliberately does not do
 
@@ -159,7 +159,7 @@ tests here:
 ## Tests
 
 ```bash
-python -m pytest -q          # 287 tests, offline and deterministic
+python -m pytest -q          # 332 tests, offline and deterministic
 python -m pytest -m network  # 3 live-source tests, opt-in
 ```
 
@@ -193,7 +193,7 @@ before editing code**, as [`AGENTS.md`](AGENTS.md) requires:
 
 Phase 1 (foundation) is complete: installable package, working CLI, provenance
 system, CRS validation, terrain preprocessing, road QA, synthetic fixtures, two
-example study-area bundles, 287 automated tests (plus 3 opt-in live-source tests), and documented failure modes.
+example study-area bundles, 332 automated tests (plus 3 opt-in live-source tests), and documented failure modes.
 See [`tasks/COMPLETED.md`](tasks/COMPLETED.md) for what was built and
 [`tasks/CURRENT.md`](tasks/CURRENT.md) for what should happen next.
 

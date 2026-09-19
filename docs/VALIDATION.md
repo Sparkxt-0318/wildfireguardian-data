@@ -49,9 +49,11 @@ validates the directory, then stores the report in
 
 ## Finding catalogue
 
-Codes are stable and greppable, so a CI job can act on a specific finding
-without matching prose. Generated from the code; see
-`validation/checks.py` and `validation/bundle_checks.py`.
+51 codes. They are stable and greppable, so a CI job can act on a specific
+finding without matching prose. Generated from the code; see
+`validation/checks.py` and `validation/bundle_checks.py`. A test asserts that
+this table and the code agree in both directions, so a new check cannot ship
+undocumented and a removed one cannot linger here.
 
 | Code | Severity | Finding |
 |---|---|---|
@@ -138,7 +140,7 @@ The strongest tests in the suite are the ones with closed-form answers:
 Run:
 
 ```bash
-python -m pytest -q             # 287 tests, offline and deterministic
+python -m pytest -q             # 332 tests, offline and deterministic
 python -m pytest -m network     # 3 live-source tests, excluded by default
 ```
 

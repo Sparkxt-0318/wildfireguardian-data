@@ -563,3 +563,48 @@ def test_repository_has_a_licence_file_distinguishing_code_from_data():
     assert "DATA IS NOT COVERED BY THE ABOVE" in text
     assert "ODbL" in text
     assert "ESA / Copernicus" in text
+
+
+# --------------------------------------------------------------------------- #
+# Verification follow-up: the grid-north/true-north convergence is quantified
+# --------------------------------------------------------------------------- #
+def test_meridian_convergence_matches_the_closed_form():
+    # Checked against atan(tan(dlon) * sin(lat)) rather than against itself.
+    from pyproj import Transformer
+
+    from wildfireguardian_data.crs import meridian_convergence_deg
+
+    transformer = Transformer.from_crs("EPSG:5187", "EPSG:4326", always_xy=True)
+    for x, y in [(227_500.0, 478_500.0), (231_500.0, 482_500.0)]:
+        longitude, latitude = transformer.transform(x, y)
+        expected = math.degrees(
+            math.atan(
+                math.tan(math.radians(longitude - 129.0)) * math.sin(math.radians(latitude))
+            )
+        )
+        assert meridian_convergence_deg("EPSG:5187", x, y) == pytest.approx(
+            expected, abs=1e-6
+        )
+
+
+def test_convergence_is_small_on_the_right_belt_and_larger_nationwide():
+    # The documented magnitudes in FAILURE_MODES.md F-TER-5.
+    from pyproj import Transformer
+
+    from wildfireguardian_data.crs import meridian_convergence_deg
+
+    belt = meridian_convergence_deg("EPSG:5187", 229_500.0, 480_500.0)
+    assert 0.15 < belt < 0.25
+
+    to_5179 = Transformer.from_crs("EPSG:4326", "EPSG:5179", always_xy=True)
+    x, y = to_5179.transform(129.32, 36.93)
+    nationwide = meridian_convergence_deg("EPSG:5179", x, y)
+    assert 1.0 < nationwide < 1.2
+
+
+def test_convergence_is_undefined_for_a_geographic_crs():
+    from wildfireguardian_data.crs import meridian_convergence_deg
+    from wildfireguardian_data.errors import GeographicCRSError
+
+    with pytest.raises(GeographicCRSError):
+        meridian_convergence_deg("EPSG:4326", 129.32, 36.93)

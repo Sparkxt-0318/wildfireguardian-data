@@ -45,6 +45,7 @@ __all__ = [
     "crs_axis_length_unit",
     "authority_axis_order_is_xy",
     "transformer_for",
+    "meridian_convergence_deg",
     "KOREAN_CRS_NOTES",
     "KoreanCRSNote",
 ]
@@ -344,6 +345,50 @@ def authority_axis_order_is_xy(crs: CRSLike) -> bool | None:
     if first is False and second is True:
         return False
     return None
+
+
+def meridian_convergence_deg(crs: CRSLike, x: float, y: float) -> float:
+    """Grid-north minus true-north at a point, in degrees.
+
+    Aspect in this package is measured from **grid** north -- the projected
+    CRS's ``+y`` axis -- and is not corrected to true north (A-TER-5,
+    ``docs/FAILURE_MODES.md`` F-TER-5). This function gives the correction a
+    consumer needs in order to compare an aspect with a true-north bearing such
+    as a wind direction:
+
+        true_north_azimuth = grid_azimuth + meridian_convergence_deg(...)
+
+    It is offered because the size of the discrepancy is a property of the CRS
+    and the location -- something this repository can state -- while *applying*
+    the correction depends on what the consumer is comparing against, which it
+    cannot know. For the shipped Uljin study areas on EPSG:5187 it is about
+    +0.19 to +0.21 degrees; on the nationwide EPSG:5179 it reaches about
+    +/-1.1 degrees across South Korea, which is no longer negligible.
+
+    Parameters
+    ----------
+    crs:
+        A projected CRS. ``x``, ``y`` are in that CRS, in (easting, northing)
+        order as everywhere in this package.
+
+    Raises
+    ------
+    GeographicCRSError
+        For a geographic CRS, where the question does not arise: its axes *are*
+        meridians and parallels.
+    """
+    from pyproj import Proj
+
+    parsed = require_crs(crs, context="computing meridian convergence")
+    if parsed.is_geographic:
+        raise GeographicCRSError(
+            f"{crs_to_string(parsed)} is geographic, so grid north and true "
+            "north coincide by construction and the convergence is not defined."
+        )
+    transformer = transformer_for(parsed, "EPSG:4326")
+    longitude, latitude = transformer.transform(x, y)
+    factors = Proj(parsed).get_factors(longitude, latitude, radians=False)
+    return float(factors.meridian_convergence)
 
 
 def transformer_for(src: CRSLike, dst: CRSLike) -> Transformer:

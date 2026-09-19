@@ -44,7 +44,7 @@ the scientific core runs without GDAL (D-0003), with rasterio/geopandas behind a
 | `population` | aggregate models with half-open age strata; load-time privacy guard over 20 person-level and medical name patterns |
 | `facilities` | source-declared roles, `UNKNOWN` operational status, unassessed suitability, capacity never estimated from footprint |
 | `study_area` | strict YAML config (unknown keys rejected), build pipeline, bundle, serialisation with checksums, summary |
-| `validation` | 46 severity-graded findings across CRS, raster, vector, provenance, population, facility, road and bundle-integrity checks |
+| `validation` | 51 severity-graded findings across CRS, raster, vector, provenance, population, facility, road and bundle-integrity checks |
 | `cli` | `build-study-area`, `validate-study-area`, `summarize-study-area`, `make-fixtures`, `list-fixtures`, `version`, with documented exit codes and a stable `--json` contract |
 | `sources` | Copernicus DEM GLO-30 windowed COG reads and OpenStreetMap API fetches, both opt-in on `allow_network` |
 | `fixtures` | 13 deterministic synthetic generators, all labelled `SYNTHETIC` in provenance |
@@ -92,7 +92,7 @@ validation checks are demonstrably live rather than vacuously passing.
 
 ### Tests
 
-**287 tests, passing, offline and deterministic**, plus 3 opt-in tests that fetch from the live sources (`pytest -m network`). Built on closed-form answers rather
+**332 tests, passing, offline and deterministic**, plus 3 opt-in tests that fetch from the live sources (`pytest -m network`). Built on closed-form answers rather
 than snapshots:
 
 - slope and aspect exact on a tilted plane, to `1e-4` degrees, over six
@@ -109,7 +109,7 @@ than snapshots:
 - parallel edges not reported as bridges;
 - byte-identical rebuilds, and tamper detection on read;
 - documented Korean CRS facts checked against PROJ rather than trusted;
-- every one of the 46 validation findings with a positive case asserting both
+- every one of the 51 validation findings with a positive case asserting both
   its code and its severity;
 - the real-source fetchers: tile naming across all four hemispheres, the
   opt-in network guard, the refusal of non-WGS84 bounds, and the refusal of a
@@ -126,3 +126,71 @@ environment, which is recorded as *environment, not service*, with an explicit
 instruction to re-try. The consequence is stated plainly rather than papered
 over: the real bundle has no fuels, population or facilities layer, because that
 data was not obtained.
+
+### Independent audit and verification round
+
+Phase 1 was reviewed twice before being called done, in the two roles
+`AGENTS.md` §9 defines. Both reviews worked against the committed code and were
+told not to trust the test suite.
+
+**A scientific / data audit** of the assumptions against the implementation, and
+**an independent verification** using synthetic geometries with analytically
+known answers, together confirmed **20 reproducible defects**. All are fixed,
+each with a test that fails before the fix and passes after it. The most
+consequential:
+
+| What was wrong | Why it mattered |
+|---|---|
+| `critical_links` never compared against the pre-removal state | A settlement with no exit *to begin with* was attributed to every bridge anywhere in the graph. On the example bundle the count read 7 where 2 was correct, and the error grew with road-data fragmentation — worst exactly where the data is weakest |
+| `read_geotiff` defaulted `value_unit` to metres and read the file's unit tag only into a note | A DEM in feet was labelled metres: slope 45° where the truth was 16.95°, on a layer whose provenance asserted metres. A-TER-8's enforcement could never fire, because the mislabelling happened at ingest |
+| `terrain_statistics` passed the raw aspect array to the circular mean | A declared `-9999` nodata survived and was read as a real north-easterly azimuth, shifting the dominant aspect by 17°. GDAL's own `gdaldem aspect` defaults to `-9999`, so an externally produced layer was the *normal* case |
+| The pipeline reprojected sibling rasters independently | A DEM and a fuel raster from different Korean belts landed a third of a cell apart, displacing every fuel value relative to the DEM cell indexing it |
+| The build pipeline defaulted `temporal_class` per component | A retrospective road layer was labelled `observation_time` — data leakage, for a project whose first question is forecast-versus-trigger |
+| The Copernicus record claimed EGM2008 was "confirmed against the tile metadata" | It is not in the tile. The claim was a false *verification* claim, which this repository's own rules forbid more strictly than a wrong value |
+
+Also fixed: `resolution_unit` hard-coded to metres in four places including a
+shipped fixture on a degree grid; an integer nodata outside the array dtype's
+range accepted, after which the layer claimed full coverage; `terrain_statistics`
+combining up to three layers with no CRS or grid check; a CRS with no authority
+code unable to survive a round trip; sub-cell fuel polygons burning nothing while
+provenance reported them burned; settlement matching doing a metre distance
+comparison with no CRS check; two `except Exception` blocks swallowing failures;
+a config docstring example whose coordinates placed the study area 1,000 km
+outside its own CRS; a false statement in `convert_slope`'s docstring; `UNKNOWN`
+used where `not_applicable` was correct, diluting the incompleteness metric; and
+`pytest` not actually excluding the network-marked tests it documented as
+excluded.
+
+**Integrity and licensing**, both found by review: only layer files were
+checksummed, so editing `roads_qa.json` — the artifact a downstream reader is
+most likely to consume without re-deriving it — went undetected, as did editing
+a provenance sidecar. Bundle schema 1.1.0 covers the extras and the sidecars,
+aggregates per-layer licences into the manifest, and adds `crs_wkt`. A root
+`LICENSE` now states that MIT covers the code while the committed data carries
+its sources' terms, and the ODbL share-alike obligation reaches the manifest's
+caveats.
+
+**Provenance gained facts the reviews turned up**, verified first-hand from the
+pages this repository cites: Copernicus GLO-30 is **mixed provenance** (gaps
+filled from older models, which concentrate in radar-shadow terrain — steep
+Korean valleys); it is an **edited** DSM with flattened water bodies and edited
+shorelines; the AWS mirror **trimmed each tile's shared edges**, so these bytes
+are not ESA's; and the tile list is **mutable**, so a re-fetch is not guaranteed
+to reproduce them.
+
+**What the reviews confirmed correct** is recorded too, because the report is
+evidence and not only a defect list: the (easting, northing) guarantee holds end
+to end through GeoJSON write/read and reprojection for a (Northing,
+Easting)-authority CRS; slope and aspect agree with GDAL's own
+`GDALDEMProcessing` to 4e-4 degrees on a tilted plane and converge at textbook
+O(h²) on curved surfaces; the aspect convention is confirmed downslope-clockwise-
+from-grid-north with six wrong conventions each excluded by at least 90°;
+`clip_raster` preserves the parent grid exactly including negative-index windows;
+missing-data statistics match hand-computed references to 1e-14 for both `NaN`
+and sentinel spellings; and two builds of the example bundle are bitwise
+identical while a single flipped bit is detected.
+
+One review finding was left as documentation rather than code: the
+grid-north/true-north convergence is still not corrected in the aspect layer,
+but it is now **quantified** — `crs.meridian_convergence_deg` returns it, and
+the magnitudes for the shipped study areas are in `FAILURE_MODES.md` F-TER-5.

@@ -82,13 +82,30 @@ the correct due north. No arithmetic mean of aspect is offered anywhere;
 `resultant_length` so a meaningless mean (opposing flanks cancelling) is visible
 as such. Values below about 0.1 mean "no dominant aspect".
 
-### F-TER-5 — Grid north versus true north (NOT CAUGHT)
+### F-TER-5 — Grid north versus true north (NOT CORRECTED, but quantified)
 Aspect is measured from the projected CRS's `+y` axis, not from true north. The
-difference is the meridian convergence, which is non-zero away from the
-projection's central meridian and reaches several degrees in Korea. Comparing
-this aspect to a true-north wind direction without correcting is a real error.
-**Mitigation:** stated in `ASSUMPTIONS.md` A-TER-5 and in the aspect layer's own
-provenance notes.
+difference is the meridian convergence, which is zero on the projection's
+central meridian and grows away from it. Comparing this aspect to a true-north
+wind direction without correcting is a real error.
+
+**Measured, so it is no longer an unquantified hazard.**
+`crs.meridian_convergence_deg(crs, x, y)` returns the correction, verified
+against the closed form `atan(tan(Δλ)·sin(φ))`:
+
+| CRS | where | convergence |
+|---|---|---|
+| EPSG:5187 | shipped Uljin study areas | **+0.19° to +0.21°** |
+| EPSG:5179 | across South Korea | **about ±1.1°** |
+
+So for a 4 km study area on the right belt it is a fifth of a degree — below the
+noise of any aspect estimator — and on the nationwide CRS it is over a degree,
+which is not. Apply it as
+`true_north_azimuth = grid_azimuth + meridian_convergence_deg(...)`.
+
+**Why it is still not corrected in the layer:** the correction varies across the
+raster, and applying it would make the stored aspect neither grid-referenced nor
+consistently true-referenced. The layer states its reference frame; the consumer
+converts if it needs to.
 
 ### F-TER-6 — Slope from a resampled DEM is not the slope of the source (NOT CAUGHT)
 Bilinear reprojection smooths, so slope from a reprojected DEM is

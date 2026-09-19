@@ -422,3 +422,22 @@ def test_person_level_population_attribute_in_a_bundle_is_an_error():
     report = validate_bundle(bundle)
     assert "POP-005" in codes(report)
     assert severity_of(report, "POP-005") is Severity.ERROR
+
+
+def test_every_finding_code_in_the_code_is_documented_and_vice_versa():
+    """The check catalogue in docs/VALIDATION.md must match the code.
+
+    Documentation that drifts from the checks is worse than no documentation: a
+    consumer building on a finding code needs the catalogue to be the truth.
+    """
+    import re
+    from pathlib import Path
+
+    source = "".join(
+        Path(f"src/wildfireguardian_data/validation/{name}").read_text()
+        for name in ("checks.py", "bundle_checks.py")
+    )
+    in_code = set(re.findall(r'"([A-Z]{3}-\d{3})",', source))
+    in_doc = set(re.findall(r"\| `([A-Z]{3}-\d{3})`", Path("docs/VALIDATION.md").read_text()))
+    assert in_code - in_doc == set(), f"undocumented finding codes: {sorted(in_code - in_doc)}"
+    assert in_doc - in_code == set(), f"documented but absent codes: {sorted(in_doc - in_code)}"
