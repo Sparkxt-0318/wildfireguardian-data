@@ -243,7 +243,6 @@ def test_percent_slope_config_path(tmp_path):
     # `slope_unit: percent` is a config option, so it needs a test: the layer is
     # named after its unit, must survive the round trip, and must agree with
     # 100*tan(degrees) from an otherwise identical degree build.
-    import math
 
     import yaml
 
