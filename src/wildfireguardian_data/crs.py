@@ -161,6 +161,14 @@ def parse_crs(value: CRSLike) -> PyprojCRS | None:
         return None
     if isinstance(value, PyprojCRS):
         return value
+    if isinstance(value, str):
+        # Accept what crs_to_string emits for a CRS with no authority code, so
+        # that a custom projection survives a GeoJSON or bundle round trip
+        # instead of failing to parse on the way back in (A-REP-2).
+        for prefix in ("wkt:", "name:"):
+            if value.startswith(prefix):
+                value = value[len(prefix) :]
+                break
     try:
         return PyprojCRS.from_user_input(value)
     except Exception as exc:  # pyproj raises several types

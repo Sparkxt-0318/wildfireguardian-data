@@ -11,7 +11,7 @@
     "dem"
   ],
   "random_seed": 20260919,
-  "resolution_unit": "m",
+  "resolution_unit": "metre",
   "schema_version": "1.0.0",
   "sources": [
     {
@@ -48,7 +48,7 @@
         ],
         "study_area_size_m": 6000.0
       },
-      "timestamp": "2026-09-19T18:10:39.516262+00:00",
+      "timestamp": "2026-09-19T18:49:42.752864+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -83,7 +83,7 @@
           206
         ]
       },
-      "timestamp": "2026-09-19T18:10:39.516932+00:00",
+      "timestamp": "2026-09-19T18:49:42.753450+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -101,7 +101,7 @@
         "x_size": 30.0,
         "y_size": 30.0
       },
-      "timestamp": "2026-09-19T18:10:39.519225+00:00",
+      "timestamp": "2026-09-19T18:49:42.755555+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     }

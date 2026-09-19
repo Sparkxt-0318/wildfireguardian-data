@@ -286,3 +286,54 @@ def test_resampling_within_one_crs_is_refused_rather_than_implicit(tmp_path):
     with pytest.raises(ConfigError) as excinfo:
         build_study_area(StudyAreaConfig.from_yaml(config_path))
     assert "not performed implicitly" in str(excinfo.value)
+
+
+def test_editing_a_manifest_extra_is_detected(bundle, tmp_path):
+    """The QA report is checksummed too, not only the layer files.
+
+    Regression test: it is the artifact a downstream reader is most likely to
+    consume without re-deriving it, so an undetected edit there is worse than an
+    undetected edit to a raster.
+    """
+    from wildfireguardian_data.validation import validate_bundle_directory
+
+    directory = write_bundle(bundle, tmp_path / "bundle")
+    assert not validate_bundle_directory(directory).has_errors
+
+    qa_path = directory / "roads" / "roads_qa.json"
+    payload = json.loads(qa_path.read_text())
+    payload["connectivity"]["component_count"] = 1  # was 3
+    qa_path.write_text(json.dumps(payload, indent=2))
+
+    report = validate_bundle_directory(directory)
+    assert "BND-018" in {finding.code for finding in report.findings}
+    assert report.has_errors
+
+
+def test_editing_a_provenance_sidecar_is_detected(bundle, tmp_path):
+    from wildfireguardian_data.validation import validate_bundle_directory
+
+    directory = write_bundle(bundle, tmp_path / "bundle")
+    sidecar = directory / "provenance" / "dem.provenance.json"
+    payload = json.loads(sidecar.read_text())
+    payload["vertical_datum"] = "invented_datum"
+    sidecar.write_text(json.dumps(payload, indent=2, sort_keys=True))
+
+    report = validate_bundle_directory(directory)
+    assert "BND-020" in {finding.code for finding in report.findings}
+    assert report.has_errors
+
+
+def test_manifest_states_what_it_does_not_checksum(bundle, tmp_path):
+    # The validation report cannot be checksummed here, because it is written
+    # after validation (D-0014). That is recorded as a fact, not left implicit.
+    directory = write_bundle(bundle, tmp_path / "bundle")
+    manifest = json.loads((directory / "manifest.json").read_text())
+    assert "validation_report" in manifest["unchecksummed"]
+    assert "validation_report" not in manifest["extras_checksums_sha256"]
+    # Everything else that exists is covered.
+    for key in manifest["extras"]:
+        if key == "validation_report":
+            continue
+        assert key in manifest["extras_checksums_sha256"], key
+    assert set(manifest["provenance_checksums_sha256"]) == set(bundle.layer_names)

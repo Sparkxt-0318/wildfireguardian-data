@@ -37,7 +37,13 @@ __all__ = [
 
 #: Bumped whenever the on-disk bundle layout changes. A reader that does not
 #: recognise the version must fail rather than guess (``docs/INTERFACES.md``).
-BUNDLE_SCHEMA_VERSION = "1.0.0"
+#:
+#: 1.1.0 added ``extras_checksums_sha256``, ``provenance_checksums_sha256`` and
+#: ``unchecksummed`` to the manifest. Additive, but the version is still bumped
+#: and comparison stays exact: a 1.0.0 bundle has unverifiable extras, and
+#: silently accepting one would mean the integrity guarantee differed between
+#: bundles without a reader being able to tell.
+BUNDLE_SCHEMA_VERSION = "1.1.0"
 
 
 @dataclass

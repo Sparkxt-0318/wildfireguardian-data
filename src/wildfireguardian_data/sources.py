@@ -38,6 +38,7 @@ from .bounds import Bounds
 from .crs import crs_to_string, parse_crs, require_crs
 from .errors import IngestError, NetworkAccessError, OptionalDependencyError
 from .provenance.models import (
+    NOT_APPLICABLE,
     UNKNOWN,
     DataClass,
     ProvenanceRecord,
@@ -51,6 +52,8 @@ from .vector import Feature, VectorLayer
 
 __all__ = [
     "COPERNICUS_GLO30_BUCKET",
+    "COPERNICUS_COLLECTION_PAGE",
+    "COPERNICUS_BUCKET_README",
     "OSM_API_MAP_URL",
     "DEFAULT_OSM_HIGHWAY_VALUES",
     "copernicus_glo30_tile_name",
@@ -145,43 +148,79 @@ def copernicus_glo30_tile_url(lat_south: int, lon_west: int) -> str:
     return f"{COPERNICUS_GLO30_BUCKET}/{name}/{name}.tif"
 
 
-def _copernicus_source(url: str) -> SourceRecord:
+#: Pages whose contents this repository actually fetched and read. Every factual
+#: claim in :func:`_copernicus_source` is attributed to one of these or to the
+#: tile's own metadata, so a reader can tell a checked fact from a recalled one
+#: (``AGENTS.md`` §4).
+COPERNICUS_COLLECTION_PAGE = (
+    "https://dataspace.copernicus.eu/explore-data/data-collections/"
+    "copernicus-contributing-missions/collections-description/COP-DEM"
+)
+COPERNICUS_BUCKET_README = "https://copernicus-dem-30m.s3.amazonaws.com/readme.html"
+
+
+def _copernicus_source(url: str, *, tile_tags: dict[str, str] | None = None) -> SourceRecord:
+    """Provenance for a Copernicus DEM GLO-30 tile read from the AWS mirror.
+
+    Each claim below is attributed to where it was verified: the tile's own
+    metadata, the COP-DEM collection description page, or the AWS bucket readme.
+    Nothing here is asserted from recollection, and nothing claims a
+    verification that did not happen.
+    """
+    grid_alignment = (
+        (tile_tags or {}).get("AREA_OR_POINT", UNKNOWN) if tile_tags is not None else UNKNOWN
+    )
     return SourceRecord(
-        name="Copernicus DEM GLO-30 (COP-DEM_GLO-30-DGED)",
+        name="Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
         url_or_identifier=url,
-        # The GLO-30 product is compiled from TanDEM-X acquisitions of
-        # 2011-2015. That is the period the elevations describe, and it is a
-        # range rather than a date, so year precision is recorded and the range
-        # is stated in the notes rather than collapsed to a single day.
+        # The product is compiled from TanDEM-X acquisitions of 2011-2015 (the
+        # collection page states this verbatim). Year precision, because a range
+        # is what the source gives; the range itself is in the notes rather than
+        # collapsed into a single date.
         source_date="2011",
         acquisition_date=utc_now_iso(),
-        publisher="European Space Agency / Copernicus Programme",
+        publisher="European Space Agency / Copernicus Programme; AWS mirror by Sinergise",
         licence=(
-            "free use with attribution to ESA / Copernicus; the exact licence "
-            "terms are in the COP-DEM product documentation, which was NOT "
-            "retrievable from this repository's environment - treat the terms as "
-            "UNVERIFIED HERE and check them before redistributing"
+            "free for the general public under the Copernicus DEM licence terms. "
+            "the AWS registry states GLO-30 Public and GLO-90 'are available on a "
+            "free basis for the general public under the terms and conditions of "
+            "the Licence'. the licence document ITSELF WAS NOT RETRIEVED from "
+            "this environment, so the detailed terms are UNVERIFIED HERE; check "
+            "them before redistributing. attribution to ESA / Copernicus is "
+            "required"
         ),
-        # The collection description page below was reachable and is what this
-        # repository actually verified. The licence annex PDF itself was not, so
-        # it is deliberately not cited as though it had been read
-        # (AGENTS.md §3/§4).
-        licence_url=(
-            "https://dataspace.copernicus.eu/explore-data/data-collections/"
-            "copernicus-contributing-missions/collections-description/COP-DEM"
-        ),
+        licence_url=COPERNICUS_COLLECTION_PAGE,
         notes=(
-            "GLO-30 is a DIGITAL SURFACE MODEL: it includes vegetation canopy "
-            "and buildings, so slope derived from it over Korean forest is "
-            "canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). "
-            "elevations are referenced to the EGM2008 geoid and the horizontal "
-            "CRS of the tiles as read is EPSG:4326 (both confirmed against the "
-            "tile metadata). the product is compiled from TanDEM-X acquisitions "
-            "spanning 2011-2015, so source_date records 2011 at year precision "
-            "and the range is stated here rather than collapsed to one date. "
-            "GLO-30's nominal 30 m is at the equator; at Korean latitudes the "
-            "cells are about 30 m north-south and 24 m east-west, so any "
-            "30 m metre grid is a resampling choice, recorded as such."
+            "VERIFIED FROM THE TILE METADATA: horizontal CRS EPSG:4326; float32; "
+            "1/3600 degree cells; no vertical CRS and no nodata declared in the "
+            f"file; grid alignment tag AREA_OR_POINT={grid_alignment!r}. "
+            f"VERIFIED FROM {COPERNICUS_COLLECTION_PAGE}: it is a DIGITAL "
+            "SURFACE MODEL including buildings, infrastructure and vegetation, "
+            "so slope over Korean forest is canopy slope, not ground slope "
+            "(docs/FAILURE_MODES.md F-TER-3); vertical reference EGM2008 "
+            "(EPSG:3855) in metres - note this is the PAGE's statement, NOT a "
+            "vertical CRS present in the tile; grid alignment RasterPixelIsPoint "
+            "for the DGED format, consistent with the tile's AREA_OR_POINT tag; "
+            "acquisitions by TanDEM-X between 2011 and 2015; derived from an "
+            "EDITED DSM (WorldDEM) in which water bodies are flattened, river "
+            "flow made consistent, and shorelines, airports and 'implausible "
+            "terrain structures' edited - so the surface is not a raw "
+            "measurement everywhere; and MIXED PROVENANCE: 'if any Copernicus "
+            "DEM products show a sensing date earlier than 2011, this is because "
+            "older elevation models were used to fill data gaps', which means "
+            "individual cells may derive from older products and concentrate in "
+            "radar-shadow terrain - that is, in steep Korean valleys. "
+            f"VERIFIED FROM {COPERNICUS_BUCKET_README}: the source dataset is "
+            "COP-DEM_GLO-30-DGED, from the Copernicus DEM 2021 release; GLO-30 "
+            "Public has LIMITED worldwide coverage because some countries' tiles "
+            "are not publicly released; the mirror REMOVED the shared row and "
+            "column on each tile's east and south edges, so these tiles are not "
+            "byte-identical to ESA's originals; and the tile list CAN BE UPDATED, "
+            "so this fetch target is mutable and a re-fetch is not guaranteed to "
+            "reproduce these bytes (docs/DECISIONS.md D-0012). the readme also "
+            "suggests assuming height zero over ocean, which this package does "
+            "NOT do: an absent tile is missing data, not sea level "
+            "(docs/FAILURE_MODES.md F-MD-1)."
         ),
     )
 
@@ -264,6 +303,14 @@ def fetch_copernicus_dem(
                 )
                 tile_crs = parse_crs(dataset.crs.to_wkt())
                 nodata = dataset.nodatavals[0]
+                # AREA_OR_POINT matters: the GLO-30 DGED tiles are
+                # RasterPixelIsPoint, and GDAL pre-shifts the origin by half a
+                # cell so an area-convention centre lands on the integer
+                # arc-second sample. The arithmetic here is right either way,
+                # but a downstream tool that honours the tag when resampling can
+                # reintroduce the classic half-cell (~15 m) shift, so the tag is
+                # recorded rather than discarded.
+                tile_tags = dict(dataset.tags())
         except rasterio.errors.RasterioIOError as exc:
             raise IngestError(
                 f"could not read Copernicus DEM tile {url}: {exc}. the tile may "
@@ -283,7 +330,7 @@ def fetch_copernicus_dem(
         data_class=DataClass.OBSERVED,
         temporal_class=TemporalProvenance.STATIC,
         temporal_reference="2011",
-        sources=(_copernicus_source(url),),
+        sources=(_copernicus_source(url, tile_tags=tile_tags),),
         transformations=(
             Transformation(
                 operation="fetch_copernicus_dem_window",
@@ -297,6 +344,8 @@ def fetch_copernicus_dem(
                     "cell_size_deg": [transform.x_size, transform.y_size],
                     "tile_nodata": repr(nodata),
                     "dtype": str(array.dtype),
+                    "tile_tags": tile_tags,
+                    "grid_alignment": tile_tags.get("AREA_OR_POINT", UNKNOWN),
                 },
                 notes=(
                     "windowed COG read over HTTPS; no resampling applied at this "
@@ -309,7 +358,14 @@ def fetch_copernicus_dem(
         spatial_resolution=(transform.x_size, transform.y_size),
         resolution_unit="degree",
         value_unit="m",
-        vertical_datum="EGM2008 geoid (per Copernicus DEM product specification)",
+        # Per the COP-DEM collection description page (fetched and read), which
+        # states "Vertical EGM2008 (EPSG 3855)" with "Vertical Unit: meters".
+        # The tile itself carries no vertical CRS, so the field names where the
+        # fact comes from rather than implying the file declared it.
+        vertical_datum=(
+            "EGM2008 (EPSG:3855), metres - per the COP-DEM collection "
+            "description page, not declared in the tile"
+        ),
         nodata_representation="none_declared" if nodata is None else repr(nodata),
         checksum=UNKNOWN,
         notes=(
@@ -501,6 +557,12 @@ def fetch_osm_roads(
         output_crs="EPSG:4326",
         value_unit="not_applicable",
         nodata_representation="not_applicable",
+        # A vector layer has no spatial resolution and no vertical datum: those
+        # facts do not exist rather than being unknown, and using UNKNOWN for
+        # them would dilute the incompleteness metric D-0009 exists to keep
+        # meaningful.
+        resolution_unit=NOT_APPLICABLE,
+        vertical_datum=NOT_APPLICABLE,
         checksum=UNKNOWN,
         notes=(
             "ODbL 1.0; attribution to OpenStreetMap contributors required, and "

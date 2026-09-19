@@ -109,6 +109,10 @@ without matching prose. Generated from the code; see
 | `BND-014` | WARNING | provenance records no checksum |
 | `BND-015` | ERROR | provenance checksum disagrees with the manifest |
 | `BND-016` | WARNING | manifest extra points at a missing file |
+| `BND-017` | WARNING | manifest records no checksum for an extra, so that file cannot be verified |
+| `BND-018` | ERROR | a manifest extra does not match its recorded checksum — the QA report or statistics have been edited since the bundle was written |
+| `BND-019` | ERROR | a provenance sidecar the manifest checksums is missing |
+| `BND-020` | ERROR | a provenance sidecar does not match its recorded checksum — the provenance has been edited |
 
 ## What the test suite checks, and how
 

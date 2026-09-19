@@ -193,7 +193,8 @@ def format_summary_text(summary: dict[str, Any]) -> str:
             lines.append("terrain:")
             lines.append(
                 f"  elevation  : {elevation['min']:.1f} - {elevation['max']:.1f} m "
-                f"(mean {elevation['mean']:.1f}, relief {terrain.get('relief_m', 0):.1f})"
+                f"(mean {elevation['mean']:.1f}, relief "
+                f"{terrain.get('relief') or 0:.1f} {terrain.get('relief_unit', '')})".rstrip()
             )
         slope = terrain.get("slope")
         if slope and slope.get("mean") is not None:

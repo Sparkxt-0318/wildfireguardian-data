@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import networkx as nx
+from shapely.errors import GEOSException
 from shapely.geometry import LineString, MultiLineString, Point
 from shapely.strtree import STRtree
 
@@ -284,8 +285,9 @@ def build_road_graph(
         )
 
     crossings_added = 0
+    split_failures: list[dict[str, Any]] = []
     if node_crossings:
-        lines, crossings_added = _split_at_crossings(lines)
+        lines, crossings_added, split_failures = _split_at_crossings(lines)
 
     endpoints: list[Point] = []
     for _, line in lines:
@@ -318,6 +320,7 @@ def build_road_graph(
             "snap_tolerance_m": snap_tolerance_m,
             "node_crossings": node_crossings,
             "crossings_noded": crossings_added,
+            "crossing_split_failures": split_failures,
             "features_in": len(layer.features),
             "lines_used": len(lines),
             "exploded_multilinestrings": exploded,
@@ -358,7 +361,7 @@ def build_road_graph(
 
 def _split_at_crossings(
     lines: list[tuple[int, LineString]]
-) -> tuple[list[tuple[int, LineString]], int]:
+) -> tuple[list[tuple[int, LineString]], int, list[dict[str, Any]]]:
     """Split lines at mutual intersections (opt-in; see D-0007).
 
     Only point intersections that are interior to a line are used as split
@@ -398,10 +401,11 @@ def _split_at_crossings(
                     split_points.setdefault(target, []).append(candidate)
 
     if not split_points:
-        return lines, 0
+        return lines, 0, []
 
     out: list[tuple[int, LineString]] = []
     added = 0
+    split_failures: list[dict[str, Any]] = []
     for index, (feature_index, line) in enumerate(lines):
         points = split_points.get(index)
         if not points:
@@ -416,7 +420,20 @@ def _split_at_crossings(
                     continue
                 try:
                     result = shapely_split(piece, point)
-                except Exception:
+                except GEOSException as exc:
+                    # A split that GEOS cannot perform leaves the line whole,
+                    # which under-connects the network rather than fabricating a
+                    # junction -- the safe direction (D-0007). But it must not be
+                    # silent: the reason is surfaced so `crossings_noded` being
+                    # short has an explanation.
+                    split_failures.append(
+                        {
+                            "feature_index": feature_index,
+                            "x": float(point.x),
+                            "y": float(point.y),
+                            "reason": f"{type(exc).__name__}: {exc}",
+                        }
+                    )
                     next_pieces.append(piece)
                     continue
                 parts = [g for g in result.geoms if isinstance(g, LineString) and g.length > 0]
@@ -424,4 +441,4 @@ def _split_at_crossings(
             pieces = next_pieces
         added += max(0, len(pieces) - 1)
         out.extend((feature_index, piece) for piece in pieces)
-    return out, added
+    return out, added, split_failures

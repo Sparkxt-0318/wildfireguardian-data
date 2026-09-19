@@ -51,6 +51,7 @@ from ..provenance.models import (
     Transformation,
 )
 from ..raster import GridTransform, RasterKind, RasterLayer
+from ..terrain.io import resolution_unit_text
 from ..vector import Feature, VectorLayer
 
 __all__ = [
@@ -133,7 +134,9 @@ def _synthetic_raster_provenance(
         original_crs=crs_to_string(crs),
         output_crs=crs_to_string(crs),
         spatial_resolution=(transform.x_size, transform.y_size),
-        resolution_unit="m",
+        # From the CRS, not assumed: incompatible_crs_pair builds a fixture on a
+        # degree grid, whose resolution is in degrees and not in metres.
+        resolution_unit=resolution_unit_text(crs),
         value_unit=value_unit,
         vertical_datum="not_applicable (synthetic)",
         nodata_representation=nodata_text,

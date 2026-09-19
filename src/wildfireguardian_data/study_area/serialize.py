@@ -199,15 +199,80 @@ def write_bundle(
     if validation_report is not None:
         write_validation_report(target, validation_report)
 
+    # Checksum the extras and the provenance sidecars too, not only the layer
+    # files. The road QA report is the artifact a downstream reader is most
+    # likely to consume *without* re-deriving it, so an undetected edit there is
+    # worse than an undetected edit to a raster. The validation report is
+    # necessarily absent here -- it is written after validation, which runs
+    # after this -- and is listed in `unchecksummed` so its absence is a stated
+    # fact rather than an oversight.
+    extras_checksums = {
+        key: sha256_file(target / relative)
+        for key, relative in sorted(extras.items())
+        if key != "validation_report" and (target / relative).exists()
+    }
+    provenance_checksums = {
+        path.name[: -len(".provenance.json")]: sha256_file(path)
+        for path in sorted((target / "provenance").glob("*.provenance.json"))
+    }
+
+    # Aggregate the per-layer licence terms into the manifest. docs/INTERFACES.md
+    # names manifest.json as a consumer's step 1, so an obligation that lives
+    # only in a provenance sidecar can be missed by a redistributor who reads
+    # the manifest and stops. The sidecars remain authoritative.
+    licences: list[dict[str, Any]] = []
+    for layer in bundle.all_layers():
+        for source in layer.provenance.sources:
+            if source.licence == "UNKNOWN":
+                continue
+            entry = {
+                "layer": layer.name,
+                "source": source.name,
+                "licence": source.licence,
+                "licence_url": source.licence_url,
+                "publisher": source.publisher,
+            }
+            if entry not in licences:
+                licences.append(entry)
+
+    caveats = list(bundle.describe()["caveats"])
+    obligations = sorted(
+        {
+            f"{entry['source']}: {entry['licence']}"
+            for entry in licences
+            if "ODbL" in entry["licence"] or "attribution" in entry["licence"].lower()
+        }
+    )
+    if obligations:
+        caveats.append(
+            "this bundle carries data licence obligations that travel with it, "
+            "including attribution and, for any ODbL source, share-alike on "
+            "derived databases: " + " | ".join(obligations)
+        )
+
     manifest = {
         "schema_version": BUNDLE_SCHEMA_VERSION,
         "study_area_id": bundle.study_area_id,
         "crs": crs_to_string(bundle.crs),
+        # WKT alongside the authority string, so a CRS with no authority code
+        # survives the round trip -- the raster sidecar already does this and the
+        # manifest did not.
+        "crs_wkt": bundle.crs.to_wkt() if bundle.crs is not None else None,
         "bounds": bundle.bounds.to_dict(),
+        "licences": licences,
         "layers": layer_entries,
         "extras": extras,
+        "extras_checksums_sha256": extras_checksums,
+        "provenance_checksums_sha256": provenance_checksums,
+        "unchecksummed": {
+            "validation_report": (
+                "written after the manifest, because validation runs against the "
+                "written bundle (docs/DECISIONS.md D-0014); it is therefore not "
+                "covered by any checksum here"
+            )
+        },
         "metadata": bundle.metadata,
-        "caveats": bundle.describe()["caveats"],
+        "caveats": caveats,
     }
     manifest["manifest_checksum_sha256"] = sha256_json(manifest)
     manifest_path.write_text(
@@ -257,7 +322,7 @@ def read_bundle(directory: str | Path) -> StudyAreaBundle:
         )
 
     provenance_records = read_all_provenance(target)
-    crs = parse_crs(manifest["crs"])
+    crs = parse_crs(manifest.get("crs_wkt") or manifest["crs"])
     bounds = Bounds.from_dict(manifest["bounds"])
 
     rasters: dict[str, RasterLayer] = {}

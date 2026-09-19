@@ -19,6 +19,7 @@ from typing import Any
 
 from ..crs import crs_equal, crs_to_string
 from ..errors import BundleError, PrivacyGuardError
+from ..provenance.checksum import sha256_file
 from ..provenance.models import UNKNOWN, DataClass
 from ..raster import RasterKind
 from .checks import (
@@ -308,15 +309,56 @@ def validate_bundle_directory(
             )
 
     extras = manifest.get("extras", {})
+    extras_checksums = manifest.get("extras_checksums_sha256", {})
     for key, relative in extras.items():
         # The validation report is written *after* validation by definition, so
         # its absence during this run says nothing about the bundle.
         if key == "validation_report":
             continue
-        if not (target / relative).exists():
+        path = target / relative
+        if not path.exists():
             report.add(
                 "BND-016",
                 Severity.WARNING,
                 f"manifest extra {key!r} points at missing file {relative}",
+            )
+            continue
+        expected = extras_checksums.get(key)
+        if expected is None:
+            report.add(
+                "BND-017",
+                Severity.WARNING,
+                f"manifest records no checksum for extra {key!r} ({relative}), so "
+                "that file cannot be verified. the QA report and the statistics "
+                "are exactly what a downstream reader consumes without "
+                "re-deriving them",
+            )
+        elif expected != sha256_file(path):
+            report.add(
+                "BND-018",
+                Severity.ERROR,
+                f"extra {key!r} ({relative}) does not match its recorded "
+                "checksum: the file has changed since the bundle was written",
+            )
+
+    provenance_checksums = manifest.get("provenance_checksums_sha256", {})
+    for layer_name, expected in provenance_checksums.items():
+        sidecar = target / "provenance" / f"{layer_name}.provenance.json"
+        if not sidecar.exists():
+            report.add(
+                "BND-019",
+                Severity.ERROR,
+                f"manifest records a checksum for provenance sidecar "
+                f"{sidecar.name} but the file is missing",
+                layer=layer_name,
+            )
+        elif expected != sha256_file(sidecar):
+            report.add(
+                "BND-020",
+                Severity.ERROR,
+                f"provenance sidecar {sidecar.name} does not match its recorded "
+                "checksum: the provenance has been edited since the bundle was "
+                "written",
+                layer=layer_name,
             )
     return report

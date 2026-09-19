@@ -1,7 +1,8 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "study_area_id": "uljin_valley_synthetic_v1",
   "crs": "EPSG:5187",
+  "crs_wkt": "PROJCRS[\"KGD2002 / East Belt 2010\",BASEGEOGCRS[\"KGD2002\",DATUM[\"Korean Geodetic Datum 2002\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4737]],CONVERSION[\"Korea East Belt 2010\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",38,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",129,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",1,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",200000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",600000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"northing (X)\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"easting (Y)\",east,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Cadastre, topographic mapping.\"],AREA[\"Republic of Korea (South Korea) - onshore between 128°E and 130°E.\"],BBOX[34.49,128,38.64,129.65]],ID[\"EPSG\",5187]]",
   "bounds": {
     "min_x": 226000.0,
     "min_y": 477000.0,
@@ -9,6 +10,57 @@
     "max_y": 483000.0,
     "crs": "EPSG:5187"
   },
+  "licences": [
+    {
+      "layer": "dem",
+      "source": "wildfireguardian_data.fixtures.synthetic.korean_valley_dem",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "slope_deg",
+      "source": "wildfireguardian_data.fixtures.synthetic.korean_valley_dem",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "aspect_deg",
+      "source": "wildfireguardian_data.fixtures.synthetic.korean_valley_dem",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "roads",
+      "source": "wildfireguardian_data.fixtures.synthetic.korean_valley_roads",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "fuels",
+      "source": "wildfireguardian_data.fixtures.synthetic.korean_valley_fuels",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "villages",
+      "source": "wildfireguardian_data.fixtures.synthetic.korean_valley_villages",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "facilities",
+      "source": "wildfireguardian_data.fixtures.synthetic.korean_valley_facilities",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    }
+  ],
   "layers": [
     {
       "name": "dem",
@@ -91,7 +143,7 @@
       "geom_types": [
         "LineString"
       ],
-      "checksum_sha256": "32375caf73753400ec0e85743fd7cee674ef0d87571166fec8c297e382ca5517",
+      "checksum_sha256": "3b4ba85c382e8689e8a4d53b2a3af09cb42c9dc530cfb4d2512aaecbc335edd8",
       "checksum_algorithm": "sha256"
     },
     {
@@ -129,7 +181,7 @@
       "geom_types": [
         "Polygon"
       ],
-      "checksum_sha256": "7b45d81701369b22cbc4d96a5208f06b8425b309e8776163e9893511a987bdb9",
+      "checksum_sha256": "6f1135062c4aba309e4f20b457de73ce502ecb5f629623336a4cb5ee71a5dc6d",
       "checksum_algorithm": "sha256"
     },
     {
@@ -145,7 +197,7 @@
         "Point",
         "Polygon"
       ],
-      "checksum_sha256": "3d183dda9b2edffa500e1ab9cf2eb69ba8a1b56d199e6d8a14c75b63b46a591f",
+      "checksum_sha256": "6fc21bc0e4fba96775608fb42ac86b89eadfe230c9383c6ea8db50a537453c5f",
       "checksum_algorithm": "sha256"
     }
   ],
@@ -158,10 +210,30 @@
     "facilities_records": "facilities/facilities_records.json",
     "validation_report": "validation/report.json"
   },
+  "extras_checksums_sha256": {
+    "facilities_records": "bbda3f28f0a27857f072f53752f9fcfff6b825b2340363d6672b9fbd5a8f6359",
+    "fuel_scheme": "a0627e7601ea76560169e91f556dd74a05283a98036e5533a8844d746a05eb66",
+    "roads_graph_summary": "0ae8d8814d748f5df6a5da7fb5a0daa24d60d7c52fe8544c8e33d5bce6d56ac7",
+    "roads_qa": "69da0bf5f41611818b0a9e0098ca90fd4f11f38b0440a4ac060b0e2c82cf06dc",
+    "terrain_statistics": "ab0501dfd35b5d685b3a7dfad4a3a01a11c5009148043ff98e0cc77f416d4859",
+    "villages_aggregate": "0aa5ab4c4d4524144f7cfb21394c4417200546ed88fa324a3c1b00d1fc7ef089"
+  },
+  "provenance_checksums_sha256": {
+    "aspect_deg": "a6df177cb52953de9a752f1447aac7a08f8cd16d19b2647045f3438324e599e0",
+    "dem": "a941b5c6ea75ef0ab0cc11b845f32e73ebdab1c218f1764e5f88c8ab7ab87c73",
+    "facilities": "e8dc060c440e7d7a6f718266d5f3bec2775ff9f018cca07789872c32a2dcd5fc",
+    "fuels": "677bcac89734c2d7be1bcd9dd1b641f6c4c0b7a385140398d54483f899b56a71",
+    "roads": "b9aa0f92fa0fe67fda4f5f1a513a9e7ec9ab3094968d8fc67e71f55ca704b5e1",
+    "slope_deg": "551873785bec0f371b643000ca4ef3b249c4855797e1ead77548b5032aa25872",
+    "villages": "89f9f1142172c57dc5576cabbf25231054596661290dfbee32b9ab5d6f9a8775"
+  },
+  "unchecksummed": {
+    "validation_report": "written after the manifest, because validation runs against the written bundle (docs/DECISIONS.md D-0014); it is therefore not covered by any checksum here"
+  },
   "metadata": {
     "description": "Synthetic Korean rural valley: two ridges, a valley floor, three hamlets, a single-egress spur, a two-connection loop, an orphan track, and an unnoded crossing. Built so the QA report has positive cases rather than a clean sheet.\n",
     "notes": "Every layer is DataClass.SYNTHETIC. Deliberate findings: SYN-V-003 has age strata that do not sum to its total, a total below the k-anonymity floor, and an UNKNOWN count basis; the forest track crosses the trunk road with no shared node; one road segment is an orphan.\n",
-    "built_at": "2026-09-19T18:10:39.544653+00:00",
+    "built_at": "2026-09-19T18:49:42.780122+00:00",
     "config": {
       "study_area_id": "uljin_valley_synthetic_v1",
       "description": "Synthetic Korean rural valley: two ridges, a valley floor, three hamlets, a single-egress spur, a two-connection loop, an orphan track, and an unnoded crossing. Built so the QA report has positive cases rather than a clean sheet.\n",
@@ -266,5 +338,5 @@
     "StudyAreaBundle is internal and unstable; no downstream repository should depend on this layout yet (docs/DECISIONS.md D-0001)",
     "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)"
   ],
-  "manifest_checksum_sha256": "3d7c7aee9072f36f6168e378c7777b9130eb0ff5d13297c80e84d1344284392e"
+  "manifest_checksum_sha256": "a68ef1f417084f1b39d752217314f28fb578038054f88b4da9c279b45fc4973d"
 }

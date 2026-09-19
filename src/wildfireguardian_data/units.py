@@ -194,8 +194,14 @@ def convert_slope(value, src: SlopeUnit, dst: SlopeUnit):
     """Convert a slope between degree, radian, and percent rise.
 
     Non-linear through ``PERCENT``: ``percent = 100 * tan(radians)``. A slope of
-    100 percent is 45 degrees, not 90. Vertical (90 degrees) has no finite
-    percent representation and converts to ``inf``.
+    100 percent is 45 degrees, not 90.
+
+    A vertical slope has no percent representation, but note that it does **not**
+    come back as ``inf``: ``tan(radians(90))`` is a large *finite* number
+    (~1.6e18), because ``radians(90)`` is not exactly pi/2 in binary floating
+    point. A consumer guarding only against ``inf`` will let 1.6e18 into a
+    reduction. Guard with ``numpy.isfinite`` *and* a plausibility bound, or work
+    in degrees.
     """
     src = parse_slope_unit(src)
     dst = parse_slope_unit(dst)

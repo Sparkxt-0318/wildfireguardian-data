@@ -21,9 +21,10 @@ from typing import Any
 
 import numpy as np
 
-from ..crs import crs_to_string
-from ..errors import MissingDataError
+from ..crs import crs_to_string, require_same_crs
+from ..errors import CRSError, MissingDataError, RasterAlignmentError
 from ..raster import RasterKind, RasterLayer
+from .io import resolution_unit_text
 
 __all__ = [
     "CircularMean",
@@ -190,23 +191,52 @@ def terrain_statistics(
     drop the array edge (D-0005) -- so a summary that reported only the DEM's
     coverage would overstate how much of the area has usable slope.
     """
+    # This function combines up to three layers, so it goes through the same
+    # choke point every other cross-layer operation does (D-0002). Without it a
+    # "terrain summary" could carry a slope block from a different CRS,
+    # resolution and extent under a single top-level crs field.
+    companions = [layer for layer in (slope_layer, aspect_layer) if layer is not None]
+    if companions:
+        require_same_crs(
+            [dem.crs, *(layer.crs for layer in companions)],
+            context=f"summarising terrain for {dem.name!r}",
+        )
+        for layer in companions:
+            if layer.shape != dem.shape or layer.transform != dem.transform:
+                raise RasterAlignmentError(
+                    f"layer {layer.name!r} is not on the DEM's grid "
+                    f"(shape {layer.shape} vs {dem.shape}, cell size "
+                    f"{layer.resolution} vs {dem.resolution}); a combined terrain "
+                    "summary of layers that do not correspond cell-for-cell would "
+                    "attribute one layer's statistics to another's extent."
+                )
+
     elevation = raster_statistics(dem)
     out: dict[str, Any] = {
         "elevation": elevation,
-        "relief_m": (
+        # The unit is a field, not part of the key: naming it `relief_m` was
+        # wrong for a DEM in any other length unit, and a summary that hard-codes
+        # a unit it did not check is the mislabelling this package exists to
+        # prevent.
+        "relief": (
             elevation["max"] - elevation["min"]
             if elevation["min"] is not None
             else None
         ),
+        "relief_unit": elevation["unit"],
         "cell_size": list(dem.resolution),
+        "cell_size_unit": resolution_unit_text(dem.crs),
         "grid_shape": list(dem.shape),
         "crs": crs_to_string(dem.crs),
     }
     try:
         out["valid_area_m2"] = float(dem.valid_count * dem.cell_area())
-    except Exception as exc:  # geographic CRS or unknown units
+    except CRSError as exc:
+        # A geographic or non-metre CRS has no metre area. Reported as a stated
+        # reason rather than a null, and narrowed to the error that can actually
+        # occur here so an unrelated failure is not swallowed (AGENTS.md §7).
         out["valid_area_m2"] = None
-        out["valid_area_note"] = f"not computed: {exc.__class__.__name__}: {exc}"
+        out["valid_area_note"] = f"not computed: {type(exc).__name__}: {exc}"
 
     if slope_layer is not None:
         slope_stats = raster_statistics(slope_layer)
@@ -218,7 +248,19 @@ def terrain_statistics(
         out["slope"] = slope_stats
 
     if aspect_layer is not None:
-        circular = circular_mean_deg(aspect_layer.data)
+        # Through the valid mask, not the raw array. circular_mean_deg drops
+        # non-finite values only, so a declared numeric nodata would survive it:
+        # an aspect layer arriving from another tool with nodata=-9999 would have
+        # that read as a real north-easterly azimuth (-9999 deg == 81 deg),
+        # shifting the reported dominant aspect by tens of degrees. This module
+        # promises every statistic is over valid cells only; that has to include
+        # this one.
+        masked_aspect = np.where(
+            aspect_layer.valid_mask(),
+            np.asarray(aspect_layer.data, dtype=np.float64),
+            np.nan,
+        )
+        circular = circular_mean_deg(masked_aspect)
         out["aspect"] = {
             "layer": aspect_layer.name,
             "unit": "deg_azimuth_grid_north",

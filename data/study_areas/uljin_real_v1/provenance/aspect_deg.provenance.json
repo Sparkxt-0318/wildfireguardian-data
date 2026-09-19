@@ -13,16 +13,16 @@
     "dem"
   ],
   "random_seed": null,
-  "resolution_unit": "m",
+  "resolution_unit": "metre",
   "schema_version": "1.0.0",
   "sources": [
     {
-      "acquisition_date": "2026-09-19T18:22:35.327304+00:00",
-      "licence": "free use with attribution to ESA / Copernicus; the exact licence terms are in the COP-DEM product documentation, which was NOT retrievable from this repository's environment - treat the terms as UNVERIFIED HERE and check them before redistributing",
+      "acquisition_date": "2026-09-19T18:49:44.754072+00:00",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
       "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
-      "name": "Copernicus DEM GLO-30 (COP-DEM_GLO-30-DGED)",
-      "notes": "GLO-30 is a DIGITAL SURFACE MODEL: it includes vegetation canopy and buildings, so slope derived from it over Korean forest is canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). elevations are referenced to the EGM2008 geoid and the horizontal CRS of the tiles as read is EPSG:4326 (both confirmed against the tile metadata). the product is compiled from TanDEM-X acquisitions spanning 2011-2015, so source_date records 2011 at year precision and the range is stated here rather than collapsed to one date. GLO-30's nominal 30 m is at the equator; at Korean latitudes the cells are about 30 m north-south and 24 m east-west, so any 30 m metre grid is a resampling choice, recorded as such.",
-      "publisher": "European Space Agency / Copernicus Programme",
+      "name": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "notes": "VERIFIED FROM THE TILE METADATA: horizontal CRS EPSG:4326; float32; 1/3600 degree cells; no vertical CRS and no nodata declared in the file; grid alignment tag AREA_OR_POINT='Point'. VERIFIED FROM https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM: it is a DIGITAL SURFACE MODEL including buildings, infrastructure and vegetation, so slope over Korean forest is canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3); vertical reference EGM2008 (EPSG:3855) in metres - note this is the PAGE's statement, NOT a vertical CRS present in the tile; grid alignment RasterPixelIsPoint for the DGED format, consistent with the tile's AREA_OR_POINT tag; acquisitions by TanDEM-X between 2011 and 2015; derived from an EDITED DSM (WorldDEM) in which water bodies are flattened, river flow made consistent, and shorelines, airports and 'implausible terrain structures' edited - so the surface is not a raw measurement everywhere; and MIXED PROVENANCE: 'if any Copernicus DEM products show a sensing date earlier than 2011, this is because older elevation models were used to fill data gaps', which means individual cells may derive from older products and concentrate in radar-shadow terrain - that is, in steep Korean valleys. VERIFIED FROM https://copernicus-dem-30m.s3.amazonaws.com/readme.html: the source dataset is COP-DEM_GLO-30-DGED, from the Copernicus DEM 2021 release; GLO-30 Public has LIMITED worldwide coverage because some countries' tiles are not publicly released; the mirror REMOVED the shared row and column on each tile's east and south edges, so these tiles are not byte-identical to ESA's originals; and the tile list CAN BE UPDATED, so this fetch target is mutable and a re-fetch is not guaranteed to reproduce these bytes (docs/DECISIONS.md D-0012). the readme also suggests assuming height zero over ocean, which this package does NOT do: an absent tile is missing data, not sea level (docs/FAILURE_MODES.md F-MD-1).",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise",
       "source_date": "2011",
       "url_or_identifier": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E129_00_DEM/Copernicus_DSM_COG_10_N36_00_E129_00_DEM.tif"
     }
@@ -44,6 +44,7 @@
           0.0002777777777777778
         ],
         "dtype": "float32",
+        "grid_alignment": "Point",
         "read_bounds_wgs84": [
           129.29856383932218,
           36.89474312529925,
@@ -58,13 +59,16 @@
         ],
         "tile": "Copernicus_DSM_COG_10_N36_00_E129_00_DEM",
         "tile_nodata": "None",
+        "tile_tags": {
+          "AREA_OR_POINT": "Point"
+        },
         "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E129_00_DEM/Copernicus_DSM_COG_10_N36_00_E129_00_DEM.tif",
         "window_shape": [
           202,
           234
         ]
       },
-      "timestamp": "2026-09-19T18:22:35.327441+00:00",
+      "timestamp": "2026-09-19T18:49:44.754201+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -97,9 +101,10 @@
         "src_resolution": [
           0.0002777777777777778,
           0.0002777777777777778
-        ]
+        ],
+        "target_grid_supplied": false
       },
-      "timestamp": "2026-09-19T18:22:35.348974+00:00",
+      "timestamp": "2026-09-19T18:49:44.772065+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -134,7 +139,7 @@
           174
         ]
       },
-      "timestamp": "2026-09-19T18:22:35.349254+00:00",
+      "timestamp": "2026-09-19T18:49:44.772286+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -152,11 +157,11 @@
         "reference_direction": "grid_north_clockwise",
         "unit": "deg"
       },
-      "timestamp": "2026-09-19T18:22:35.351819+00:00",
+      "timestamp": "2026-09-19T18:49:44.774394+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     }
   ],
   "value_unit": "deg_azimuth_grid_north",
-  "vertical_datum": "EGM2008 geoid (per Copernicus DEM product specification)"
+  "vertical_datum": "EGM2008 (EPSG:3855), metres - per the COP-DEM collection description page, not declared in the tile"
 }

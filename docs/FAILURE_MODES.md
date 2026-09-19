@@ -97,6 +97,15 @@ ridges. This repository reprojects before deriving (because a degree grid cannot
 give a valid slope at all), and records the resampling method and both cell
 sizes. The magnitude of the smoothing is not quantified.
 
+### F-TER-8 — Sibling rasters on different grids (PREVENTED, and caught if it happens)
+Reprojecting two rasters independently derives each target grid from that
+layer's own extent, so a DEM and a fuel raster arriving in different Korean
+belts land on origins offset by a fraction of a cell — every fuel value
+displaced relative to the DEM cell a consumer indexes it by. The build pipeline
+now warps non-terrain rasters **onto the DEM's grid** (D-0018), so it does not
+arise there; `RAS-006`/`RAS-007` still catch it for a bundle assembled by hand,
+reporting the offset magnitude.
+
 ### F-TER-7 — Non-square cells after reprojection (CAUGHT as a warning)
 `RAS-005`. A reprojection with no explicit target resolution generally produces
 non-square cells, which makes slope anisotropic with respect to cell count.
@@ -186,6 +195,13 @@ one exit node. A hamlet on a dead-end spur off a trunk road with two exits is
 though losing one spur segment isolates it. That case is reported instead by
 `critical_links`, which names the edges whose removal disconnects a settlement
 from every exit. **Read both fields**; neither alone describes egress fragility.
+
+Note what `critical_links` deliberately does **not** include: a settlement that
+has no exit in the intact graph at all. "Cuts off" is a change of state, so such
+a settlement cannot be newly disconnected by removing an edge; it is reported
+once, as `no_egress_components`. An earlier implementation attributed it to every
+bridge anywhere in the graph, which inflated the count in proportion to how
+fragmented the road data was — worst exactly where the data is weakest.
 
 ### F-RD-7 — Planar length read as travel distance (BY DESIGN)
 Edge lengths are planar 2-D lengths in the projected CRS: not slope-corrected,
@@ -285,6 +301,14 @@ list of what validation does not check is at the end of `VALIDATION.md`.
 `fetch_copernicus_dem` raises if a requested extent spans more than one 1°
 tile; mosaicking is not implemented. Returning one tile's worth of a two-tile
 request would hand back a study area with an artificial straight edge.
+
+### F-BND-7 — An edited QA report, statistic or provenance sidecar (CAUGHT)
+Schema 1.1.0 checksums the manifest extras and the provenance sidecars as well
+as the layer files (`BND-017`..`BND-020`). Before that, only the rasters and
+vectors were covered — so editing `roads_qa.json`, the artifact a downstream
+reader is most likely to consume without re-deriving it, went undetected. The
+validation report itself cannot be covered, because it is written after
+validation runs (D-0014); the manifest says so in its `unchecksummed` block.
 
 ### F-BND-6 — Resampling within one CRS requested implicitly (CAUGHT)
 If a source is already in the analysis CRS but at a different resolution than

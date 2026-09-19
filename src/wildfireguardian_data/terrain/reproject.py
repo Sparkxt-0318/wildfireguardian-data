@@ -23,6 +23,7 @@ from ..errors import (
 )
 from ..provenance.models import Transformation
 from ..raster import GridTransform, RasterKind, RasterLayer
+from .io import resolution_unit_text
 
 __all__ = ["RESAMPLING_FOR_KIND", "reproject_raster"]
 
@@ -55,6 +56,8 @@ def reproject_raster(
     resampling: str | None = None,
     dst_resolution: float | tuple[float, float] | None = None,
     dst_nodata: Any = None,
+    target_grid: GridTransform | None = None,
+    target_shape: tuple[int, int] | None = None,
     name: str | None = None,
 ) -> RasterLayer:
     """Reproject ``layer`` to ``dst_crs``.
@@ -79,6 +82,15 @@ def reproject_raster(
         the triangular gaps a rotation leaves behind with ``0`` would create
         fictitious sea-level cells or fictitious fuel class 0
         (``docs/FAILURE_MODES.md`` F-MD-1).
+    target_grid, target_shape:
+        Warp directly onto an **existing** grid rather than onto whatever grid
+        rasterio's default transform produces. This is how sibling rasters in
+        one bundle are co-registered: without it, each layer's target grid is
+        derived from its own extent, so a DEM and a fuel raster reprojected
+        independently land on origins offset by a fraction of a cell, and every
+        fuel value is displaced relative to the DEM cell a consumer indexes it
+        by (A-RAS-5). Mutually exclusive with ``dst_resolution``, whose cell
+        size ``target_grid`` already fixes.
     """
     Resampling, calculate_default_transform, reproject = _rasterio_modules()
 
@@ -134,6 +146,15 @@ def reproject_raster(
     src_transform = layer.transform.to_affine()
     left, bottom, right, top = layer.bounds.as_tuple()
 
+    if target_grid is not None:
+        if dst_resolution is not None:
+            raise ConfigError(
+                "pass either target_grid or dst_resolution, not both: the "
+                "target grid already fixes the cell size"
+            )
+        if target_shape is None:
+            raise ConfigError("target_grid requires target_shape")
+
     resolution_arg: tuple[float, float] | None
     if dst_resolution is None:
         resolution_arg = None
@@ -142,20 +163,24 @@ def reproject_raster(
     else:
         resolution_arg = (float(dst_resolution[0]), float(dst_resolution[1]))
 
-    kwargs: dict[str, Any] = {}
-    if resolution_arg is not None:
-        kwargs["resolution"] = resolution_arg
-    dst_transform, dst_width, dst_height = calculate_default_transform(
-        src_crs,
-        target,
-        layer.width,
-        layer.height,
-        left=left,
-        bottom=bottom,
-        right=right,
-        top=top,
-        **kwargs,
-    )
+    if target_grid is not None:
+        dst_transform = target_grid.to_affine()
+        dst_height, dst_width = int(target_shape[0]), int(target_shape[1])
+    else:
+        kwargs: dict[str, Any] = {}
+        if resolution_arg is not None:
+            kwargs["resolution"] = resolution_arg
+        dst_transform, dst_width, dst_height = calculate_default_transform(
+            src_crs,
+            target,
+            layer.width,
+            layer.height,
+            left=left,
+            bottom=bottom,
+            right=right,
+            top=top,
+            **kwargs,
+        )
 
     destination = np.full((int(dst_height), int(dst_width)), dst_nodata, dtype=out_dtype)
     reproject(
@@ -187,6 +212,7 @@ def reproject_raster(
             "src_nodata": repr(src_nodata),
             "dst_nodata": repr(dst_nodata),
             "dst_cells_square": new_grid.is_square,
+            "target_grid_supplied": target_grid is not None,
         },
         notes=(
             "resampling changes values; cell size and grid origin both change. "
@@ -205,6 +231,9 @@ def reproject_raster(
         provenance_changes={
             "output_crs": crs_to_string(target),
             "spatial_resolution": (new_grid.x_size, new_grid.y_size),
-            "resolution_unit": "m",
+            # Read from the target CRS, never hard-coded: reprojecting to a
+            # geographic CRS gives a resolution in degrees, and a provenance
+            # field stating a false unit is worse than UNKNOWN (D-0009).
+            "resolution_unit": resolution_unit_text(target),
         },
     )

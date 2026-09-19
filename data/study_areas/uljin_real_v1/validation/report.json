@@ -5,7 +5,7 @@
   "strict": false,
   "counts": {
     "ERROR": 0,
-    "WARNING": 4,
+    "WARNING": 3,
     "INFO": 6
   },
   "context": {
@@ -23,7 +23,7 @@
       "aspect_deg",
       "roads"
     ],
-    "schema_version": "1.0.0",
+    "schema_version": "1.1.0",
     "directory": "data/study_areas/uljin_real_v1"
   },
   "findings": [
@@ -54,18 +54,6 @@
       "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
       "layer": "roads",
       "detail": {}
-    },
-    {
-      "code": "PRV-002",
-      "severity": "WARNING",
-      "message": "2 provenance field(s) are UNKNOWN: ['resolution_unit', 'vertical_datum']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
-      "layer": "roads",
-      "detail": {
-        "fields": [
-          "resolution_unit",
-          "vertical_datum"
-        ]
-      }
     },
     {
       "code": "RAS-004",

@@ -22,7 +22,7 @@ plausible guess.
 
 | # | Assumption | Enforcement |
 |---|---|---|
-| A-TER-1 | DEM values are **elevations in metres above the datum stated in provenance**. The vertical datum is `UNKNOWN` unless the source states it. Copernicus GLO-30 is `EGM2008` geoid heights; this is recorded, not assumed for other sources. | `ElevationUnit`, `ProvenanceRecord.vertical_datum`. |
+| A-TER-1 | A DEM's vertical unit is **declared by the caller, never defaulted**, and is cross-checked against the file's band unit tag where one exists. The vertical datum is `UNKNOWN` unless the source states it, and provenance names *where* it was verified. | `read_geotiff` requires `value_unit` and raises on disagreement (D-0016); `SourceSpec.require_declared_semantics`; `ProvenanceRecord.vertical_datum`. |
 | A-TER-2 | A DEM is a **surface model unless the source says otherwise**. Copernicus GLO-30 is a DSM (includes canopy and buildings), not a DTM. Slope derived from a DSM over forest is *canopy* slope, not ground slope. | Recorded in provenance `notes`; `docs/FAILURE_MODES.md` F-TER-3. |
 | A-TER-3 | Slope and aspect are computed by **Horn's (1981) 3×3 method**, the same estimator as GDAL/ArcGIS defaults, on a **north-up, axis-aligned, projected** grid. | `terrain.derivatives`; `DECISIONS.md` D-0004. |
 | A-TER-4 | Slope is reported in **degrees** by default (0–90). Percent-rise and radians are available by explicit request. The unit is carried on the returned layer. | `SlopeUnit`, `terrain.derivatives.slope`. |
@@ -37,9 +37,9 @@ plausible guess.
 |---|---|---|
 | A-RAS-1 | Rasters are **north-up and axis-aligned** (affine with zero rotation terms). Rotated rasters are rejected rather than approximately handled. | `raster.RasterLayer.__post_init__`. |
 | A-RAS-2 | A raster cell's value applies to the **whole cell area**, and the transform maps to the **upper-left corner** of cell (0, 0) (GDAL convention). Cell centres are `+0.5` cell. | `raster.RasterLayer.cell_center_coords`. |
-| A-RAS-3 | `nodata` is part of the layer's identity. A raster loaded with `nodata = None` is treated as *having no missing cells declared*, which is different from *having no missing cells*. | `validation.raster_checks.check_nodata_declared` emits a WARNING. |
+| A-RAS-3 | `nodata` is part of the layer's identity. A raster loaded with `nodata = None` is treated as *having no missing cells declared*, which is different from *having no missing cells*. | `validation.checks.check_raster_nodata_declared` emits a WARNING. |
 | A-RAS-4 | Resampling defaults: **bilinear for continuous** (elevation), **nearest for categorical** (fuel class). There is no default for an undeclared layer kind — the caller must declare. | `terrain.reproject`, `fuels.io`. |
-| A-RAS-5 | Two rasters are "aligned" only if CRS, cell size, grid origin (modulo cell size), and shape all match. Near-alignment is reported as misalignment, with the offsets. | `validation.raster_checks.check_grid_alignment`. |
+| A-RAS-5 | Two rasters are "aligned" only if CRS, cell size, grid origin (modulo cell size), and shape all match. Near-alignment is reported as misalignment, with the offsets. The build pipeline **warps non-terrain rasters onto the DEM's grid** so the condition does not arise there (D-0018). | `validation.checks.check_grid_alignment`; `terrain.reproject_raster(target_grid=...)`. |
 
 ## Roads
 
@@ -69,7 +69,7 @@ plausible guess.
 | A-POP-2 | **No medical, disability-diagnosis, or care-status information about identifiable persons** enters this repository, in any form. Aggregate age strata are permitted; an aggregate count of persons with a named medical condition attached to a single dwelling is not. | `population.io.PRIVACY_FORBIDDEN_FIELD_PATTERNS`. |
 | A-POP-3 | A settlement centroid is a **geometric** representative point, not a population-weighted centre of mass, unless the source provides weights. Which one it is, is recorded. | `population.models.SettlementCentroidKind`. |
 | A-POP-4 | Age strata are **half-open intervals `[lower, upper)`** in whole years, and strata within a layer must not overlap. `65+` is `[65, None)`. | `population.models.AgeStratum`. |
-| A-POP-5 | A population count with value `0` means *zero people counted*. A population count that is **absent** is `None`, never `0`. Strata that do not sum to the stated total are reported, not reconciled. | `validation.vector_checks.check_population_consistency`. |
+| A-POP-5 | A population count with value `0` means *zero people counted*. A population count that is **absent** is `None`, never `0`. Strata that do not sum to the stated total are reported, not reconciled. | `validation.checks.check_population_consistency`. |
 | A-POP-6 | Population counts are **residential-register or census counts at the stated date**, not daytime or present-population. Which one, and at what date, is provenance, and is `UNKNOWN` if the source does not say. | `ProvenanceRecord`. |
 
 ## Facilities
@@ -84,7 +84,7 @@ plausible guess.
 
 | # | Assumption | Enforcement |
 |---|---|---|
-| A-T-1 | Every layer declares a `TemporalProvenance`: `static`, `annual`, `monthly`, `observation_time`, or `retrospective`. There is no default. | `provenance.models.ProvenanceRecord` requires it. |
+| A-T-1 | Every layer declares a `TemporalProvenance`: `static`, `annual`, `monthly`, `observation_time`, or `retrospective`. There is no default — **including in a study-area config**, where a local-file source must state it. | `ProvenanceRecord` requires it; `SourceSpec.require_declared_semantics` raises rather than letting the build pipeline default it (D-0017). |
 | A-T-2 | All timestamps are **timezone-aware**. Korean local time is `Asia/Seoul` (UTC+09:00, no DST since 1988). Naive datetimes are rejected. | `provenance.models` validators. |
 | A-T-3 | `source_date` is *when the data describes the world*; `acquisition_date` is *when this repository obtained it*. They are different fields and neither substitutes for the other. | `provenance.models.SourceRecord`. |
 | A-T-4 | A `static` layer is one whose change over the study period is assumed negligible **for data-preparation purposes only**. Terrain is `static`; this is false after a landslide, and false for roads after construction. | `GLOSSARY.md`. |

@@ -125,6 +125,10 @@ class SettlementNodeSet:
     unmatched_settlements: tuple[str, ...] = ()
     snap_distance_m: float | None = None
     matched_distance_m: dict[str, float] = field(default_factory=dict)
+    #: Whether the settlement points' CRS was checked against the graph's. When
+    #: false, a CRS mismatch would show up as "everything unmatched" rather than
+    #: as an error, so the fact that no check ran is recorded.
+    crs_checked: bool = False
 
     @property
     def all_nodes(self) -> frozenset[int]:
@@ -139,6 +143,7 @@ class SettlementNodeSet:
             },
             "unmatched_settlements": list(self.unmatched_settlements),
             "snap_distance_m": self.snap_distance_m,
+            "crs_checked": self.crs_checked,
             "note": (
                 "an unmatched settlement is a finding, not a blank: either the "
                 "road network is incomplete near it, or the settlement centroid "
@@ -198,6 +203,7 @@ def identify_settlement_nodes(
     settlements: Iterable[tuple[str, Point]],
     *,
     snap_distance_m: float = DEFAULT_SETTLEMENT_SNAP_M,
+    settlements_crs: Any = None,
 ) -> SettlementNodeSet:
     """Match settlement points to their nearest road node within a distance.
 
@@ -205,7 +211,23 @@ def identify_settlement_nodes(
     ``unmatched_settlements`` rather than being dropped or attached to an
     arbitrarily distant node: "this village has no digitised road access within
     250 m" is exactly the kind of finding this repository exists to surface.
+
+    Parameters
+    ----------
+    settlements_crs:
+        The CRS the settlement points are in. Checked against the graph's CRS
+        (D-0002), because these are bare Shapely points and a metre-based
+        distance comparison against lon/lat coordinates silently reports every
+        settlement as unmatched rather than raising. Passing ``None`` skips the
+        check and records that it was skipped -- acceptable only when the caller
+        has already established that both are in one CRS, as the build pipeline
+        has.
     """
+    if settlements_crs is not None:
+        require_same_crs(
+            [road_graph.crs, settlements_crs],
+            context="matching settlement points to road nodes",
+        )
     items = list(settlements)
     node_ids = list(road_graph.node_points)
     if not node_ids:
@@ -230,6 +252,7 @@ def identify_settlement_nodes(
         unmatched_settlements=tuple(unmatched),
         snap_distance_m=snap_distance_m,
         matched_distance_m=distances,
+        crs_checked=settlements_crs is not None,
     )
 
 
@@ -274,6 +297,15 @@ def critical_links(
     Only bridges are candidates: removing a non-bridge edge leaves the component
     connected by definition, so it cannot disconnect anything. Nothing is
     approximated by that restriction.
+
+    **"Cuts off" is a change of state**, so a settlement counts only if it can
+    reach some exit in the intact graph *and* cannot after the edge is removed.
+    Without that comparison, a settlement that had no exit to begin with -- an
+    orphan fragment, or a component the study-area clip severed -- would be
+    attributed to every bridge anywhere in the graph, including bridges in
+    unrelated components, and the count would inflate with exactly the road-data
+    incompleteness that makes a network fragmented in the first place. Such
+    settlements are reported once, as ``no_egress_components``, and never here.
     """
     exits = set(exit_nodes)
     settlements = set(settlement_nodes)
@@ -281,6 +313,15 @@ def critical_links(
         return []
 
     simple = road_graph.simple_graph()
+    # Settlements that have any path to any exit before we remove anything.
+    # Only these can be newly cut off.
+    connected_before: set[int] = set()
+    for component in nx.connected_components(simple):
+        if component & exits:
+            connected_before |= component & settlements
+    if not connected_before:
+        return []
+
     out: list[dict[str, Any]] = []
     for u, v in bridge_edges(road_graph):
         trial = simple.copy()
@@ -288,8 +329,8 @@ def critical_links(
         components = list(nx.connected_components(trial))
         cut_off: list[int] = []
         for component in components:
-            if component & settlements and not (component & exits):
-                cut_off.extend(sorted(component & settlements))
+            if not (component & exits):
+                cut_off.extend(sorted(component & settlements & connected_before))
         if cut_off:
             lengths = [
                 float(data.get("length_m", 0.0))
@@ -470,6 +511,7 @@ def assess_road_network(
     exit_property: str | None = None,
     settlements: Iterable[tuple[str, Point]] = (),
     settlement_snap_m: float = DEFAULT_SETTLEMENT_SNAP_M,
+    settlements_crs: Any = None,
 ) -> RoadNetworkQA:
     """Run every QA diagnostic over a road graph and return the report."""
     graph = road_graph.graph
@@ -480,7 +522,12 @@ def assess_road_network(
         exit_property=exit_property,
     )
     settlement_set = (
-        identify_settlement_nodes(road_graph, settlements, snap_distance_m=settlement_snap_m)
+        identify_settlement_nodes(
+            road_graph,
+            settlements,
+            snap_distance_m=settlement_snap_m,
+            settlements_crs=settlements_crs,
+        )
         if settlements
         else SettlementNodeSet(snap_distance_m=settlement_snap_m)
     )

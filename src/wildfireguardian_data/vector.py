@@ -284,6 +284,10 @@ class VectorLayer:
                 "type": "name",
                 "properties": {"name": crs_to_string(self.crs)},
             },
+            # WKT as well as the authority string: a custom projection has no
+            # authority code, and an authority-string-only declaration cannot
+            # round-trip it (the raster sidecar has always done this).
+            "wg_crs_wkt": self.crs.to_wkt() if self.crs is not None else None,
             "wg_layer_name": self.name,
             "wg_feature_kind": self.feature_kind,
             "features": [f.to_geojson() for f in self.features],
@@ -348,6 +352,9 @@ def read_geojson(
     crs_member = payload.get(GEOJSON_CRS_MEMBER)
     if isinstance(crs_member, dict):
         declared = (crs_member.get("properties") or {}).get("name")
+    # Prefer the WKT when present: it round-trips a CRS with no authority code,
+    # which the authority string cannot.
+    declared = payload.get("wg_crs_wkt") or declared
 
     if crs is not None and declared not in (None, "UNKNOWN"):
         if not crs_equal(crs, declared):

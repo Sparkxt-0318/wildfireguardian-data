@@ -1,7 +1,8 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "study_area_id": "uljin_real_v1",
   "crs": "EPSG:5187",
+  "crs_wkt": "PROJCRS[\"KGD2002 / East Belt 2010\",BASEGEOGCRS[\"KGD2002\",DATUM[\"Korean Geodetic Datum 2002\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4737]],CONVERSION[\"Korea East Belt 2010\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",38,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",129,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",1,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",200000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",600000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"northing (X)\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"easting (Y)\",east,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Cadastre, topographic mapping.\"],AREA[\"Republic of Korea (South Korea) - onshore between 128°E and 130°E.\"],BBOX[34.49,128,38.64,129.65]],ID[\"EPSG\",5187]]",
   "bounds": {
     "min_x": 227500.0,
     "min_y": 478500.0,
@@ -9,6 +10,36 @@
     "max_y": 482500.0,
     "crs": "EPSG:5187"
   },
+  "licences": [
+    {
+      "layer": "dem",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "slope_deg",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "aspect_deg",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "roads",
+      "source": "OpenStreetMap (api.openstreetmap.org /api/0.6/map)",
+      "licence": "Open Database License (ODbL) 1.0",
+      "licence_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "publisher": "OpenStreetMap contributors"
+    }
+  ],
   "layers": [
     {
       "name": "dem",
@@ -91,7 +122,7 @@
       "geom_types": [
         "LineString"
       ],
-      "checksum_sha256": "3567b32ba82c75a5dc050c968f81eec3bcfb6e8cb0d1fd0a9efa9a1e6d886484",
+      "checksum_sha256": "46022932560c8b16de515802f4caa7f381c94200cfb6592833b1038530180197",
       "checksum_algorithm": "sha256"
     }
   ],
@@ -101,10 +132,24 @@
     "terrain_statistics": "terrain/terrain_statistics.json",
     "validation_report": "validation/report.json"
   },
+  "extras_checksums_sha256": {
+    "roads_graph_summary": "e723e71dab846f1caeaa7bc7c72e846bd3443f6f6612dc9f3441c4cb68d517e5",
+    "roads_qa": "8e1942f4d1b4cbe63647d7a60e016eab95f316205cddb4a89eb34da483045fe9",
+    "terrain_statistics": "be6657c09e02ecdd6fe545bae417ad3b6289b1976bd3e37dd1276ee5f2f4f0ef"
+  },
+  "provenance_checksums_sha256": {
+    "aspect_deg": "e83a6cac8bfd5f1c5a5535abad1351e5cc3de9c4434a8eb72bfc4204e9128ec0",
+    "dem": "0ccd28c480aaef776a7be10e95c70c1a27dff0595583f512d1a2f70255a2e1ec",
+    "roads": "6199b00f6ada1200053568d754f5a1a39f6ee634833c77d4b444dcbc29ef73ec",
+    "slope_deg": "38270aeece4e225e2a55dc75ced4292b7c8a224c97e38bd9d421c11a33752b6e"
+  },
+  "unchecksummed": {
+    "validation_report": "written after the manifest, because validation runs against the written bundle (docs/DECISIONS.md D-0014); it is therefore not covered by any checksum here"
+  },
   "metadata": {
     "description": "Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do, on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022 Uljin-Samcheok fire burned this region) and because both sources have verified coverage here.\n",
     "notes": "The terrain is a DIGITAL SURFACE MODEL: GLO-30 includes canopy and buildings, so slope over forest here is canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). OSM rural completeness is UNKNOWN, so the road network is a lower bound on what exists on the ground, and the egress counts derived from it inherit that limitation.\n",
-    "built_at": "2026-09-19T18:22:36.817952+00:00",
+    "built_at": "2026-09-19T18:49:45.864321+00:00",
     "config": {
       "study_area_id": "uljin_real_v1",
       "description": "Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do, on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022 Uljin-Samcheok fire burned this region) and because both sources have verified coverage here.\n",
@@ -161,7 +206,8 @@
   },
   "caveats": [
     "StudyAreaBundle is internal and unstable; no downstream repository should depend on this layout yet (docs/DECISIONS.md D-0001)",
-    "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)"
+    "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)",
+    "this bundle carries data licence obligations that travel with it, including attribution and, for any ODbL source, share-alike on derived databases: Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED): free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required | OpenStreetMap (api.openstreetmap.org /api/0.6/map): Open Database License (ODbL) 1.0"
   ],
-  "manifest_checksum_sha256": "1a9c94180445315b8c1844db2183a39590716b266ee1d2befa3620744219635e"
+  "manifest_checksum_sha256": "d39c664b451a4048221ecbc44ecd383c11b438c9caa96002e5c73cf9b2e8a16e"
 }

@@ -31,6 +31,7 @@ from ..provenance.models import (
     Transformation,
 )
 from ..raster import GridTransform, RasterKind, RasterLayer
+from ..terrain.io import resolution_unit_text
 from ..vector import VectorLayer
 from .classes import FuelClassScheme
 
@@ -61,7 +62,9 @@ def _fuel_provenance(
         original_crs=crs_to_string(crs),
         output_crs=crs_to_string(crs),
         spatial_resolution=(transform.x_size, transform.y_size),
-        resolution_unit="m" if crs is not None and not crs.is_geographic else UNKNOWN,
+        # Read from the CRS, never assumed: "m" is wrong for a projected CRS
+        # whose axis unit is a foot, and a false unit is worse than UNKNOWN.
+        resolution_unit=resolution_unit_text(crs),
         value_unit="class",
         nodata_representation=repr(scheme.nodata_code),
         checksum=checksum,
@@ -253,9 +256,22 @@ def rasterize_fuel_vector(
     (``docs/FAILURE_MODES.md`` F-MD-1).
 
     ``all_touched=False`` (the default) burns a cell only when its **centre**
-    falls inside a polygon, matching how :class:`RasterLayer` defines a cell's
-    location (A-RAS-2). ``all_touched=True`` inflates every polygon by up to one
-    cell, so it is opt-in and recorded.
+    falls inside a polygon. Note that this is a *different* rule from A-RAS-2's
+    whole-cell semantics, not the same one: A-RAS-2 says a cell's value applies
+    to its whole area, and :meth:`GridTransform.rowcol` implements a whole-cell
+    containment test, whereas rasterisation here tests the centre only. The two
+    disagree for any polygon that covers part of a cell without covering its
+    centre. The centre rule is chosen because the alternative
+    (``all_touched=True``) inflates every polygon by up to one cell in every
+    direction, which is the larger distortion -- but it is a choice, not an
+    equivalence.
+
+    A consequence, reported rather than hidden: a polygon smaller than a cell,
+    or one straddling a cell boundary without containing a centre, burns
+    **nothing**. Korean cadastral and forest-type data contains many sub-30 m
+    parcels. Any submitted class code that ends up absent from the output is
+    recorded in provenance as ``codes_that_burned_no_cells``, and
+    ``cells_burned`` counts cells rather than submitted shapes.
     """
     try:
         from rasterio.features import rasterize
@@ -298,6 +314,16 @@ def rasterize_fuel_vector(
         all_touched=all_touched,
         dtype="int32",
     )
+
+    # Count what actually landed on the grid, not what was submitted. A code
+    # present in the input but absent from the output means every polygon
+    # carrying it fell between cell centres, and reporting the submitted count
+    # as "burned" would overstate the coverage of a layer that partly vanished.
+    submitted_codes = {int(code) for _, code in shapes}
+    present_codes = {int(code) for code in np.unique(array)} - {int(scheme.nodata_code)}
+    lost_codes = sorted(submitted_codes - present_codes)
+    cells_burned = int((array != scheme.nodata_code).sum())
+
     transformation = Transformation(
         operation="rasterize_fuel_vector",
         parameters={
@@ -309,7 +335,10 @@ def rasterize_fuel_vector(
             "cell_size": list(template.resolution),
             "all_touched": all_touched,
             "fill": scheme.nodata_code,
-            "features_burned": len(shapes),
+            "features_submitted": len(shapes),
+            "cells_burned": cells_burned,
+            "codes_submitted": sorted(submitted_codes),
+            "codes_that_burned_no_cells": lost_codes,
         },
         notes=(
             "unburned cells are the scheme's nodata code, not class 0 "
@@ -317,7 +346,15 @@ def rasterize_fuel_vector(
             + (
                 " | all_touched=True inflates polygons by up to one cell"
                 if all_touched
-                else " | cell-centre rule (docs/ASSUMPTIONS.md A-RAS-2)"
+                else " | cell-CENTRE rule, which is not the same as A-RAS-2's "
+                "whole-cell rule: a polygon covering part of a cell without "
+                "covering its centre burns nothing"
+            )
+            + (
+                f" | WARNING: class code(s) {lost_codes} burned no cells at all; "
+                "every polygon carrying them falls between cell centres"
+                if lost_codes
+                else ""
             )
         ),
     )
@@ -325,7 +362,7 @@ def rasterize_fuel_vector(
         name,
         transformation,
         spatial_resolution=(template.transform.x_size, template.transform.y_size),
-        resolution_unit="m",
+        resolution_unit=resolution_unit_text(template.crs),
         value_unit="class",
         nodata_representation=repr(scheme.nodata_code),
     )

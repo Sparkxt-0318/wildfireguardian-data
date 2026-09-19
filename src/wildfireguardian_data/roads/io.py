@@ -11,6 +11,7 @@ carried as an opaque property, never as evidence that a road can be used
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import Any
 
@@ -174,13 +175,8 @@ def _plain(value: Any) -> Any:
             return value.item()
         except Exception:
             return str(value)
-    try:
-        import math
-
-        if isinstance(value, float) and math.isnan(value):
-            # NaN from a vector attribute table means "attribute absent", and
-            # None says that; leaving NaN would make it a number.
-            return None
-    except Exception:
-        pass
+    if isinstance(value, float) and math.isnan(value):
+        # NaN from a vector attribute table means "attribute absent", and None
+        # says that; leaving NaN would make it a number.
+        return None
     return value

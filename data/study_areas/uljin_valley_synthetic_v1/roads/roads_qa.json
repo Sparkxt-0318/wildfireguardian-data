@@ -115,6 +115,7 @@
       },
       "unmatched_settlements": [],
       "snap_distance_m": 450.0,
+      "crs_checked": true,
       "note": "an unmatched settlement is a finding, not a blank: either the road network is incomplete near it, or the settlement centroid is wrong, or the snap distance is too small. it is never treated as having no road access."
     },
     "single_egress_candidates": [],
@@ -171,46 +172,12 @@
     "critical_links": [
       {
         "edge": [
-          0,
-          1
-        ],
-        "length_m": 1513.2745950421556,
-        "settlement_nodes_cut_off": [
-          11
-        ],
-        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
-      },
-      {
-        "edge": [
-          1,
-          2
-        ],
-        "length_m": 1711.724276862369,
-        "settlement_nodes_cut_off": [
-          11
-        ],
-        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
-      },
-      {
-        "edge": [
           1,
           4
         ],
         "length_m": 1204.1594578792296,
         "settlement_nodes_cut_off": [
-          5,
-          11
-        ],
-        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
-      },
-      {
-        "edge": [
-          2,
-          3
-        ],
-        "length_m": 2816.0255680657447,
-        "settlement_nodes_cut_off": [
-          11
+          5
         ],
         "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
       },
@@ -221,30 +188,7 @@
         ],
         "length_m": 632.4555320336759,
         "settlement_nodes_cut_off": [
-          5,
-          11
-        ],
-        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
-      },
-      {
-        "edge": [
-          9,
-          10
-        ],
-        "length_m": 2209.072203437452,
-        "settlement_nodes_cut_off": [
-          11
-        ],
-        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
-      },
-      {
-        "edge": [
-          11,
-          12
-        ],
-        "length_m": 360.5551275463989,
-        "settlement_nodes_cut_off": [
-          11
+          5
         ],
         "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
       }

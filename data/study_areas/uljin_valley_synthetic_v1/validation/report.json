@@ -26,7 +26,7 @@
       "villages",
       "facilities"
     ],
-    "schema_version": "1.0.0",
+    "schema_version": "1.1.0",
     "directory": "data/study_areas/uljin_valley_synthetic_v1"
   },
   "findings": [

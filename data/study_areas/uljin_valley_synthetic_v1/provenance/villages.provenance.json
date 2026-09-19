@@ -1,5 +1,5 @@
 {
-  "checksum": "7b45d81701369b22cbc4d96a5208f06b8425b309e8776163e9893511a987bdb9",
+  "checksum": "6f1135062c4aba309e4f20b457de73ce502ecb5f629623336a4cb5ee71a5dc6d",
   "checksum_algorithm": "sha256",
   "data_class": "synthetic",
   "layer_name": "villages",
@@ -39,7 +39,7 @@
         },
         "settlements": 3
       },
-      "timestamp": "2026-09-19T18:10:39.534760+00:00",
+      "timestamp": "2026-09-19T18:49:42.770379+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -59,7 +59,7 @@
           483000.0
         ]
       },
-      "timestamp": "2026-09-19T18:10:39.535191+00:00",
+      "timestamp": "2026-09-19T18:49:42.770791+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     }

@@ -321,3 +321,101 @@ complete and is partly invented.
 completeness is UNKNOWN. A reader must not treat the absence of a fuels layer as
 "no fuel here". Replacing OSM with NGII/VWorld data, and adding real vegetation
 and aggregate population, are the first items in `tasks/CURRENT.md`.
+
+---
+
+## D-0016 | 2026-09-19 | accepted | A DEM's vertical unit is declared, never defaulted
+
+**Decision.** `terrain.read_geotiff` takes `value_unit` as a **required**
+argument, and when the file declares a band unit that disagrees with it, raises.
+A study-area config using a local raster must declare `value_unit`.
+
+**Rejected.** Defaulting to metres (the previous behaviour), which is right for
+almost every GeoTIFF DEM.
+
+**Why.** Found by audit. A DEM in feet read as metres yields a slope wrong by a
+factor of 3.28 in `tan(theta)`, biased **steep**, on a layer whose provenance
+asserts metres — and A-TER-8's enforcement in `terrain.derivatives` can never
+fire, because the mislabelling happened at ingest. Worse, the previous code
+*read* the file's unit tag and used it only in a free-text note, so the same
+provenance record could state `value_unit = "m"` while quoting the file saying
+`ft`. That is precisely the falsification condition in
+`docs/RESEARCH_QUESTION.md`.
+
+**Consequence.** Every `read_geotiff` call site must state the unit. That is the
+intended cost: the caller knows something the file does not necessarily say, and
+now has to say it.
+
+---
+
+## D-0017 | 2026-09-19 | accepted | A local-file source declares its temporal class in the config
+
+**Decision.** `SourceSpec.require_declared_semantics` raises `ConfigError`
+unless a `geotiff` or `geojson` source declares `temporal_class` (and
+`value_unit` for a raster). The build pipeline no longer supplies a per-component
+default.
+
+**Rejected.** Per-component defaults (terrain → `static`, roads →
+`observation_time`, and so on), which is what the pipeline previously did.
+
+**Why.** Found by audit. A-T-1 says there is no default, and the *loaders*
+honoured that — but the build pipeline, which is the only path a CLI user has,
+filled it in. A retrospective road layer compiled from post-fire imagery was
+silently labelled `observation_time`, which `docs/INTERFACES.md` instructs
+consumers to act on. For the wider project's forecast-versus-trigger question,
+that is textbook data leakage.
+
+**Consequence.** Configs are more verbose, and every existing config using a
+local file needs the key added. Fixtures and the network fetchers are unaffected,
+because they know their own source's temporal character.
+
+---
+
+## D-0018 | 2026-09-19 | accepted | Sibling rasters are warped onto the DEM's grid
+
+**Decision.** `terrain.reproject_raster` accepts `target_grid`/`target_shape`,
+and the build pipeline uses it to warp a non-terrain raster directly onto the
+DEM's grid rather than reprojecting it independently and clipping afterwards.
+
+**Rejected.** Reprojecting each raster independently and relying on the
+`RAS-007` warning to report the resulting misalignment.
+
+**Why.** Found by audit. Independent reprojection derives each layer's target
+grid from that layer's own extent, so a DEM and a fuel raster arriving in
+different Korean belts ended up with origins offset by ~11 m and ~13 m on a 30 m
+grid — a third of a cell. Every fuel value was displaced relative to the DEM
+cell a consumer would index it by. Validation did report it, but at WARNING, so
+a default `validate-study-area` still exited 0; and a pipeline should not be
+*producing* the condition it then warns about.
+
+**Consequence.** `target_grid` and `dst_resolution` are mutually exclusive.
+Warping onto a fixed grid can leave nodata at the margins where the source does
+not cover the DEM's extent, which is correct: that is missing data, not a
+misalignment to be smoothed away.
+
+---
+
+## D-0019 | 2026-09-19 | accepted | Bundle schema 1.1.0: everything written is checksummed, licences reach the manifest
+
+**Decision.** The manifest gains `extras_checksums_sha256`,
+`provenance_checksums_sha256`, an `unchecksummed` block, a `licences` list
+aggregated from the layer provenance, and `crs_wkt`. Schema version 1.1.0, and
+comparison stays exact.
+
+**Rejected.** (a) Leaving only layer files checksummed; (b) accepting a 1.0.0
+bundle silently, since the change is additive.
+
+**Why.** Found by audit and verification. Only the layer rasters and vectors
+were checksummed, so editing `roads_qa.json` — the artifact a downstream reader
+is *most* likely to consume without re-deriving it — went undetected, as did
+editing a provenance sidecar. Separately, the ODbL share-alike obligation on the
+committed real bundle was recorded per layer but absent from `manifest.json`,
+which `docs/INTERFACES.md` names as a consumer's step 1. And `crs_to_string`
+emits a `wkt:`-prefixed string for a CRS with no authority code, which
+`parse_crs` could not read back — so a custom projection could not survive a
+round trip.
+
+**Consequence.** A 1.0.0 bundle is now refused on read; both committed bundles
+were rebuilt. The validation report itself cannot be checksummed, because it is
+written after validation (D-0014); that is stated in the manifest's
+`unchecksummed` block rather than left implicit.

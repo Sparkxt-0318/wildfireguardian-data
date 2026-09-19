@@ -10,7 +10,12 @@ Example (see ``configs/`` for working files)::
     study_area_id: uljin_synthetic_valley_v1
     description: Synthetic Korean rural valley, analytically checkable
     crs: EPSG:5187
-    bounds: [920000.0, 1720000.0, 926000.0, 1726000.0]
+    # (min_x, min_y, max_x, max_y) = (easting, northing) in the CRS above.
+    # These are the real numbers from configs/uljin_valley_synthetic.yaml and
+    # land in rural Uljin-gun. Coordinates of order 1e6 are EPSG:5179
+    # magnitudes, not belt-system ones; pairing those with a 5187 label is the
+    # F-CRS-2 mislabelling pattern, so this example uses verified values.
+    bounds: [226000.0, 477000.0, 232000.0, 483000.0]
     terrain:
       source:
         kind: synthetic_fixture
@@ -91,8 +96,16 @@ class SourceSpec:
     licence: str | None = None
     publisher: str | None = None
     data_class: str | None = None
+    #: Required for a local-file source. There is deliberately no default: a
+    #: wrong temporal class is acted on by downstream consumers, and
+    #: ``retrospective`` mislabelled as ``observation_time`` is the temporal
+    #: analogue of data leakage (``docs/ASSUMPTIONS.md`` A-T-1).
     temporal_class: str | None = None
     temporal_reference: str | None = None
+    #: Unit of the layer's values -- for a DEM, the vertical unit. Required for
+    #: a local raster file: a foot DEM read as metres gives a slope wrong by a
+    #: factor of 3.28 in ``tan(theta)``, biased steep (A-TER-1/8).
+    value_unit: str | None = None
     declared_crs: str | None = None
     options: dict[str, Any] = field(default_factory=dict)
 
@@ -110,6 +123,42 @@ class SourceSpec:
     @property
     def requires_network(self) -> bool:
         return self.kind in {"copernicus_dem_glo30", "osm_api"}
+
+    @property
+    def is_local_file(self) -> bool:
+        """Whether this source is a file whose semantics only the operator knows.
+
+        A fixture knows its own provenance and a fetcher knows its source's, but
+        a GeoTIFF or GeoJSON on disk says nothing about whether it is an
+        observation, what period it describes, or what its values are in.
+        """
+        return self.kind in {"geotiff", "geojson"}
+
+    def require_declared_semantics(self, where: str, *, need_value_unit: bool) -> None:
+        """Raise unless a local-file source declares what cannot be inferred.
+
+        Called by the build pipeline instead of defaulting these per component.
+        The loaders themselves already make them required arguments; the gap was
+        that the *pipeline* filled them in, and the pipeline is the only path a
+        CLI user has (A-T-1).
+        """
+        if not self.is_local_file:
+            return
+        missing = []
+        if not self.temporal_class:
+            missing.append("temporal_class")
+        if need_value_unit and not self.value_unit:
+            missing.append("value_unit")
+        if missing:
+            raise ConfigError(
+                f"{where}.source is a local file ({self.kind}) and must declare "
+                f"{missing}: a file on disk does not state whether it is an "
+                "observation, what period it describes, or what unit its values "
+                "are in, and this package will not default a scientific claim "
+                "(docs/ASSUMPTIONS.md A-T-1, A-TER-1). permitted temporal_class "
+                "values: static, annual, monthly, observation_time, "
+                "retrospective."
+            )
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any], where: str) -> SourceSpec:

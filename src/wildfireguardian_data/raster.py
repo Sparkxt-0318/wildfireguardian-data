@@ -295,6 +295,27 @@ class RasterLayer:
                     f"{array.dtype}; it would never match any cell, leaving "
                     "missing data silently indistinguishable from real values."
                 )
+            # Also require it to be *in range* for the dtype. A uint8 array with
+            # nodata=-9999 satisfies the integrality check above, but `data !=
+            # nodata` is then vacuously true everywhere: the layer reports full
+            # coverage and every missing cell reads as real. Only RAS-004 (INFO)
+            # would have noticed, at the lowest severity.
+            info = np.iinfo(array.dtype)
+            try:
+                value = int(self.nodata)
+            except (TypeError, ValueError) as exc:
+                raise RasterGeometryError(
+                    f"nodata={self.nodata!r} is not an integer value and cannot "
+                    f"be compared against integer dtype {array.dtype}: {exc}"
+                ) from exc
+            if not (info.min <= value <= info.max):
+                raise RasterGeometryError(
+                    f"nodata={self.nodata!r} is outside the range of dtype "
+                    f"{array.dtype} ([{info.min}, {info.max}]), so it can never "
+                    "equal any cell: the layer would report full coverage while "
+                    "its missing cells read as real values "
+                    "(docs/ASSUMPTIONS.md A-RAS-3)."
+                )
 
     # -- geometry ----------------------------------------------------------- #
     @property

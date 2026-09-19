@@ -1,5 +1,5 @@
 {
-  "checksum": "3d183dda9b2edffa500e1ab9cf2eb69ba8a1b56d199e6d8a14c75b63b46a591f",
+  "checksum": "6fc21bc0e4fba96775608fb42ac86b89eadfe230c9383c6ea8db50a537453c5f",
   "checksum_algorithm": "sha256",
   "data_class": "synthetic",
   "layer_name": "facilities",
@@ -41,7 +41,7 @@
           "open_field"
         ]
       },
-      "timestamp": "2026-09-19T18:10:39.544270+00:00",
+      "timestamp": "2026-09-19T18:49:42.779754+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -61,7 +61,7 @@
           483000.0
         ]
       },
-      "timestamp": "2026-09-19T18:10:39.544534+00:00",
+      "timestamp": "2026-09-19T18:49:42.780003+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     }

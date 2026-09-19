@@ -23,7 +23,13 @@ from typing import Any
 import numpy as np
 
 from ..crs import crs_to_string, parse_crs
-from ..errors import IngestError, OptionalDependencyError, RasterGeometryError
+from ..errors import (
+    IngestError,
+    OptionalDependencyError,
+    RasterGeometryError,
+    UnknownCRSError,
+    UnknownUnitError,
+)
 from ..provenance.checksum import sha256_array, sha256_file
 from ..provenance.models import (
     UNKNOWN,
@@ -35,7 +41,7 @@ from ..provenance.models import (
     utc_now_iso,
 )
 from ..raster import GridTransform, RasterKind, RasterLayer
-from ..units import LengthUnit
+from ..units import parse_length_unit
 
 __all__ = [
     "read_geotiff",
@@ -44,6 +50,7 @@ __all__ = [
     "write_npz_raster",
     "read_raster",
     "write_raster",
+    "resolution_unit_text",
     "RASTER_SIDECAR_SUFFIX",
 ]
 
@@ -66,23 +73,32 @@ def read_geotiff(
     source: SourceRecord,
     data_class: DataClass,
     temporal_class: TemporalProvenance,
+    value_unit: Any,
     band: int = 1,
     kind: RasterKind = RasterKind.CONTINUOUS,
-    value_unit: Any = LengthUnit.METRE,
     vertical_datum: str = UNKNOWN,
     temporal_reference: str = UNKNOWN,
     notes: str = "",
 ) -> RasterLayer:
     """Read one band of a GeoTIFF into a :class:`RasterLayer`.
 
-    ``data_class`` and ``temporal_class`` are required: a DEM tile on disk does
-    not say whether it is an observation or a model output, nor what period it
-    describes, and guessing either would put a fabricated fact into provenance.
+    ``data_class``, ``temporal_class`` and ``value_unit`` are all **required**:
+    a DEM tile on disk does not say whether it is an observation or a model
+    output, nor what period it describes, and guessing either would put a
+    fabricated fact into provenance.
 
-    ``value_unit`` defaults to metres because that is what a GeoTIFF DEM almost
-    always holds -- but the default is recorded in provenance as an *assumption*
-    note when the file itself carries no unit metadata, so a reader can see that
-    it was assumed rather than read.
+    ``value_unit`` has no default on purpose. A default of metres would be right
+    most of the time and catastrophic the rest: a DEM in feet read as metres
+    yields a slope wrong by a factor of 3.28 in ``tan(theta)``, biased steep, on
+    a layer whose provenance asserts metres -- exactly the falsification
+    condition in ``docs/RESEARCH_QUESTION.md``. A-TER-8's enforcement in
+    :mod:`~wildfireguardian_data.terrain.derivatives` cannot fire on a layer
+    that was mislabelled at ingest.
+
+    When the file *does* declare a band unit, it is compared with
+    ``value_unit`` and a disagreement raises: the file's own statement and the
+    caller's belief differing is a real conflict, not something to resolve by
+    precedence.
     """
     rasterio = _rasterio()
     source_path = Path(path)
@@ -108,14 +124,45 @@ def read_geotiff(
 
     is_local = source_path.exists()
     checksum = sha256_file(source_path) if is_local else UNKNOWN
-    unit_note = (
-        f"band unit tag from file: {unit_tag!r}"
-        if unit_tag
-        else (
-            f"file declares no band unit; value_unit={getattr(value_unit, 'value', value_unit)!r} "
-            "was supplied by the caller, not read from the file"
+
+    declared = getattr(value_unit, "value", value_unit)
+    if unit_tag:
+        # The file states a unit. Compare it with what the caller declared, and
+        # refuse to proceed if they disagree -- silently trusting either one is
+        # how a foot DEM ends up with metre provenance.
+        try:
+            file_unit = parse_length_unit(unit_tag)
+        except UnknownUnitError:
+            unit_note = (
+                f"file declares band unit {unit_tag!r}, which is not a length "
+                f"unit this package recognises; value_unit={declared!r} was "
+                "supplied by the caller and the file's tag is recorded here "
+                "unresolved"
+            )
+        else:
+            try:
+                caller_unit = parse_length_unit(value_unit)
+            except UnknownUnitError:
+                caller_unit = None
+            if caller_unit is not None and caller_unit is not file_unit:
+                raise IngestError(
+                    f"{source_path} declares band unit {unit_tag!r} "
+                    f"({file_unit.value}) but was read with "
+                    f"value_unit={declared!r} ({caller_unit.value}). these "
+                    "disagree; resolve the conflict explicitly rather than "
+                    "trusting one of them. a foot DEM read as metres gives a "
+                    "slope wrong by a factor of 3.28 in tan(theta), biased "
+                    "steep (docs/ASSUMPTIONS.md A-TER-1/8)."
+                )
+            unit_note = (
+                f"band unit tag from file: {unit_tag!r}; agrees with the "
+                f"declared value_unit={declared!r}"
+            )
+    else:
+        unit_note = (
+            f"file declares no band unit; value_unit={declared!r} was supplied "
+            "by the caller, not read from the file"
         )
-    )
     if crs is None:
         unit_note += (
             " | file declares no CRS: the layer is loadable but cannot be "
@@ -147,7 +194,7 @@ def read_geotiff(
         original_crs=crs_to_string(crs),
         output_crs=crs_to_string(crs),
         spatial_resolution=(transform.x_size, transform.y_size),
-        resolution_unit=_resolution_unit_text(crs),
+        resolution_unit=resolution_unit_text(crs),
         value_unit=getattr(value_unit, "value", str(value_unit)),
         vertical_datum=vertical_datum,
         nodata_representation="none_declared" if nodata is None else repr(nodata),
@@ -326,17 +373,34 @@ def read_raster(path: str | Path, *, provenance: ProvenanceRecord, **kwargs: Any
     )
 
 
-def _resolution_unit_text(crs: Any) -> str:
-    """Axis unit of a CRS, as provenance text, without guessing."""
+def resolution_unit_text(crs: Any) -> str:
+    """Axis unit of a CRS, as provenance text, without guessing.
+
+    Accepts anything :func:`~wildfireguardian_data.crs.parse_crs` accepts, not
+    only an already-parsed ``pyproj.CRS``. That matters: this is called from
+    provenance construction where the CRS is often still the ``"EPSG:5187"``
+    string the caller passed, and an earlier version caught the resulting
+    ``AttributeError`` and returned ``"UNKNOWN"`` -- turning a knowable fact
+    into a recorded gap for every layer built that way.
+
+    Returns ``"UNKNOWN"`` only when the CRS is genuinely absent or unparseable,
+    or declares no axis units at all.
+    """
     if crs is None:
         return UNKNOWN
     try:
-        units = {axis.unit_name for axis in crs.axis_info}
-    except Exception:
+        parsed = parse_crs(crs)
+    except UnknownCRSError:
+        return UNKNOWN
+    if parsed is None:
+        return UNKNOWN
+    units = {axis.unit_name for axis in parsed.axis_info}
+    if not units:
         return UNKNOWN
     if len(units) == 1:
         return next(iter(units))
-    return UNKNOWN if not units else "/".join(sorted(units))
+    # Anisotropic axis units: report both rather than picking one.
+    return "/".join(sorted(units))
 
 
 def _json_nodata(nodata: Any) -> Any:

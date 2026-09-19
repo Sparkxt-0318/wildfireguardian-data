@@ -1,5 +1,5 @@
 {
-  "checksum": "32375caf73753400ec0e85743fd7cee674ef0d87571166fec8c297e382ca5517",
+  "checksum": "3b4ba85c382e8689e8a4d53b2a3af09cb42c9dc530cfb4d2512aaecbc335edd8",
   "checksum_algorithm": "sha256",
   "data_class": "synthetic",
   "layer_name": "roads",
@@ -41,7 +41,7 @@
         },
         "segments": 11
       },
-      "timestamp": "2026-09-19T18:10:39.536637+00:00",
+      "timestamp": "2026-09-19T18:49:42.772252+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -61,7 +61,7 @@
           483000.0
         ]
       },
-      "timestamp": "2026-09-19T18:10:39.537124+00:00",
+      "timestamp": "2026-09-19T18:49:42.772643+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     }

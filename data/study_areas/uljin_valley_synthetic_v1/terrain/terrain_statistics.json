@@ -19,11 +19,13 @@
       "p95": 535.0299835205078
     }
   },
-  "relief_m": 434.0842590332031,
+  "relief": 434.0842590332031,
+  "relief_unit": "m",
   "cell_size": [
     30.0,
     30.0
   ],
+  "cell_size_unit": "metre",
   "grid_shape": [
     204,
     204

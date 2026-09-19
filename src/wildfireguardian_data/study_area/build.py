@@ -105,6 +105,12 @@ def _data_class(spec: SourceSpec, default: DataClass) -> DataClass:
 
 
 def _temporal_class(spec: SourceSpec, default: TemporalProvenance) -> TemporalProvenance:
+    """Resolve a temporal class, for sources that know their own.
+
+    Only reached for fixtures and fetchers, which set their own temporal class
+    from knowledge of the source. Local files must declare theirs in the config
+    -- see :meth:`SourceSpec.require_declared_semantics` and A-T-1.
+    """
     return TemporalProvenance(spec.temporal_class) if spec.temporal_class else default
 
 
@@ -143,14 +149,16 @@ def _load_dem(
             )
         return layer
     if spec.kind == "geotiff":
+        spec.require_declared_semantics("terrain", need_value_unit=True)
         return read_geotiff(
             spec.path,
             name="dem_source",
             source=_source_record(spec, fallback_name=f"local GeoTIFF {spec.path}"),
             data_class=_data_class(spec, DataClass.OBSERVED),
-            temporal_class=_temporal_class(spec, TemporalProvenance.STATIC),
+            temporal_class=TemporalProvenance(spec.temporal_class),
             temporal_reference=spec.temporal_reference or UNKNOWN,
             vertical_datum=config.terrain.vertical_datum or UNKNOWN,  # type: ignore[union-attr]
+            value_unit=spec.value_unit,
             kind=RasterKind.CONTINUOUS,
         )
     if spec.kind == "copernicus_dem_glo30":
@@ -190,13 +198,14 @@ def _load_vector(
             f"returned {type(produced).__name__}"
         )
     if spec.kind == "geojson":
+        spec.require_declared_semantics(name, need_value_unit=False)
         kwargs = dict(loader_kwargs or {})
         return (loader or load_facility_layer)(
             spec.path,
             name=name,
             source=_source_record(spec, fallback_name=f"local GeoJSON {spec.path}"),
             data_class=_data_class(spec, default_data_class),
-            temporal_class=_temporal_class(spec, default_temporal_class),
+            temporal_class=TemporalProvenance(spec.temporal_class),
             crs=parse_crs(spec.declared_crs) if spec.declared_crs else None,
             temporal_reference=spec.temporal_reference or UNKNOWN,
             **kwargs,
@@ -374,6 +383,10 @@ def build_study_area(
             exit_property=config.roads.exit_property,
             settlements=settlements,
             settlement_snap_m=config.roads.settlement_snap_m,
+            # The centroids come from a population layer already reprojected to
+            # the analysis CRS; passing it makes that a checked fact rather than
+            # an assumption the pipeline carries.
+            settlements_crs=config.crs,
         )
         roads_component = RoadsComponent(layer=roads_layer, graph=graph, qa=qa)
 
@@ -394,13 +407,14 @@ def build_study_area(
                 spec.fixture, template=template, **spec.options
             )
         elif spec.kind == "geotiff":
+            spec.require_declared_semantics("fuels", need_value_unit=False)
             fuel_layer = read_fuel_geotiff(
                 spec.path,
                 name="fuels",
                 scheme=scheme,
                 source=_source_record(spec, fallback_name=f"local GeoTIFF {spec.path}"),
                 data_class=_data_class(spec, DataClass.OBSERVED),
-                temporal_class=_temporal_class(spec, TemporalProvenance.ANNUAL),
+                temporal_class=TemporalProvenance(spec.temporal_class),
                 temporal_reference=spec.temporal_reference or UNKNOWN,
             )
         else:
@@ -409,16 +423,35 @@ def build_study_area(
                 "'synthetic_fixture' or 'geotiff'"
             )
         if not crs_equal(fuel_layer.crs, config.crs):
-            fuel_layer = reproject_raster(
-                fuel_layer,
-                config.crs,
-                resampling="nearest",
-                dst_resolution=config.terrain.target_resolution_m
-                if config.terrain is not None
-                else None,
-                name=f"{fuel_layer.name}_analysis_crs",
-            )
-        if terrain_component is not None:
+            if terrain_component is not None:
+                # Warp straight onto the DEM's grid. Reprojecting independently
+                # would derive a target grid from this layer's own extent, so
+                # the two rasters would land on origins offset by a fraction of
+                # a cell and every fuel value would be displaced relative to the
+                # DEM cell a consumer indexes it by (A-RAS-5). Validation would
+                # report that (RAS-007), but only as a warning -- and the
+                # pipeline should not be producing it in the first place.
+                fuel_layer = reproject_raster(
+                    fuel_layer,
+                    config.crs,
+                    resampling="nearest",
+                    target_grid=terrain_component.dem.transform,
+                    target_shape=terrain_component.dem.shape,
+                    name="fuels",
+                )
+                build_notes.append(
+                    "fuels warped directly onto the DEM grid, so the two rasters "
+                    "are co-registered cell-for-cell"
+                )
+            else:
+                fuel_layer = reproject_raster(
+                    fuel_layer,
+                    config.crs,
+                    resampling="nearest",
+                    name=f"{fuel_layer.name}_analysis_crs",
+                )
+                fuel_layer = clip_raster(fuel_layer, config.bounds, name="fuels")
+        elif terrain_component is not None:
             fuel_layer = clip_raster(
                 fuel_layer, terrain_component.dem.bounds, allow_partial=True, name="fuels"
             )

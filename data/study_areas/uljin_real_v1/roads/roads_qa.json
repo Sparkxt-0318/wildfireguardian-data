@@ -438,6 +438,7 @@
       "matched_distance_m": {},
       "unmatched_settlements": [],
       "snap_distance_m": 250.0,
+      "crs_checked": false,
       "note": "an unmatched settlement is a finding, not a blank: either the road network is incomplete near it, or the settlement centroid is wrong, or the snap distance is too small. it is never treated as having no road access."
     },
     "single_egress_candidates": [],

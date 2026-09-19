@@ -345,3 +345,73 @@ def test_edge_lengths_are_planar_metres():
     graph = build_road_graph(road_layer([("diag", [(0, 0), (300, 400)])]))
     assert graph.total_length_m == pytest.approx(500.0)
     assert graph.distance_unit.value == "m"
+
+
+def test_a_settlement_with_no_exit_at_all_is_not_a_critical_link_for_every_bridge():
+    """"Cuts off" is a change of state, so a settlement that never had an exit
+    cannot be newly disconnected by removing an edge.
+
+    Regression test. The bug this catches attributed such a settlement to every
+    bridge anywhere in the graph -- including bridges in unrelated components --
+    which inflated the count in proportion to how fragmented the road data was.
+    ``test_settlement_in_a_component_with_no_exit_is_reported_not_hidden``
+    builds this exact shape but only asserts on ``no_egress_components``, which
+    is why the defect survived a passing suite.
+    """
+    graph = build_road_graph(
+        road_layer(
+            [
+                # Touches the boundary: node here is an exit. No settlement.
+                ("boundary_road", [(0, 1500), (1000, 1500)]),
+                # A separate component with a settlement and no exit at all.
+                ("stranded", [(2000, 1000), (2000, 1400)]),
+            ]
+        )
+    )
+    qa = assess_road_network(
+        graph, study_bounds=BOX, settlements=[("lonely", Point(2000, 1400))]
+    )
+    # Reported once, as having no egress...
+    assert len(qa.no_egress_components) == 1
+    assert qa.no_egress_components[0]["settlements"] == ["lonely"]
+    # ...and never as something an edge removal cuts off.
+    assert qa.critical_link_list == ()
+
+
+def test_critical_links_counts_only_settlements_it_actually_disconnects():
+    # One hamlet on a spur off a boundary-connected road (its spur edge IS
+    # critical), plus an orphan component holding another hamlet (critical for
+    # nothing). Only the first may appear.
+    graph = build_road_graph(
+        road_layer(
+            [
+                ("trunk", [(0, 1500), (1200, 1500)]),
+                ("spur", [(1200, 1500), (1200, 2100)]),
+                ("orphan", [(2500, 400), (2500, 700)]),
+            ]
+        )
+    )
+    qa = assess_road_network(
+        graph,
+        study_bounds=BOX,
+        settlements=[("on_spur", Point(1200, 2100)), ("orphaned", Point(2500, 700))],
+    )
+    cut_off = {node for link in qa.critical_link_list for node in link["settlement_nodes_cut_off"]}
+    on_spur_node = qa.settlements.node_by_settlement["on_spur"]
+    orphaned_node = qa.settlements.node_by_settlement["orphaned"]
+    assert on_spur_node in cut_off
+    assert orphaned_node not in cut_off
+    # The trunk and the spur both cut the spur hamlet off; the orphan edge cuts
+    # nothing, so it must not appear at all.
+    assert len(qa.critical_link_list) == 2
+
+
+def test_critical_links_are_empty_when_no_settlement_can_reach_an_exit():
+    graph = build_road_graph(
+        road_layer([("island_a", [(1500, 1500), (1700, 1500)]), ("island_b", [(1700, 1500), (1700, 1700)])])
+    )
+    qa = assess_road_network(
+        graph, study_bounds=BOX, settlements=[("isolated", Point(1700, 1700))]
+    )
+    assert qa.exits.all_exits == frozenset()
+    assert qa.critical_link_list == ()

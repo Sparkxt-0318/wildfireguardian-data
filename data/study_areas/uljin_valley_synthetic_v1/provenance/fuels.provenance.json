@@ -4,14 +4,14 @@
   "data_class": "synthetic",
   "layer_name": "fuels",
   "nodata_representation": "255",
-  "notes": "fuel class scheme: synthetic_demo_v1 (synthetic); source: UNKNOWN. nominal categories only | classes derived from synthetic elevation bands plus seeded noise; seed=20260919. a deliberate 15x15 cell block is nodata",
+  "notes": "SYNTHETIC. fuel class scheme: synthetic_demo_v1 (synthetic); source: UNKNOWN. nominal categories only | classes derived from synthetic elevation bands plus seeded noise; seed=20260919. a deliberate 15x15 cell block is nodata",
   "original_crs": "EPSG:5187",
   "output_crs": "EPSG:5187",
   "parents": [
     "fuels"
   ],
   "random_seed": null,
-  "resolution_unit": "m",
+  "resolution_unit": "metre",
   "schema_version": "1.0.0",
   "sources": [
     {
@@ -55,7 +55,7 @@
           204
         ]
       },
-      "timestamp": "2026-09-19T18:10:39.543805+00:00",
+      "timestamp": "2026-09-19T18:49:42.779310+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     },
@@ -90,7 +90,7 @@
           204
         ]
       },
-      "timestamp": "2026-09-19T18:10:39.544040+00:00",
+      "timestamp": "2026-09-19T18:49:42.779505+00:00",
       "tool": "wildfireguardian_data",
       "tool_version": "UNKNOWN"
     }

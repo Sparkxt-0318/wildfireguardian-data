@@ -153,3 +153,54 @@ def test_masked_array_exposes_the_mask_for_reductions():
     masked = layer.masked_array()
     assert masked.mask[1, 1]
     assert masked.count() == 24
+
+
+def test_aspect_statistics_ignore_a_numeric_sentinel_nodata():
+    """Regression test: the aspect circular mean must go through the valid mask.
+
+    ``circular_mean_deg`` drops non-finite values only, so passing a raw array
+    let a declared numeric nodata survive. ``-9999`` degrees is the same
+    direction as ``81`` degrees, so the sentinel was read as a real
+    north-easterly azimuth and shifted the reported dominant aspect by tens of
+    degrees, while the same result dict reported a *different* valid-cell count
+    alongside it.
+
+    An aspect layer carrying ``-9999`` rather than ``NaN`` is exactly what
+    arrives from another tool via ``read_geotiff``, which faithfully preserves a
+    file's declared nodata.
+    """
+    from wildfireguardian_data.units import SlopeUnit
+
+    azimuths = np.full((12, 12), 300.0)
+    void = (slice(2, 6), slice(2, 6))
+
+    nan_data = azimuths.copy()
+    nan_data[void] = np.nan
+    sentinel_data = azimuths.copy()
+    sentinel_data[void] = -9999.0
+
+    nan_layer = make_raster(
+        nan_data, name="aspect_nan", nodata=np.nan, value_unit=SlopeUnit.DEGREE
+    )
+    sentinel_layer = make_raster(
+        sentinel_data, name="aspect_sentinel", nodata=-9999.0, value_unit=SlopeUnit.DEGREE
+    )
+    dem = make_raster(planar_surface(shape=(12, 12)), name="dem")
+
+    nan_stats = terrain_statistics(dem, aspect_layer=nan_layer)["aspect"]
+    sentinel_stats = terrain_statistics(dem, aspect_layer=sentinel_layer)["aspect"]
+
+    # Both spellings of the same field must summarise identically.
+    assert nan_stats["circular_mean"]["mean_deg"] == pytest.approx(
+        sentinel_stats["circular_mean"]["mean_deg"]
+    )
+    assert (
+        nan_stats["circular_mean"]["count_used"]
+        == sentinel_stats["circular_mean"]["count_used"]
+    )
+    # And the mean is the real azimuth, not one pulled towards the sentinel.
+    assert sentinel_stats["circular_mean"]["mean_deg"] == pytest.approx(300.0, abs=1e-6)
+    # The dict cannot contradict itself: count_used must match cells_valid.
+    assert (
+        sentinel_stats["circular_mean"]["count_used"] == sentinel_stats["cells_valid"]
+    )
