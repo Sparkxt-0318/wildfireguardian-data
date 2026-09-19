@@ -113,7 +113,7 @@ rather than smoothed over.
 | **Population** | Aggregate settlement data — totals, half-open age strata, village geometry, settlement centroids — with a load-time privacy guard |
 | **Facilities** | Generic loaders for shelters, temporary-refuge candidates, responder bases, fire stations. Presence in a dataset is never fitness for purpose |
 | **Provenance** | Source, dates, transformations, original and output CRS, resolution, units, vertical datum, nodata representation, SHA-256 checksum, temporal class |
-| **Validation** | 43 severity-graded checks across CRS, raster, vector, provenance, population, facility, road and bundle integrity |
+| **Validation** | 46 severity-graded checks across CRS, raster, vector, provenance, population, facility, road and bundle integrity |
 
 ## What it deliberately does not do
 

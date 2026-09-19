@@ -82,6 +82,7 @@ without matching prose. Generated from the code; see
 | `POP-002` | WARNING | no `population_total` (None, not 0) |
 | `POP-003` | WARNING | aggregate count below the k-anonymity floor (default 5). Not suppressed: a genuinely tiny hamlet is a real study object, but the figure is disclosive if published (D-0011) |
 | `POP-004` | WARNING | count basis unstated (register / census / present population) |
+| `POP-005` | ERROR | population layer carries attribute names that look person-level or medical. The load-time guard *raises*; at bundle level the same rule is a finding, so a bundle that did not come through this package's loaders is still checked and a validator that crashed does not hide everything else |
 | `FAC-001` | INFO | facilities have no suitability assessment; this repository performs none |
 | `FAC-002` | WARNING | facilities have UNKNOWN operational status; do not assume operational |
 | `FAC-003` | INFO | facilities have no sourced capacity; it is never estimated from footprint area |
@@ -97,6 +98,8 @@ without matching prose. Generated from the code; see
 | `BND-003` | ERROR | slope has no more missing cells than the DEM — impossible for a 3×3 estimator, so the edge was extrapolated or the layers do not correspond (D-0005) |
 | `BND-004` | ERROR | fuel layer is not declared categorical (A-FU-3) |
 | `BND-005` | ERROR | fuel layer has no class scheme; its integers have no meaning |
+| `BND-008` | ERROR | fuel layer contains class codes its scheme does not define. Re-checked here, not only at ingest, because a bundle can arrive hand-edited or from another tool |
+| `BND-009` | ERROR | fuel layer's declared nodata disagrees with its scheme's `nodata_code`; two missing-data conventions leave some missing cells indistinguishable from a real class |
 | `BND-006` | INFO | bundle contains SYNTHETIC layers and describes no real place |
 | `BND-007` | WARNING | synthetic bundle whose id does not say `synthetic` — it could be mistaken for real data (`AGENTS.md` §4) |
 | `BND-010` | ERROR | no manifest: not a study-area bundle |

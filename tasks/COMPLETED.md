@@ -44,7 +44,7 @@ the scientific core runs without GDAL (D-0003), with rasterio/geopandas behind a
 | `population` | aggregate models with half-open age strata; load-time privacy guard over 20 person-level and medical name patterns |
 | `facilities` | source-declared roles, `UNKNOWN` operational status, unassessed suitability, capacity never estimated from footprint |
 | `study_area` | strict YAML config (unknown keys rejected), build pipeline, bundle, serialisation with checksums, summary |
-| `validation` | 43 severity-graded findings across CRS, raster, vector, provenance, population, facility, road and bundle-integrity checks |
+| `validation` | 46 severity-graded findings across CRS, raster, vector, provenance, population, facility, road and bundle-integrity checks |
 | `cli` | `build-study-area`, `validate-study-area`, `summarize-study-area`, `make-fixtures`, `list-fixtures`, `version`, with documented exit codes and a stable `--json` contract |
 | `sources` | Copernicus DEM GLO-30 windowed COG reads and OpenStreetMap API fetches, both opt-in on `allow_network` |
 | `fixtures` | 13 deterministic synthetic generators, all labelled `SYNTHETIC` in provenance |
@@ -109,7 +109,7 @@ than snapshots:
 - parallel edges not reported as bridges;
 - byte-identical rebuilds, and tamper detection on read;
 - documented Korean CRS facts checked against PROJ rather than trusted;
-- every one of the 43 validation findings with a positive case asserting both
+- every one of the 46 validation findings with a positive case asserting both
   its code and its severity;
 - the real-source fetchers: tile naming across all four hemispheres, the
   opt-in network guard, the refusal of non-WGS84 bounds, and the refusal of a

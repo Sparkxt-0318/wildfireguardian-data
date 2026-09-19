@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from ..crs import crs_equal, crs_to_string
-from ..errors import BundleError
+from ..errors import BundleError, PrivacyGuardError
 from ..provenance.models import UNKNOWN, DataClass
 from ..raster import RasterKind
 from .checks import (
@@ -116,10 +116,33 @@ def validate_bundle(bundle: Any, *, warn_missing_fraction: float = 0.10) -> Vali
                     slope_missing=slope.missing_count,
                 )
 
-    if bundle.population is not None and bundle.population.villages:
-        check_population_consistency(
-            bundle.population.villages, report, layer_name=bundle.population.layer.name
-        )
+    if bundle.population is not None:
+        # The privacy guard normally raises at load time. A bundle validated
+        # here may not have come through that path -- it may have been written
+        # by an older version, by another tool, or edited by hand -- so the same
+        # rule is re-applied as a finding rather than an exception, because a
+        # validator that crashed would report nothing else about the bundle.
+        from ..population.io import check_privacy
+
+        try:
+            check_privacy(
+                bundle.population.layer.property_keys,
+                context=f"population layer {bundle.population.layer.name!r}",
+            )
+        except PrivacyGuardError as exc:
+            report.add(
+                "POP-005",
+                Severity.ERROR,
+                f"population layer carries attribute names that look "
+                f"person-level or medical: {exc}",
+                layer=bundle.population.layer.name,
+            )
+        if bundle.population.villages:
+            check_population_consistency(
+                bundle.population.villages,
+                report,
+                layer_name=bundle.population.layer.name,
+            )
     if bundle.facilities is not None and bundle.facilities.records:
         check_facility_caveats(
             bundle.facilities.records, report, layer_name=bundle.facilities.layer.name
@@ -145,6 +168,38 @@ def validate_bundle(bundle: Any, *, warn_missing_fraction: float = 0.10) -> Vali
                 "meaning",
                 layer=fuel_layer.name,
             )
+        else:
+            # Re-check the codes against the scheme here, not only at ingest.
+            # `fuels.fuel_layer_from_array` validates on the way in, but a
+            # bundle can arrive from anywhere -- hand-edited, produced by an
+            # older version, or written by another tool -- and a code the scheme
+            # does not define is data whose meaning nobody knows.
+            import numpy as np
+
+            observed = np.unique(fuel_layer.data).tolist()
+            undefined = bundle.fuels.scheme.unknown_codes(observed)
+            if undefined:
+                report.add(
+                    "BND-008",
+                    Severity.ERROR,
+                    f"fuel layer contains class code(s) {list(undefined)} that "
+                    f"scheme {bundle.fuels.scheme.name!r} does not define "
+                    f"(known: {list(bundle.fuels.scheme.codes)}, nodata: "
+                    f"{bundle.fuels.scheme.nodata_code}). an undefined code has "
+                    "no meaning",
+                    layer=fuel_layer.name,
+                    undefined_codes=[int(code) for code in undefined],
+                )
+            if fuel_layer.nodata != bundle.fuels.scheme.nodata_code:
+                report.add(
+                    "BND-009",
+                    Severity.ERROR,
+                    f"fuel layer declares nodata={fuel_layer.nodata!r} but its "
+                    f"scheme uses nodata_code={bundle.fuels.scheme.nodata_code}. "
+                    "two missing-data conventions in one layer leave some "
+                    "missing cells indistinguishable from a real class",
+                    layer=fuel_layer.name,
+                )
 
     synthetic = [
         layer.name

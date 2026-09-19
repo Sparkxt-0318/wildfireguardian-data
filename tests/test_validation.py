@@ -343,3 +343,82 @@ def test_synthetic_bundle_named_after_a_real_place_is_warned_about():
     )
     report = validate_bundle(renamed)
     assert "BND-007" in codes(report)
+
+
+# --------------------------------------------------------------------------- #
+# Checks re-applied at bundle level, for bundles that did not come through
+# this package's own loaders
+# --------------------------------------------------------------------------- #
+def test_undefined_fuel_code_in_a_bundle_is_an_error(tmp_path):
+    # fuels.fuel_layer_from_array validates on the way in, but a bundle can
+    # arrive hand-edited or from another tool. An undefined code is data whose
+    # meaning nobody knows, so validation must catch it too.
+    import numpy as np
+
+    from wildfireguardian_data.fuels import SYNTHETIC_DEMO_SCHEME
+    from wildfireguardian_data.study_area import StudyAreaConfig, build_study_area
+    from wildfireguardian_data.study_area.bundle import FuelsComponent
+    from wildfireguardian_data.validation import validate_bundle
+
+    built = build_study_area(
+        StudyAreaConfig.from_yaml("configs/uljin_valley_synthetic.yaml")
+    )
+    tampered_data = np.array(built.fuels.layer.data)
+    tampered_data[0, 0] = 99  # not in the scheme
+    tampered = built.fuels.layer.with_data(tampered_data)
+    built.fuels = FuelsComponent(layer=tampered, scheme=SYNTHETIC_DEMO_SCHEME)
+
+    report = validate_bundle(built)
+    assert "BND-008" in codes(report)
+    assert severity_of(report, "BND-008") is Severity.ERROR
+
+
+def test_fuel_nodata_disagreeing_with_its_scheme_is_an_error():
+    from wildfireguardian_data.fuels import SYNTHETIC_DEMO_SCHEME
+    from wildfireguardian_data.study_area import StudyAreaConfig, build_study_area
+    from wildfireguardian_data.study_area.bundle import FuelsComponent
+    from wildfireguardian_data.validation import validate_bundle
+
+    built = build_study_area(
+        StudyAreaConfig.from_yaml("configs/uljin_valley_synthetic.yaml")
+    )
+    mismatched = built.fuels.layer.with_data(built.fuels.layer.data, nodata=254)
+    built.fuels = FuelsComponent(layer=mismatched, scheme=SYNTHETIC_DEMO_SCHEME)
+
+    report = validate_bundle(built)
+    assert "BND-009" in codes(report)
+    assert severity_of(report, "BND-009") is Severity.ERROR
+
+
+def test_person_level_population_attribute_in_a_bundle_is_an_error():
+    # The load-time guard raises; at bundle level the same rule is a finding,
+    # because a validator that crashed would report nothing else about the
+    # bundle. Either way the prohibited data does not pass silently.
+    from shapely.geometry import Point
+
+    from wildfireguardian_data.study_area.bundle import PopulationComponent, StudyAreaBundle
+    from wildfireguardian_data.validation import validate_bundle
+    from wildfireguardian_data.vector import Feature, VectorLayer
+
+    layer = VectorLayer(
+        name="villages",
+        features=(
+            Feature(
+                Point(226_500.0, 477_500.0),
+                {"settlement_id": "V1", "care_grade": 3},
+            ),
+        ),
+        crs="EPSG:5187",
+        provenance=make_provenance("villages", value_unit="count"),
+    )
+    bundle = StudyAreaBundle(
+        study_area_id="privacy_probe_synthetic",
+        crs="EPSG:5187",
+        bounds=__import__(
+            "wildfireguardian_data.bounds", fromlist=["Bounds"]
+        ).Bounds(226_000.0, 477_000.0, 232_000.0, 483_000.0, crs="EPSG:5187"),
+        population=PopulationComponent(layer=layer),
+    )
+    report = validate_bundle(bundle)
+    assert "POP-005" in codes(report)
+    assert severity_of(report, "POP-005") is Severity.ERROR
