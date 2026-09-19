@@ -159,7 +159,8 @@ tests here:
 ## Tests
 
 ```bash
-python -m pytest -q          # 277 tests, no network, no fixed random state
+python -m pytest -q          # 287 tests, offline and deterministic
+python -m pytest -m network  # 3 live-source tests, opt-in
 ```
 
 The suite is built on closed-form answers rather than snapshots: a tilted
@@ -192,7 +193,7 @@ before editing code**, as [`AGENTS.md`](AGENTS.md) requires:
 
 Phase 1 (foundation) is complete: installable package, working CLI, provenance
 system, CRS validation, terrain preprocessing, road QA, synthetic fixtures, two
-example study-area bundles, 277 automated tests, and documented failure modes.
+example study-area bundles, 287 automated tests (plus 3 opt-in live-source tests), and documented failure modes.
 See [`tasks/COMPLETED.md`](tasks/COMPLETED.md) for what was built and
 [`tasks/CURRENT.md`](tasks/CURRENT.md) for what should happen next.
 

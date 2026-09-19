@@ -48,11 +48,18 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+# `-m "not network"` is what actually makes the default run offline and
+# deterministic, which AGENTS.md §7 and docs/VALIDATION.md both claim. A
+# command-line `-m network` overrides it, which is how the live-source tests are
+# run on purpose.
+addopts = "-ra --strict-markers -m 'not network'"
 markers = [
   "network: requires outbound network access; excluded from the default run",
   "geo: requires the [geo] extra (rasterio/GDAL)",
 ]
+# RuntimeWarnings are errors: numpy raises them for invalid values in exactly
+# the places this package cares about (division by zero, invalid arctan2,
+# reductions over all-NaN slices), so a warning there is a defect, not noise.
 filterwarnings = ["error::RuntimeWarning"]
 
 [tool.ruff]

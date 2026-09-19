@@ -92,7 +92,7 @@ validation checks are demonstrably live rather than vacuously passing.
 
 ### Tests
 
-**277 tests, passing, no network required.** Built on closed-form answers rather
+**287 tests, passing, offline and deterministic**, plus 3 opt-in tests that fetch from the live sources (`pytest -m network`). Built on closed-form answers rather
 than snapshots:
 
 - slope and aspect exact on a tilted plane, to `1e-4` degrees, over six
@@ -110,7 +110,12 @@ than snapshots:
 - byte-identical rebuilds, and tamper detection on read;
 - documented Korean CRS facts checked against PROJ rather than trusted;
 - every one of the 43 validation findings with a positive case asserting both
-  its code and its severity.
+  its code and its severity;
+- the real-source fetchers: tile naming across all four hemispheres, the
+  opt-in network guard, the refusal of non-WGS84 bounds, and the refusal of a
+  multi-tile request — plus three opt-in live tests that fetch from Copernicus
+  and OpenStreetMap and assert the whole real chain
+  (`fetch -> reproject -> clip -> slope`) end to end.
 
 ### Real data access
 

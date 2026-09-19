@@ -131,8 +131,8 @@ The strongest tests in the suite are the ones with closed-form answers:
 Run:
 
 ```bash
-python -m pytest -q             # 277 tests, no network
-python -m pytest -m network     # network-dependent tests (excluded by default)
+python -m pytest -q             # 287 tests, offline and deterministic
+python -m pytest -m network     # 3 live-source tests, excluded by default
 ```
 
 ## What validation does **not** check

@@ -237,3 +237,53 @@ def test_bundle_says_it_is_synthetic_in_its_own_id_and_layers(bundle):
     assert "synthetic" in bundle.study_area_id
     for layer in bundle.all_layers():
         assert layer.provenance.data_class is DataClass.SYNTHETIC
+
+
+def test_percent_slope_config_path(tmp_path):
+    # `slope_unit: percent` is a config option, so it needs a test: the layer is
+    # named after its unit, must survive the round trip, and must agree with
+    # 100*tan(degrees) from an otherwise identical degree build.
+    import math
+
+    import yaml
+
+    payload = yaml.safe_load(open(CONFIG_PATH))
+    payload["study_area_id"] = "percent_slope_synthetic_test"
+    payload["terrain"]["slope_unit"] = "percent"
+    percent_config = tmp_path / "percent.yaml"
+    percent_config.write_text(yaml.safe_dump(payload))
+
+    percent_bundle = build_study_area(StudyAreaConfig.from_yaml(percent_config))
+    assert "slope_percent" in percent_bundle.layer_names
+
+    degree_bundle = build_study_area(StudyAreaConfig.from_yaml(CONFIG_PATH))
+    degrees = degree_bundle.terrain.slope.data
+    percent = percent_bundle.terrain.slope.data
+    finite = np.isfinite(degrees) & np.isfinite(percent)
+    expected = 100.0 * np.tan(np.radians(degrees[finite].astype(np.float64)))
+    assert percent[finite] == pytest.approx(expected, abs=1e-4)
+
+    # And the layer is still discoverable after a write/read round trip.
+    restored = read_bundle(write_bundle(percent_bundle, tmp_path / "percent_bundle"))
+    assert restored.terrain.slope is not None
+    assert restored.terrain.slope.name == "slope_percent"
+
+
+def test_resampling_within_one_crs_is_refused_rather_than_implicit(tmp_path):
+    # F-BND-6: a source already in the analysis CRS at a different resolution
+    # than requested must raise, not resample. Resampling changes every value,
+    # and doing it because two config numbers disagreed would leave nothing in
+    # the output to show which estimator was used.
+    import yaml
+
+    from wildfireguardian_data.errors import ConfigError
+
+    payload = yaml.safe_load(open(CONFIG_PATH))
+    payload["study_area_id"] = "implicit_resample_synthetic_test"
+    payload["terrain"]["target_resolution_m"] = 10.0  # source fixture is 30 m
+    config_path = tmp_path / "resample.yaml"
+    config_path.write_text(yaml.safe_dump(payload))
+
+    with pytest.raises(ConfigError) as excinfo:
+        build_study_area(StudyAreaConfig.from_yaml(config_path))
+    assert "not performed implicitly" in str(excinfo.value)
