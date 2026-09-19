@@ -1,0 +1,57 @@
+# A REAL-DATA study area, built from two openly licensed global sources.
+#
+# Requires network access: `wg-data build-study-area ... --allow-network`.
+# Raw fetched data lands in data/raw/ and is git-ignored (docs/DECISIONS.md
+# D-0012); only the derived bundle and its provenance are committed.
+#
+# Attribution obligations travel with this bundle:
+#   terrain - (C) ESA / Copernicus Programme, Copernicus DEM GLO-30
+#   roads   - (C) OpenStreetMap contributors, ODbL 1.0 (share-alike applies to
+#             derived databases)
+#
+# What this bundle does NOT contain, because the data was not obtained:
+# vegetation/fuels, aggregate population, and facilities. Those are absent
+# rather than filled with plausible values -- see docs/DATA_PROVENANCE.md
+# Access attempts.
+study_area_id: uljin_real_v1
+description: >
+  Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do,
+  on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap
+  roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022
+  Uljin-Samcheok fire burned this region) and because both sources have verified
+  coverage here.
+notes: >
+  The terrain is a DIGITAL SURFACE MODEL: GLO-30 includes canopy and buildings,
+  so slope over forest here is canopy slope, not ground slope
+  (docs/FAILURE_MODES.md F-TER-3). OSM rural completeness is UNKNOWN, so the
+  road network is a lower bound on what exists on the ground, and the egress
+  counts derived from it inherit that limitation.
+
+# KGD2002 / East Belt 2010 -- the Korean belt system covering this longitude.
+crs: EPSG:5187
+bounds: [227500.0, 478500.0, 231500.0, 482500.0]
+
+terrain:
+  source:
+    kind: copernicus_dem_glo30
+    options:
+      # About 1 km of margin in degrees, so the reprojection and the 3x3
+      # derivative both have data at the study boundary.
+      buffer_deg: 0.01
+  # Reproject from the source's EPSG:4326 degree grid to a 30 m metre grid.
+  # GLO-30's nominal 30 m is at the equator; at 36.9 N its cells are about
+  # 30 m north-south and 24 m east-west, so 30 m here is a resampling choice
+  # and is recorded as one.
+  target_resolution_m: 30.0
+  resampling: bilinear
+  derivatives: [slope, aspect]
+  clip_buffer_cells: 2
+  vertical_datum: EGM2008 geoid (per Copernicus DEM product specification)
+
+roads:
+  source:
+    kind: osm_api
+  snap_tolerance_m: 1.0
+  boundary_tolerance_m: 30.0
+  clip_mode: intersects
+  node_crossings: false

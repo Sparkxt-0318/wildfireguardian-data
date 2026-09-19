@@ -157,16 +157,31 @@ def _copernicus_source(url: str) -> SourceRecord:
         acquisition_date=utc_now_iso(),
         publisher="European Space Agency / Copernicus Programme",
         licence=(
-            "free use with attribution; see the Copernicus DEM product licence"
+            "free use with attribution to ESA / Copernicus; the exact licence "
+            "terms are in the COP-DEM product documentation, which was NOT "
+            "retrievable from this repository's environment - treat the terms as "
+            "UNVERIFIED HERE and check them before redistributing"
         ),
-        licence_url="https://spacedata.copernicus.eu/documents/20123/121286/CSCDA_ESA_Mission-specific-Annex.pdf",
+        # The collection description page below was reachable and is what this
+        # repository actually verified. The licence annex PDF itself was not, so
+        # it is deliberately not cited as though it had been read
+        # (AGENTS.md §3/§4).
+        licence_url=(
+            "https://dataspace.copernicus.eu/explore-data/data-collections/"
+            "copernicus-contributing-missions/collections-description/COP-DEM"
+        ),
         notes=(
             "GLO-30 is a DIGITAL SURFACE MODEL: it includes vegetation canopy "
             "and buildings, so slope derived from it over Korean forest is "
             "canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). "
-            "elevations are referenced to the EGM2008 geoid. source "
-            "acquisitions span 2011-2015; source_date records the start year at "
-            "year precision."
+            "elevations are referenced to the EGM2008 geoid and the horizontal "
+            "CRS of the tiles as read is EPSG:4326 (both confirmed against the "
+            "tile metadata). the product is compiled from TanDEM-X acquisitions "
+            "spanning 2011-2015, so source_date records 2011 at year precision "
+            "and the range is stated here rather than collapsed to one date. "
+            "GLO-30's nominal 30 m is at the equator; at Korean latitudes the "
+            "cells are about 30 m north-south and 24 m east-west, so any "
+            "30 m metre grid is a resampling choice, recorded as such."
         ),
     )
 
@@ -330,13 +345,16 @@ def _osm_source(url: str) -> SourceRecord:
         acquisition_date=utc_now_iso(),
         publisher="OpenStreetMap contributors",
         licence="Open Database License (ODbL) 1.0",
+        # Both URLs below were verified reachable from this environment.
         licence_url="https://opendatacommons.org/licenses/odbl/1-0/",
         notes=(
             "ODbL is share-alike on derived databases: a study-area bundle "
             "containing this road layer carries ODbL obligations, and "
-            "attribution to OpenStreetMap contributors is required. rural "
-            "Korean coverage is uneven and completeness is UNKNOWN "
-            "(docs/FAILURE_MODES.md F-RD-3)."
+            "attribution to OpenStreetMap contributors is required "
+            "(https://www.openstreetmap.org/copyright). rural Korean coverage "
+            "is uneven and completeness is UNKNOWN, so any egress count derived "
+            "from this layer is a statement about the data, not about the "
+            "ground (docs/FAILURE_MODES.md F-RD-3)."
         ),
     )
 

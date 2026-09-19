@@ -1,0 +1,105 @@
+{
+  "checksum": "3567b32ba82c75a5dc050c968f81eec3bcfb6e8cb0d1fd0a9efa9a1e6d886484",
+  "checksum_algorithm": "sha256",
+  "data_class": "derived",
+  "layer_name": "roads",
+  "nodata_representation": "not_applicable",
+  "notes": "ODbL 1.0; attribution to OpenStreetMap contributors required, and share-alike applies to derived databases. rural completeness is UNKNOWN.",
+  "original_crs": "EPSG:4326",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "roads"
+  ],
+  "random_seed": null,
+  "resolution_unit": "UNKNOWN",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "acquisition_date": "2026-09-19T18:22:36.796678+00:00",
+      "licence": "Open Database License (ODbL) 1.0",
+      "licence_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "name": "OpenStreetMap (api.openstreetmap.org /api/0.6/map)",
+      "notes": "ODbL is share-alike on derived databases: a study-area bundle containing this road layer carries ODbL obligations, and attribution to OpenStreetMap contributors is required (https://www.openstreetmap.org/copyright). rural Korean coverage is uneven and completeness is UNKNOWN, so any egress count derived from this layer is a statement about the data, not about the ground (docs/FAILURE_MODES.md F-RD-3).",
+      "publisher": "OpenStreetMap contributors",
+      "source_date": "2026-09-19T18:22:36.796675+00:00",
+      "url_or_identifier": "https://api.openstreetmap.org/api/0.6/map?bbox=129.308564,36.904743,129.353612,36.940911"
+    }
+  ],
+  "spatial_resolution": null,
+  "temporal_class": "observation_time",
+  "temporal_reference": "2026-09-19T18:22:36.796652+00:00",
+  "transformations": [
+    {
+      "notes": "all OSM tags carried opaquely; none interpreted as a usability claim (docs/ASSUMPTIONS.md A-RD-6). ways with nodes outside the bbox were skipped, not reconstructed",
+      "operation": "fetch_osm_roads",
+      "parameters": {
+        "bbox_wgs84": [
+          129.30856383932218,
+          36.90474312529925,
+          129.3536115273316,
+          36.94091140464887
+        ],
+        "highway_values": [
+          "living_street",
+          "motorway",
+          "motorway_link",
+          "primary",
+          "primary_link",
+          "residential",
+          "road",
+          "secondary",
+          "secondary_link",
+          "service",
+          "tertiary",
+          "tertiary_link",
+          "track",
+          "trunk",
+          "trunk_link",
+          "unclassified"
+        ],
+        "nodes_returned": 6758,
+        "url": "https://api.openstreetmap.org/api/0.6/map?bbox=129.308564,36.904743,129.353612,36.940911",
+        "ways_kept": 31,
+        "ways_skipped_incomplete": 0
+      },
+      "timestamp": "2026-09-19T18:22:36.796758+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "vector reprojection is exact per-vertex; segment interiors are not densified, so long segments keep their straight-line geometry in the target CRS",
+      "operation": "reproject_vector",
+      "parameters": {
+        "always_xy": true,
+        "dst_crs": "EPSG:5187",
+        "features": 31,
+        "src_crs": "EPSG:4326"
+      },
+      "timestamp": "2026-09-19T18:22:36.806943+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "whole features kept by 'intersects' test; geometry unmodified",
+      "operation": "clip_vector",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "features_in": 31,
+        "features_out": 31,
+        "features_truncated": 0,
+        "mode": "intersects",
+        "requested_bounds": [
+          227500.0,
+          478500.0,
+          231500.0,
+          482500.0
+        ]
+      },
+      "timestamp": "2026-09-19T18:22:36.807405+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "value_unit": "not_applicable",
+  "vertical_datum": "UNKNOWN"
+}

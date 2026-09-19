@@ -250,3 +250,74 @@ re-fetch command is the reproducibility mechanism.
 network access. Bundles built from synthetic fixtures require none, and those
 are what CI runs. Licence and attribution for every real source are recorded in
 `DATA_PROVENANCE.md`.
+
+---
+
+## D-0013 | 2026-09-19 | accepted | A layer transformed by this repository is DERIVED
+
+**Decision.** Any layer this repository transforms becomes
+`DataClass.DERIVED`, even when its source was `OBSERVED`. A clipped, reprojected
+Copernicus DEM is `derived`, with the Copernicus `SourceRecord` retained and the
+full transformation chain recorded.
+
+**Rejected.** (a) Keeping `OBSERVED` through transformations, since the
+measurements did come from an instrument; (b) keeping `OBSERVED` through a pure
+subset (clip) and switching to `DERIVED` only on resampling.
+
+**Why.** A reprojected DEM's values have been resampled: they are no longer the
+measured values at those locations, and calling them observed would overstate
+them. Option (b) is more informative but puts the observed/derived boundary at a
+place a reader has to reason about, and the same information is already
+recoverable exactly: `transformations[]` shows whether `reproject_raster` (values
+changed) or only `clip_raster` (values untouched) was applied.
+
+**Consequence.** `data_class` alone does not tell a consumer whether the ultimate
+origin was an observation — they must read `sources[]`, which is retained
+precisely for that. Recorded in `docs/DATA_PROVENANCE.md`.
+
+---
+
+## D-0014 | 2026-09-19 | accepted | Validate the written bundle, not the in-memory one
+
+**Decision.** `wg-data build-study-area` writes the bundle, then validates the
+**directory**, then writes the report to `<bundle>/validation/report.json`.
+
+**Rejected.** Validating the in-memory bundle and embedding the report as the
+bundle is written.
+
+**Why.** Checksums exist only after writing, so an in-memory validation reports
+every layer as unchecksummed (`PRV-008`) and can never catch a write that went
+wrong or a manifest that disagrees with its files. Validating the directory
+exercises the read path as well, which is the only way the round trip is
+actually tested on every build.
+
+**Consequence.** The manifest always reserves the `validation_report` extra, and
+`BND-016` skips that one entry — the report is written after validation by
+definition, so its absence during the run says nothing. `validate_bundle` on an
+in-memory bundle remains available for tests and library use.
+
+---
+
+## D-0015 | 2026-09-19 | accepted | Real data comes from global open sources, with gaps left empty
+
+**Decision.** The committed real-data study area (`uljin_real_v1`) uses
+**Copernicus DEM GLO-30** for terrain and **OpenStreetMap** for roads, and has
+**no** fuels, population, or facilities layer.
+
+**Rejected.** (a) Waiting for authoritative Korean sources (NGII, VWorld, Korea
+Forest Service, KOSIS/SGIS) before shipping any real bundle; (b) filling the
+missing components with plausible synthetic layers so the bundle looks complete.
+
+**Why.** The authoritative Korean sources were not reachable from this
+repository's environment — and specifically, they failed as outbound-proxy
+tunnel closures, which is not evidence that the services are unavailable
+(`docs/DATA_PROVENANCE.md` §Access attempts). Shipping nothing real would have
+left the pipeline unexercised against real data, where the interesting problems
+are: a degree-grid source, a DSM, uneven rural coverage, non-square cells. Option
+(b) is the failure this whole repository exists to prevent: a bundle that looks
+complete and is partly invented.
+
+**Consequence.** `uljin_real_v1` is terrain and roads only, and its road
+completeness is UNKNOWN. A reader must not treat the absence of a fuels layer as
+"no fuel here". Replacing OSM with NGII/VWorld data, and adding real vegetation
+and aggregate population, are the first items in `tasks/CURRENT.md`.

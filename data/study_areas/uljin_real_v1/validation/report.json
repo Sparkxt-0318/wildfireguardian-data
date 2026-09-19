@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0.0",
+  "target": "directory:data/study_areas/uljin_real_v1",
+  "status": "pass_with_warnings",
+  "strict": false,
+  "counts": {
+    "ERROR": 0,
+    "WARNING": 4,
+    "INFO": 6
+  },
+  "context": {
+    "crs": "EPSG:5187",
+    "bounds": {
+      "min_x": 227500.0,
+      "min_y": 478500.0,
+      "max_x": 231500.0,
+      "max_y": 482500.0,
+      "crs": "EPSG:5187"
+    },
+    "layers": [
+      "dem",
+      "slope_deg",
+      "aspect_deg",
+      "roads"
+    ],
+    "schema_version": "1.0.0",
+    "directory": "data/study_areas/uljin_real_v1"
+  },
+  "findings": [
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "roads",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['resolution_unit', 'vertical_datum']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "roads",
+      "detail": {
+        "fields": [
+          "resolution_unit",
+          "vertical_datum"
+        ]
+      }
+    },
+    {
+      "code": "RAS-004",
+      "severity": "INFO",
+      "message": "raster declares a nodata value but contains no missing cells",
+      "layer": "dem",
+      "detail": {
+        "nodata": "nan"
+      }
+    },
+    {
+      "code": "RD-001",
+      "severity": "WARNING",
+      "message": "road network has 22 connected components; as digitised, parts of it do not connect to each other. this is often a missing junction node rather than a real disconnection (docs/DECISIONS.md D-0007)",
+      "layer": "roads",
+      "detail": {
+        "component_count": 22
+      }
+    },
+    {
+      "code": "RD-002",
+      "severity": "WARNING",
+      "message": "17 isolated segment(s): single edges alone in their component with no exit",
+      "layer": "roads",
+      "detail": {
+        "count": 17
+      }
+    },
+    {
+      "code": "RD-005",
+      "severity": "INFO",
+      "message": "some exit nodes were inferred from the study-area boundary rather than from source tags; egress counts therefore depend on where the study area was cut (docs/ASSUMPTIONS.md A-RD-4)",
+      "layer": "roads",
+      "detail": {
+        "boundary_exits": [
+          5
+        ]
+      }
+    },
+    {
+      "code": "RD-006",
+      "severity": "WARNING",
+      "message": "2 line pair(s) cross without a shared node. either genuine grade separation, or missing junction nodes that under-connect the network (docs/DECISIONS.md D-0007)",
+      "layer": "roads",
+      "detail": {
+        "count": 2
+      }
+    }
+  ]
+}

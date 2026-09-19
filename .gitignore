@@ -20,7 +20,10 @@ venv/
 htmlcov/
 .DS_Store
 
-# Locally built bundles other than the committed example.
+# Locally built bundles other than the two committed examples
+# (docs/DATA_PROVENANCE.md lists which are committed and why).
 data/study_areas/*
 !data/study_areas/uljin_valley_synthetic_v1/
 !data/study_areas/uljin_valley_synthetic_v1/**
+!data/study_areas/uljin_real_v1/
+!data/study_areas/uljin_real_v1/**

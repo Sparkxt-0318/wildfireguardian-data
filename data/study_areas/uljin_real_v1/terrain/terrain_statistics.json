@@ -1,0 +1,69 @@
+{
+  "elevation": {
+    "layer": "dem",
+    "unit": "m",
+    "crs": "EPSG:5187",
+    "cells_total": 19182,
+    "cells_valid": 19182,
+    "cells_missing": 0,
+    "missing_fraction": 0.0,
+    "min": 35.003055572509766,
+    "max": 605.0411987304688,
+    "mean": 285.55349662815763,
+    "std": 126.75742514011587,
+    "percentiles": {
+      "p5": 83.38342323303223,
+      "p25": 175.0743637084961,
+      "p50": 295.61997985839844,
+      "p75": 386.41705322265625,
+      "p95": 484.61951446533203
+    }
+  },
+  "relief_m": 570.038143157959,
+  "cell_size": [
+    30.0,
+    30.0
+  ],
+  "grid_shape": [
+    139,
+    138
+  ],
+  "crs": "EPSG:5187",
+  "valid_area_m2": 17263800.0,
+  "slope": {
+    "layer": "slope_deg",
+    "unit": "deg",
+    "crs": "EPSG:5187",
+    "cells_total": 19182,
+    "cells_valid": 18632,
+    "cells_missing": 550,
+    "missing_fraction": 0.028672714002710875,
+    "min": 0.11395280063152313,
+    "max": 51.11216354370117,
+    "mean": 22.431498777289256,
+    "std": 9.08808575078249,
+    "percentiles": {
+      "p5": 7.218592190742493,
+      "p25": 16.156396865844727,
+      "p50": 22.281679153442383,
+      "p75": 28.808867931365967,
+      "p95": 37.71048069000244
+    },
+    "note": "derivative layers lose the array edge and every cell beside missing data, so cells_missing here exceeds the DEM's (docs/DECISIONS.md D-0005)"
+  },
+  "aspect": {
+    "layer": "aspect_deg",
+    "unit": "deg_azimuth_grid_north",
+    "circular_mean": {
+      "mean_deg": 99.20768096840271,
+      "resultant_length": 0.14769600480428471,
+      "count_used": 18632,
+      "count_ignored": 550,
+      "interpretation": "mean_deg is the circular mean azimuth"
+    },
+    "cells_total": 19182,
+    "cells_valid": 18632,
+    "cells_missing": 550,
+    "note": "NaN here means either an incomplete neighbourhood or exactly flat ground; the two are not distinguished in the array. arithmetic means of azimuths are wrong and are not offered (docs/FAILURE_MODES.md F-TER-4)."
+  }
+}

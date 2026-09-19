@@ -1,0 +1,162 @@
+{
+  "checksum": "a7cc7e80e853cb29c58d59a42705377790877f2c285fbd3bb6da2a7d7750376c",
+  "checksum_algorithm": "sha256",
+  "data_class": "derived",
+  "layer_name": "aspect_deg",
+  "nodata_representation": "nan",
+  "notes": "DIGITAL SURFACE MODEL (includes canopy and buildings). geographic CRS: must be reprojected to a metre CRS before any slope or length computation (docs/DECISIONS.md D-0010). | aspect clockwise from grid north, downslope-facing; NaN where flat",
+  "original_crs": "EPSG:4326",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "dem_copernicus_glo30",
+    "dem_copernicus_glo30_analysis_crs",
+    "dem"
+  ],
+  "random_seed": null,
+  "resolution_unit": "m",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "acquisition_date": "2026-09-19T18:22:35.327304+00:00",
+      "licence": "free use with attribution to ESA / Copernicus; the exact licence terms are in the COP-DEM product documentation, which was NOT retrievable from this repository's environment - treat the terms as UNVERIFIED HERE and check them before redistributing",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "name": "Copernicus DEM GLO-30 (COP-DEM_GLO-30-DGED)",
+      "notes": "GLO-30 is a DIGITAL SURFACE MODEL: it includes vegetation canopy and buildings, so slope derived from it over Korean forest is canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). elevations are referenced to the EGM2008 geoid and the horizontal CRS of the tiles as read is EPSG:4326 (both confirmed against the tile metadata). the product is compiled from TanDEM-X acquisitions spanning 2011-2015, so source_date records 2011 at year precision and the range is stated here rather than collapsed to one date. GLO-30's nominal 30 m is at the equator; at Korean latitudes the cells are about 30 m north-south and 24 m east-west, so any 30 m metre grid is a resampling choice, recorded as such.",
+      "publisher": "European Space Agency / Copernicus Programme",
+      "source_date": "2011",
+      "url_or_identifier": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E129_00_DEM/Copernicus_DSM_COG_10_N36_00_E129_00_DEM.tif"
+    }
+  ],
+  "spatial_resolution": [
+    30.0,
+    30.0
+  ],
+  "temporal_class": "static",
+  "temporal_reference": "2011",
+  "transformations": [
+    {
+      "notes": "windowed COG read over HTTPS; no resampling applied at this stage, so the values are the tile's own",
+      "operation": "fetch_copernicus_dem_window",
+      "parameters": {
+        "buffer_deg": 0.01,
+        "cell_size_deg": [
+          0.0002777777777777778,
+          0.0002777777777777778
+        ],
+        "dtype": "float32",
+        "read_bounds_wgs84": [
+          129.29856383932218,
+          36.89474312529925,
+          129.36361152733159,
+          36.95091140464887
+        ],
+        "requested_bounds_wgs84": [
+          129.30856383932218,
+          36.90474312529925,
+          129.3536115273316,
+          36.94091140464887
+        ],
+        "tile": "Copernicus_DSM_COG_10_N36_00_E129_00_DEM",
+        "tile_nodata": "None",
+        "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E129_00_DEM/Copernicus_DSM_COG_10_N36_00_E129_00_DEM.tif",
+        "window_shape": [
+          202,
+          234
+        ]
+      },
+      "timestamp": "2026-09-19T18:22:35.327441+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "resampling changes values; cell size and grid origin both change. missing cells were carried as NaN through the warp so sentinels could not be averaged into real values",
+      "operation": "reproject_raster",
+      "parameters": {
+        "dst_cells_square": true,
+        "dst_crs": "EPSG:5187",
+        "dst_nodata": "nan",
+        "dst_resolution": [
+          30.0,
+          30.0
+        ],
+        "requested_dst_resolution": [
+          30.0,
+          30.0
+        ],
+        "resampling": "bilinear",
+        "shape_after": [
+          209,
+          194
+        ],
+        "shape_before": [
+          202,
+          234
+        ],
+        "src_crs": "EPSG:4326",
+        "src_nodata": "nan",
+        "src_resolution": [
+          0.0002777777777777778,
+          0.0002777777777777778
+        ]
+      },
+      "timestamp": "2026-09-19T18:22:35.348974+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "bounds snapped outward to whole source cells; grid origin and cell size unchanged, so the clip stays aligned with its parent",
+      "operation": "clip_raster",
+      "parameters": {
+        "buffer_cells": 2,
+        "crs": "EPSG:5187",
+        "requested_bounds": [
+          227500.0,
+          478500.0,
+          231500.0,
+          482500.0
+        ],
+        "requested_window_truncated": false,
+        "shape_after": [
+          139,
+          138
+        ],
+        "shape_before": [
+          209,
+          194
+        ],
+        "snapped_to_source_grid": true,
+        "window_cols": [
+          28,
+          166
+        ],
+        "window_rows": [
+          35,
+          174
+        ]
+      },
+      "timestamp": "2026-09-19T18:22:35.349254+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "aspect is measured from GRID north; meridian convergence to true north is not corrected (docs/ASSUMPTIONS.md A-TER-5). flat cells are NaN, not 0 (docs/DECISIONS.md D-0006).",
+      "operation": "aspect",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "estimator": "horn_1981_3x3",
+        "faces": "downslope",
+        "flat_cells": 0,
+        "flat_slope_tolerance": 0.0,
+        "flat_value": "nan",
+        "output_missing_cells": 550,
+        "reference_direction": "grid_north_clockwise",
+        "unit": "deg"
+      },
+      "timestamp": "2026-09-19T18:22:35.351819+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "value_unit": "deg_azimuth_grid_north",
+  "vertical_datum": "EGM2008 geoid (per Copernicus DEM product specification)"
+}
