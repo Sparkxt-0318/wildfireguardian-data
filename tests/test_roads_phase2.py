@@ -435,3 +435,76 @@ def test_build_diagnostics_expose_how_the_graph_was_made():
     assert diagnostics["shared_vertices_found"] == 1
     assert diagnostics["shared_vertex_splits"] == 1
     assert "D-0020" in diagnostics["note"]
+
+
+def test_critical_link_settlement_sitting_on_the_exit_itself():
+    """Case 7. The settlement snaps onto the exit node.
+
+    Hand-derived: the settlement node *is* an exit node, so there is no edge
+    whose removal can leave it without a path to an exit -- the path has length
+    zero. Every edge here is still a graph bridge, so a metric that reported
+    bridges instead of settlement-cutting edges would report two critical links
+    where the right answer is none.
+
+    This is the case most likely to produce a false positive, because
+    "settlement in a component with exactly one exit" is true and yet nothing
+    is critical.
+    """
+    graph, qa = qa_for(
+        [
+            ("access", [(0, 1500), (1000, 1500)]),
+            ("spur", [(1000, 1500), (1000, 2000)]),
+        ],
+        # Sits on (0, 1500), the boundary-touching node.
+        [("on_the_exit", Point(0, 1500))],
+    )
+    settlement_node = qa.settlements.node_by_settlement["on_the_exit"]
+    assert settlement_node in qa.exits.all_exits, (
+        "the fixture is only meaningful if the settlement snapped to the exit"
+    )
+    assert len(bridge_edges(graph)) == 2, "both edges are graph bridges"
+    # ...and neither is a critical link.
+    assert qa.critical_link_list == ()
+
+
+def test_critical_link_shared_by_two_settlements_is_reported_once():
+    """Case 8. One edge cuts off two settlements.
+
+    Hand-derived: two hamlets hang off a single access road. Removing the
+    access edge strands both, so the metric must report **one** link naming
+    **two** settlement nodes -- not two links, and not one link naming one.
+
+    Double-counting here would inflate a "number of critical links" figure in
+    exactly the places that matter most: a valley whose hamlets share one road
+    out.
+    """
+    graph, qa = qa_for(
+        [
+            ("access", [(0, 1500), (1000, 1500)]),
+            ("spur_a", [(1000, 1500), (1000, 2000)]),
+            ("spur_b", [(1000, 1500), (1400, 1500)]),
+        ],
+        [("hamlet_a", Point(1000, 2000)), ("hamlet_b", Point(1400, 1500))],
+    )
+    node_a = qa.settlements.node_by_settlement["hamlet_a"]
+    node_b = qa.settlements.node_by_settlement["hamlet_b"]
+
+    # Three critical links: the shared access, and each hamlet's own spur.
+    assert len(qa.critical_link_list) == 3
+    shared = [
+        link
+        for link in qa.critical_link_list
+        if set(link["settlement_nodes_cut_off"]) == {node_a, node_b}
+    ]
+    assert len(shared) == 1, (
+        "the shared access road must appear once naming both settlements, not "
+        "once per settlement"
+    )
+    # And each spur cuts off exactly its own hamlet.
+    for node in (node_a, node_b):
+        own = [
+            link
+            for link in qa.critical_link_list
+            if link["settlement_nodes_cut_off"] == [node]
+        ]
+        assert len(own) == 1
