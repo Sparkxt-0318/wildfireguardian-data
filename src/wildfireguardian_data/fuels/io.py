@@ -23,6 +23,7 @@ from ..errors import (
 )
 from ..provenance.checksum import sha256_file
 from ..provenance.models import (
+    NOT_APPLICABLE,
     UNKNOWN,
     DataClass,
     ProvenanceRecord,
@@ -51,6 +52,8 @@ def _fuel_provenance(
     transformation: Transformation,
     checksum: str,
     notes: str,
+    valid_from: str = UNKNOWN,
+    valid_to: str = UNKNOWN,
 ) -> ProvenanceRecord:
     return ProvenanceRecord(
         layer_name=name,
@@ -67,6 +70,14 @@ def _fuel_provenance(
         resolution_unit=resolution_unit_text(crs),
         value_unit="class",
         nodata_representation=repr(scheme.nodata_code),
+        # A land-cover or fuel raster is not an elevation model, so there is no
+        # surface-versus-terrain question to be unknown about.
+        surface_model=NOT_APPLICABLE,
+        # The scheme knows its own vintage; the layer does not know how long
+        # that vintage stays valid, so a caller that knows must pass it. See
+        # D-0025 on why this is not defaulted from the vintage.
+        valid_from=valid_from,
+        valid_to=valid_to,
         checksum=checksum,
         notes=(
             # The SYNTHETIC marker is prepended here rather than left to each
@@ -91,6 +102,8 @@ def fuel_layer_from_array(
     data_class: DataClass,
     temporal_class: TemporalProvenance,
     temporal_reference: str = UNKNOWN,
+    valid_from: str = UNKNOWN,
+    valid_to: str = UNKNOWN,
     notes: str = "",
 ) -> RasterLayer:
     """Wrap an integer class array as a categorical fuel layer.
@@ -140,6 +153,8 @@ def fuel_layer_from_array(
         transformation=transformation,
         checksum=UNKNOWN,
         notes=notes,
+        valid_from=valid_from,
+        valid_to=valid_to,
     )
     return RasterLayer(
         name=name,
@@ -163,6 +178,8 @@ def read_fuel_geotiff(
     temporal_class: TemporalProvenance,
     band: int = 1,
     temporal_reference: str = UNKNOWN,
+    valid_from: str = UNKNOWN,
+    valid_to: str = UNKNOWN,
     notes: str = "",
 ) -> RasterLayer:
     """Read a categorical fuel raster from a GeoTIFF.
@@ -224,6 +241,8 @@ def read_fuel_geotiff(
         transformation=transformation,
         checksum=sha256_file(source_path) if source_path.exists() else UNKNOWN,
         notes=notes,
+        valid_from=valid_from,
+        valid_to=valid_to,
     )
     return RasterLayer(
         name=name,

@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.1.0",
+  "safety_disclaimer": "These are topological properties of the road data as digitised. They are NOT statements about whether a road is passable, whether a vehicle of any size can use it, whether an egress is usable during a fire, or whether any community is safe or trapped. Exit nodes inferred from a study-area boundary are artifacts of the clip, not verified real-world exits.",
+  "source_layer": "roads",
+  "crs": "EPSG:5187",
+  "graph": {
+    "nodes": 4,
+    "edges": 3,
+    "total_length_m": 480.0,
+    "length_unit": "m",
+    "length_note": "planar 2-D length in the layer's projected CRS; not slope-corrected, not geodesic, not a travel distance (docs/ASSUMPTIONS.md A-RD-5)",
+    "directed": false,
+    "snap_tolerance_m": 1.0,
+    "max_intra_cluster_distance_m": 0.0
+  },
+  "connectivity": {
+    "component_count": 1,
+    "components": [
+      {
+        "component_id": 0,
+        "node_count": 4,
+        "edge_count": 3,
+        "total_length_m": 480.0,
+        "exit_nodes": [
+          0,
+          2
+        ],
+        "settlement_nodes": [
+          3
+        ]
+      }
+    ],
+    "node_degree_histogram": {
+      "1": 3,
+      "3": 1
+    },
+    "degree_note": "multigraph degree: a parallel edge counts twice for its two nodes, and a self-loop adds 2 to its node's degree",
+    "dead_end_nodes": [
+      3
+    ],
+    "dead_end_count": 1,
+    "isolated_segments": [],
+    "self_loop_edges": [],
+    "parallel_edge_pairs": [],
+    "duplicate_geometry": [],
+    "largest_component": {
+      "component_id": 0,
+      "node_count": 4,
+      "edge_count": 3,
+      "total_length_m": 480.0,
+      "edge_fraction": 1.0,
+      "length_fraction": 1.0,
+      "note": "a largest-component fraction well below 1 means the network is fragmented as digitised. before reading that as sparsity, rule out the pipeline: see reports/ULJIN_ROAD_AUDIT.md, where endpoint-only connection produced 22 components from a network that has 2"
+    }
+  },
+  "attributes": {
+    "highway": {
+      "edges_with_value": 3,
+      "edges_total": 3,
+      "fraction_present": 1.0,
+      "values": {
+        "unclassified": 3
+      }
+    },
+    "oneway": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "lanes": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "surface": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "smoothness": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "tracktype": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "maxspeed": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "access": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "width": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "bridge": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "tunnel": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "layer": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "service": {
+      "edges_with_value": 0,
+      "edges_total": 3,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "_note": "availability only. no attribute is defaulted by road class: a fabricated 'lanes' or 'surface' would be indistinguishable from a sourced one in the field a travel-time model multiplies by (D-0022)."
+  },
+  "grade_separation": {
+    "bridge_edges": [],
+    "tunnel_edges": [],
+    "bridge_count": 0,
+    "tunnel_count": 0,
+    "note": "source-tagged grade separation. a tagged bridge that crosses nothing in this layer may cross a stream or railway not included here; an UNtagged crossing is either unmapped grade separation or a missing junction, which the crossings_without_node diagnostic reports without deciding which."
+  },
+  "density": {
+    "available": true,
+    "study_area_km2": 0.13,
+    "km_per_km2_overall": 3.704,
+    "km_per_km2_by_quadrant": {
+      "north_west": 5.556,
+      "north_east": 5.556,
+      "south_west": 9.259,
+      "south_east": 9.259
+    },
+    "empty_quadrants": [],
+    "max_over_min_ratio": 1.67,
+    "note": "a low- or zero-density quadrant is either genuinely roadless (steep forest, water) or unmapped. this diagnostic cannot distinguish them, and completeness stays UNKNOWN (docs/FAILURE_MODES.md F-RD-3)."
+  },
+  "build_diagnostics": {
+    "snap_tolerance_m": 1.0,
+    "max_intra_cluster_distance_m": 0.0,
+    "shared_vertices_found": 1,
+    "shared_vertex_splits": 0,
+    "node_crossings_added": 0,
+    "exploded_multilinestrings": 0,
+    "dropped_zero_length": 0,
+    "note": "how the graph was built. dropped_zero_length and shared_vertex_splits are the numbers to check first when a component count looks wrong (docs/DECISIONS.md D-0020)"
+  },
+  "egress": {
+    "exits": {
+      "count": 2,
+      "from_source_tags": [],
+      "from_boundary_crossing": [],
+      "from_boundary": [
+        0,
+        2
+      ],
+      "boundary_crossing_edge_count": 0,
+      "boundary_crossing_edges": [],
+      "boundary_tolerance_m": 30.0,
+      "clip_boundary_warning": true,
+      "note": "boundary-derived exits exist because the network was clipped; a clip both creates exits (cut ends) and destroys them (a real second egress outside the extent). widen the study area to test whether an egress count is stable."
+    },
+    "settlements": {
+      "count": 1,
+      "node_by_settlement": {
+        "SYN-INT-V-001": 3
+      },
+      "matched_distance_m": {
+        "SYN-INT-V-001": 0.0
+      },
+      "unmatched_settlements": [],
+      "snap_distance_m": 100.0,
+      "crs_checked": true,
+      "note": "an unmatched settlement is a finding, not a blank: either the road network is incomplete near it, or the settlement centroid is wrong, or the snap distance is too small. it is never treated as having no road access."
+    },
+    "single_egress_candidates": [],
+    "no_egress_components": [],
+    "candidate_note": "'candidate' is load-bearing: this is a topological count of exits in this graph, not a claim that a community can or cannot get out (docs/DECISIONS.md D-0008)"
+  },
+  "fragility": {
+    "articulation_points": [
+      1
+    ],
+    "bridge_edges": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ]
+    ],
+    "critical_links": [
+      {
+        "edge": [
+          1,
+          3
+        ],
+        "length_m": 120.0,
+        "settlement_nodes_cut_off": [
+          3
+        ],
+        "note": "removal of this edge leaves the listed settlement nodes with no path to any exit node in this graph"
+      }
+    ],
+    "bridge_note": "graph-theoretic bridges (edge cuts), not structural bridges over water; multiplicity-aware (docs/GLOSSARY.md)"
+  },
+  "crossings_without_node": {
+    "count": 0,
+    "samples": [],
+    "node_tolerance_m": 0.5,
+    "note": "crossing points that are not graph nodes. lines crossing WITHOUT a shared vertex are not connected (docs/DECISIONS.md D-0007), which is how OSM represents a bridge or tunnel -- check the bridge/tunnel/layer tags in the samples. a crossing at a shared vertex IS noded (D-0020) and does not appear here. this diagnostic does not distinguish grade separation from a missing junction node."
+  },
+  "notes": [
+    "counts describe the network as digitised, after endpoint snapping at 1.0 m"
+  ]
+}

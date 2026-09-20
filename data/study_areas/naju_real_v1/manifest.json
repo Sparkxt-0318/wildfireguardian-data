@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.1.0",
+  "study_area_id": "naju_real_v1",
+  "crs": "EPSG:5186",
+  "crs_wkt": "PROJCRS[\"KGD2002 / Central Belt 2010\",BASEGEOGCRS[\"KGD2002\",DATUM[\"Korean Geodetic Datum 2002\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4737]],CONVERSION[\"Korea Central Belt 2010\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",38,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",127,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",1,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",200000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",600000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"northing (X)\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"easting (Y)\",east,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Cadastre, topographic mapping.\"],AREA[\"Republic of Korea (South Korea) - onshore between 126°E and 128°E.\"],BBOX[33.14,126,38.33,128]],ID[\"EPSG\",5186]]",
+  "bounds": {
+    "min_x": 175200.0,
+    "min_y": 270660.0,
+    "max_x": 179190.0,
+    "max_y": 274680.0,
+    "crs": "EPSG:5186"
+  },
+  "licences": [
+    {
+      "layer": "dem",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "slope_deg",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "aspect_deg",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "roads",
+      "source": "OpenStreetMap (api.openstreetmap.org /api/0.6/map)",
+      "licence": "Open Database License (ODbL) 1.0",
+      "licence_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "publisher": "OpenStreetMap contributors"
+    },
+    {
+      "layer": "fuels",
+      "source": "ESA WorldCover 10 m 2021 v200 (land cover)",
+      "licence": "CC-BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "publisher": "ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium"
+    }
+  ],
+  "layers": [
+    {
+      "name": "dem",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/dem.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "m",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 19182,
+      "missing_cells": 0,
+      "checksum_sha256": "69dedee18e3bb860a723288e9f6327e62aa84736f915b4663ca9813d6c98a0b3",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "slope_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/slope_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 18632,
+      "missing_cells": 550,
+      "checksum_sha256": "9b212010bccddd4bb5b25b232189cd2a72e77e3612562fcf543bac177105fa28",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "aspect_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/aspect_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 18013,
+      "missing_cells": 1169,
+      "checksum_sha256": "eb7bcdad5e73d3bedfa2b49e155cb2fed983acf713c1a3dbbea0789006bb2e8e",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "roads",
+      "component": "roads",
+      "type": "vector",
+      "format": "geojson",
+      "path": "roads/roads.geojson",
+      "extra_files": [],
+      "feature_kind": "road segment",
+      "features": 602,
+      "geom_types": [
+        "LineString"
+      ],
+      "checksum_sha256": "d4f72190e4f5685359852adb3df360cbca9301dd76c8f0e0b9394a576f86597f",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "fuels",
+      "component": "fuels",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "fuels/fuels.tif",
+      "extra_files": [],
+      "kind": "categorical",
+      "value_unit": "class",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "uint8",
+      "valid_cells": 19182,
+      "missing_cells": 0,
+      "checksum_sha256": "fdbae1c5bf23f091ee2863c34f1288aaf8592016c2963436ec3082a5823dec36",
+      "checksum_algorithm": "sha256"
+    }
+  ],
+  "extras": {
+    "roads_qa": "roads/roads_qa.json",
+    "roads_graph_summary": "roads/roads_graph_summary.json",
+    "terrain_statistics": "terrain/terrain_statistics.json",
+    "fuel_scheme": "fuels/fuel_scheme.json",
+    "validation_report": "validation/report.json"
+  },
+  "extras_checksums_sha256": {
+    "fuel_scheme": "2147550eda0773697ca0026eea76cf5d53a53218b96b0aa52e22bb5f983e0413",
+    "roads_graph_summary": "4b332de0cbb5cc16ef2d1ea74f85637bbcfc6165db7bbc5eb3ce9f1213a04a5b",
+    "roads_qa": "73ba371067c447bc827eb48cf7be6d983e243a30275e8ea90c7d711b4abff421",
+    "terrain_statistics": "38b6701938e6d2424f46b4a3f5d4e9bcf9e049c100c4eda7d399495c130884c8"
+  },
+  "provenance_checksums_sha256": {
+    "aspect_deg": "4491ab37fa4ab859641658abc1b9665630c51e7a53b5a3bd143395bf33bd6772",
+    "dem": "a02b21793cc3e30f727a1a509cd86bb2f657d3777858fa83c84d8173dfe2c53e",
+    "fuels": "d914a0752dc01c4fa09e96217dc92d7baa46f88dab0dd6355139c16f3027fed8",
+    "roads": "14a22b6bc5a568738d8130a994f3920d679381b21b5cb67784434dfa60d1eeb3",
+    "slope_deg": "e7d6a9c521109274e26418030faaaa828efa5621bd9197ac360655586b270226"
+  },
+  "unchecksummed": {
+    "validation_report": "written after the manifest, because validation runs against the written bundle (docs/DECISIONS.md D-0014); it is therefore not covered by any checksum here"
+  },
+  "metadata": {
+    "description": "Real 4 x 4 km study area on the Yeongsan river plain in Naju-si, Jeollanam-do, western Korea: Copernicus DEM GLO-30 terrain, ESA WorldCover 2021 land cover, and OpenStreetMap roads. Selected for low relief and for a different Korean belt CRS from the Uljin bundle, to test whether this repository's handling of either is place-specific.\n",
+    "notes": "The terrain is a DIGITAL SURFACE MODEL, so slope over vegetation is canopy slope (docs/FAILURE_MODES.md F-TER-3); on near-level ground that matters proportionally more than in Uljin, because a canopy step is a larger fraction of the true relief. Land cover is ESA WorldCover and is NOT a fire-behaviour fuel model; no crosswalk to one is shipped (docs/DECISIONS.md D-0024). WorldCover's 2021 vintage and its documented tendency to misclassify shadowed ground as water are recorded on the scheme. OSM rural completeness is UNKNOWN here as in Uljin, so egress counts inherit that limitation.\n",
+    "built_at": "2026-09-20T03:45:36.713417+00:00",
+    "config": {
+      "study_area_id": "naju_real_v1",
+      "description": "Real 4 x 4 km study area on the Yeongsan river plain in Naju-si, Jeollanam-do, western Korea: Copernicus DEM GLO-30 terrain, ESA WorldCover 2021 land cover, and OpenStreetMap roads. Selected for low relief and for a different Korean belt CRS from the Uljin bundle, to test whether this repository's handling of either is place-specific.\n",
+      "crs": "EPSG:5186",
+      "bounds": [
+        175200.0,
+        270660.0,
+        179190.0,
+        274680.0
+      ],
+      "notes": "The terrain is a DIGITAL SURFACE MODEL, so slope over vegetation is canopy slope (docs/FAILURE_MODES.md F-TER-3); on near-level ground that matters proportionally more than in Uljin, because a canopy step is a larger fraction of the true relief. Land cover is ESA WorldCover and is NOT a fire-behaviour fuel model; no crosswalk to one is shipped (docs/DECISIONS.md D-0024). WorldCover's 2021 vintage and its documented tendency to misclassify shadowed ground as water are recorded on the scheme. OSM rural completeness is UNKNOWN here as in Uljin, so egress counts inherit that limitation.\n",
+      "config_path": "configs/naju_real_copernicus_osm_worldcover.yaml",
+      "terrain": {
+        "source": {
+          "kind": "copernicus_dem_glo30",
+          "options": {
+            "buffer_deg": 0.01
+          }
+        },
+        "target_resolution_m": 30.0,
+        "derivatives": [
+          "slope",
+          "aspect"
+        ],
+        "clip_buffer_cells": 2,
+        "resampling": "bilinear",
+        "slope_unit": "deg",
+        "vertical_datum": "EGM2008 geoid (per Copernicus DEM product specification)"
+      },
+      "roads": {
+        "source": {
+          "kind": "osm_api"
+        },
+        "snap_tolerance_m": 1.0,
+        "boundary_tolerance_m": 30.0,
+        "settlement_snap_m": 250.0,
+        "clip_mode": "intersects",
+        "node_crossings": false,
+        "exit_property": null
+      },
+      "fuels": {
+        "source": {
+          "kind": "esa_worldcover",
+          "options": {
+            "buffer_deg": 0.005
+          }
+        },
+        "scheme": "esa_worldcover_v200",
+        "class_property": null
+      }
+    },
+    "allow_network": true,
+    "build_notes": [
+      "terrain reprojected from EPSG:4326 to EPSG:5186 at 30x30 m",
+      "fuels warped directly onto the DEM grid, so the two rasters are co-registered cell-for-cell"
+    ],
+    "pipeline_order": [
+      "load",
+      "reproject_to_analysis_crs",
+      "clip_with_derivative_buffer",
+      "derive_slope_aspect",
+      "assess_road_topology",
+      "assemble"
+    ]
+  },
+  "caveats": [
+    "StudyAreaBundle is internal and unstable; no downstream repository should depend on this layout yet (docs/DECISIONS.md D-0001)",
+    "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)",
+    "this bundle carries data licence obligations that travel with it, including attribution and, for any ODbL source, share-alike on derived databases: Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED): free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required | OpenStreetMap (api.openstreetmap.org /api/0.6/map): Open Database License (ODbL) 1.0"
+  ],
+  "manifest_checksum_sha256": "a89a932bd8a548eee2bad599f9e05bf2990008d74542bb02d9357d6ea82859ef"
+}

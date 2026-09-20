@@ -1,0 +1,363 @@
+{
+  "bundle_schema_version": "1.0.0",
+  "bundle_id": "naju_real_v1",
+  "created_at": "2026-09-20T03:45:36.807303+00:00",
+  "study_area": {
+    "study_area_id": "naju_real_v1",
+    "bounds": {
+      "min_x": 175200.0,
+      "min_y": 270660.0,
+      "max_x": 179190.0,
+      "max_y": 274680.0,
+      "crs": "EPSG:5186"
+    },
+    "extent_m": [
+      3990.0,
+      4020.0
+    ]
+  },
+  "crs": "EPSG:5186",
+  "canonical_grid": {
+    "grid": {
+      "x_origin": 175125.92617469467,
+      "y_origin": 274756.2701735304,
+      "x_size": 30.0,
+      "y_size": 30.0
+    },
+    "shape": [
+      139,
+      138
+    ],
+    "crs": "EPSG:5186",
+    "status": "SHARED"
+  },
+  "layers": {
+    "terrain": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "dem",
+          "geometry": "raster",
+          "data_class": "DERIVED",
+          "planner_legal": true,
+          "temporal_class": "static",
+          "temporal_reference": "2011",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "dsm",
+          "units": {
+            "values": "m",
+            "resolution": "metre",
+            "vertical_datum": "EGM2008 (EPSG:3855), metres - per the COP-DEM collection description page, not declared in the tile"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "69dedee18e3bb860a723288e9f6327e62aa84736f915b4663ca9813d6c98a0b3",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+              "identifier": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E126_00_DEM/Copernicus_DSM_COG_10_N35_00_E126_00_DEM.tif",
+              "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise",
+              "source_date": "2011",
+              "acquisition_date": "2026-09-20T03:45:32.820667+00:00",
+              "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+              "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM"
+            }
+          ],
+          "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to"
+          ],
+          "derived_from": [
+            "dem_copernicus_glo30",
+            "dem_copernicus_glo30_analysis_crs"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "REPROJECTED_ONTO_ITS_OWN_GRID",
+            "SURFACE_MODEL_NOT_TERRAIN",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        },
+        {
+          "name": "slope_deg",
+          "geometry": "raster",
+          "data_class": "DERIVED",
+          "planner_legal": true,
+          "temporal_class": "static",
+          "temporal_reference": "2011",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "dsm",
+          "units": {
+            "values": "deg",
+            "resolution": "metre",
+            "vertical_datum": "EGM2008 (EPSG:3855), metres - per the COP-DEM collection description page, not declared in the tile"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "9b212010bccddd4bb5b25b232189cd2a72e77e3612562fcf543bac177105fa28",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+              "identifier": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E126_00_DEM/Copernicus_DSM_COG_10_N35_00_E126_00_DEM.tif",
+              "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise",
+              "source_date": "2011",
+              "acquisition_date": "2026-09-20T03:45:32.820667+00:00",
+              "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+              "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM"
+            }
+          ],
+          "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to"
+          ],
+          "derived_from": [
+            "dem_copernicus_glo30",
+            "dem_copernicus_glo30_analysis_crs",
+            "dem"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "REPROJECTED_ONTO_ITS_OWN_GRID",
+            "SURFACE_MODEL_NOT_TERRAIN",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        },
+        {
+          "name": "aspect_deg",
+          "geometry": "raster",
+          "data_class": "DERIVED",
+          "planner_legal": true,
+          "temporal_class": "static",
+          "temporal_reference": "2011",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "dsm",
+          "units": {
+            "values": "deg_azimuth_grid_north",
+            "resolution": "metre",
+            "vertical_datum": "EGM2008 (EPSG:3855), metres - per the COP-DEM collection description page, not declared in the tile"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "eb7bcdad5e73d3bedfa2b49e155cb2fed983acf713c1a3dbbea0789006bb2e8e",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+              "identifier": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E126_00_DEM/Copernicus_DSM_COG_10_N35_00_E126_00_DEM.tif",
+              "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise",
+              "source_date": "2011",
+              "acquisition_date": "2026-09-20T03:45:32.820667+00:00",
+              "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+              "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM"
+            }
+          ],
+          "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to"
+          ],
+          "derived_from": [
+            "dem_copernicus_glo30",
+            "dem_copernicus_glo30_analysis_crs",
+            "dem"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "REPROJECTED_ONTO_ITS_OWN_GRID",
+            "SURFACE_MODEL_NOT_TERRAIN",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        }
+      ]
+    },
+    "roads": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "roads",
+          "geometry": "vector",
+          "data_class": "DERIVED",
+          "planner_legal": true,
+          "temporal_class": "observation_time",
+          "temporal_reference": "2026-09-20T03:45:34.630518+00:00",
+          "valid_from": "2026-09-20T03:45:34.630518+00:00",
+          "valid_to": "UNKNOWN",
+          "surface_model": "not_applicable",
+          "units": {
+            "values": "not_applicable",
+            "resolution": "not_applicable",
+            "vertical_datum": "not_applicable"
+          },
+          "spatial_resolution": null,
+          "missing_data_representation": "not_applicable",
+          "checksum": "d4f72190e4f5685359852adb3df360cbca9301dd76c8f0e0b9394a576f86597f",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "OpenStreetMap (api.openstreetmap.org /api/0.6/map)",
+              "identifier": "https://api.openstreetmap.org/api/0.6/map?bbox=126.728108,35.031831,126.771952,35.068156",
+              "publisher": "OpenStreetMap contributors",
+              "source_date": "2026-09-20T03:45:34.630544+00:00",
+              "acquisition_date": "2026-09-20T03:45:34.630548+00:00",
+              "licence": "Open Database License (ODbL) 1.0",
+              "licence_url": "https://opendatacommons.org/licenses/odbl/1-0/"
+            }
+          ],
+          "licence": "Open Database License (ODbL) 1.0",
+          "unknown_fields": [
+            "valid_to"
+          ],
+          "derived_from": [
+            "roads"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        }
+      ],
+      "graph": {
+        "status": "PRESENT",
+        "source": "road QA report",
+        "node_count": 1072,
+        "edge_count": 1324,
+        "component_count": 7,
+        "total_length_m": 183941.6104052835,
+        "length_unit": "m",
+        "directed": false,
+        "noting": "counts describe graph topology as digitised. they do not state that any route is passable, any area reachable, or anyone trapped (AGENTS.md section 5). lengths are planar geometry in the analysis CRS, not travel distances (A-RD-5)"
+      }
+    },
+    "fuels": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "fuels",
+          "geometry": "raster",
+          "data_class": "DERIVED",
+          "planner_legal": true,
+          "temporal_class": "annual",
+          "temporal_reference": "2021",
+          "valid_from": "2021",
+          "valid_to": "2021",
+          "surface_model": "not_applicable",
+          "units": {
+            "values": "class",
+            "resolution": "metre",
+            "vertical_datum": "not_applicable"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "0",
+          "checksum": "fdbae1c5bf23f091ee2863c34f1288aaf8592016c2963436ec3082a5823dec36",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "ESA WorldCover 10 m 2021 v200 (land cover)",
+              "identifier": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N33E126_Map.tif",
+              "publisher": "ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium",
+              "source_date": "2021",
+              "acquisition_date": "2026-09-20T03:45:36.703481+00:00",
+              "licence": "CC-BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+              "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+            }
+          ],
+          "licence": "CC-BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+          "unknown_fields": [],
+          "derived_from": [
+            "landcover_esa_worldcover"
+          ],
+          "random_seed": null,
+          "limitations": []
+        }
+      ],
+      "class_scheme": {
+        "status": "PRESENT",
+        "name": "esa_worldcover_v200",
+        "scheme_kind": "source_class",
+        "represents": "land cover, classified from Sentinel-1 and Sentinel-2 imagery. NOT a fire-behaviour fuel model and not a forest-type map: 'Tree cover' means canopy cover >= 10%, with no species, load, or moisture information",
+        "class_count": 11,
+        "nodata_code": 0,
+        "spatial_resolution_m": 10.0,
+        "vintage": "2021 (01 January to 31 December, per Product User Manual V2.0 §3.4.3)",
+        "licence": "CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/)",
+        "known_limitations": [
+          "cloud artefacts can persist in areas of high cloud cover despite the use of Sentinel-1 (Product User Manual V2.0 §4)",
+          "Sentinel-2 orbit or processing-block borders can be visible as hard edges where classes are easily confused (PUM §4)",
+          "mountain shadows and glacier ablation zones are sometimes misclassified as water bodies (PUM §4) -- directly relevant in steep Korean valleys, where a shadowed slope may read as class 80",
+          "irrigated agriculture and herbaceous wetland are spectrally similar and are sometimes confused (PUM §4)",
+          "10 m land cover is not a fuel model: it carries no species composition, fuel load, canopy bulk density, or moisture, all of which a fire-behaviour model needs"
+        ],
+        "is_fire_behaviour_fuel_model": false
+      }
+    },
+    "population": {
+      "status": "ABSENT",
+      "reason": "UNKNOWN",
+      "layers": []
+    },
+    "facilities": {
+      "status": "ABSENT",
+      "reason": "UNKNOWN",
+      "layers": []
+    }
+  },
+  "provenance": {
+    "provenance_schema_version": [
+      "1.1.0"
+    ],
+    "internal_bundle_schema_version": "1.1.0",
+    "layer_count": 5,
+    "unknown_field_count": 7,
+    "data_classes_present": [
+      "DERIVED"
+    ]
+  },
+  "validation": {
+    "status": "pass_with_warnings",
+    "strict": false,
+    "counts": {
+      "ERROR": 0,
+      "WARNING": 11,
+      "INFO": 11
+    },
+    "report_path": "validation/report.json"
+  },
+  "checksums": {
+    "dem": "69dedee18e3bb860a723288e9f6327e62aa84736f915b4663ca9813d6c98a0b3",
+    "slope_deg": "9b212010bccddd4bb5b25b232189cd2a72e77e3612562fcf543bac177105fa28",
+    "aspect_deg": "eb7bcdad5e73d3bedfa2b49e155cb2fed983acf713c1a3dbbea0789006bb2e8e",
+    "roads": "d4f72190e4f5685359852adb3df360cbca9301dd76c8f0e0b9394a576f86597f",
+    "fuels": "fdbae1c5bf23f091ee2863c34f1288aaf8592016c2963436ec3082a5823dec36"
+  },
+  "caveats": [
+    "this manifest reports what each layer is and where it came from. it does NOT assert that the bundle is scientifically valid, fit for any particular analysis, or that anything in it is safe, passable, or usable (AGENTS.md sections 5 and 8)",
+    "an ABSENT layer is absent. nothing was estimated, interpolated, or defaulted to fill it (AGENTS.md section 3)",
+    "data_class is uppercase here and lowercase in this repository's own artifacts; see docs/DECISIONS.md D-0023 for the RETROSPECTIVE axis collapse this boundary performs"
+  ]
+}

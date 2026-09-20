@@ -18,6 +18,7 @@ Two rules govern this module:
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from enum import Enum
@@ -28,6 +29,8 @@ from ..errors import ProvenanceError
 __all__ = [
     "UNKNOWN",
     "NOT_APPLICABLE",
+    "combine_data_classes",
+    "governance_class_name",
     "PROVENANCE_SCHEMA_VERSION",
     "DataClass",
     "TemporalProvenance",
@@ -36,6 +39,7 @@ __all__ = [
     "ProvenanceRecord",
     "utc_now_iso",
     "validate_temporal_string",
+    "migrate_provenance_payload",
 ]
 
 #: The one permitted stand-in for a fact this repository does not know.
@@ -49,23 +53,108 @@ UNKNOWN = "UNKNOWN"
 #: (``docs/DECISIONS.md`` D-0009).
 NOT_APPLICABLE = "not_applicable"
 
+#: Permitted values of :attr:`ProvenanceRecord.surface_model`. Closed set: an
+#: unrecognised spelling is rejected rather than stored, because a consumer
+#: switching on this field would treat an unknown string as neither.
+_SURFACE_MODELS = frozenset({"dsm", "dtm", NOT_APPLICABLE, UNKNOWN})
+
 #: Bumped whenever the serialised shape of :class:`ProvenanceRecord` changes.
 #: A reader that does not recognise the version must fail, not guess
 #: (``docs/INTERFACES.md``).
-PROVENANCE_SCHEMA_VERSION = "1.0.0"
+PROVENANCE_SCHEMA_VERSION = "1.1.0"
 
 
 class DataClass(str, Enum):
-    """What kind of thing a layer's values are. Definitions: ``docs/GLOSSARY.md``.
+    """What kind of thing a layer's values are.
+
+    Aligned with ``wildfireguardian-research-governance``
+    ``governance/DATA_CLASSES.md`` (AUTHORITATIVE, Tier 1), whose governing rule
+    is that **there is no unclassified scientific input**. All seven governance
+    classes are present, but this repository only ever *emits* four of them:
+
+    * ``OBSERVED``, ``DERIVED``, ``MODELED``, ``SYNTHETIC`` -- what a data
+      foundation can produce.
+    * ``ASSUMED`` exists so an inbound value can be labelled and so this
+      repository can **refuse** to emit one: ``AGENTS.md`` §3 forbids setting a
+      value from what is typical, which is exactly what ``ASSUMED`` describes.
+    * ``RETROSPECTIVE`` and ``ORACLE_ONLY`` exist for **rejection at the
+      boundary**. This repository produces no oracle quantities, and a
+      retrospective layer is refused as a landscape input for a forecast-time
+      study (D-0023).
 
     There is no default. A layer must declare whether its numbers were measured,
     modelled, derived here, or made up for a test.
+
+    Serialised lowercase in this repository's own artifacts; the export boundary
+    emits **uppercase**, as governance requires (their ``OC-029``). See
+    :func:`governance_class_name`.
     """
 
     OBSERVED = "observed"
     MODELED = "modeled"
     DERIVED = "derived"
     SYNTHETIC = "synthetic"
+    ASSUMED = "assumed"
+    RETROSPECTIVE = "retrospective"
+    ORACLE_ONLY = "oracle_only"
+
+    @property
+    def planner_legal(self) -> bool:
+        """Whether governance permits a planner to consume this class.
+
+        ``RETROSPECTIVE`` and ``ORACLE_ONLY`` are never planner-legal, under any
+        framing -- including "the planner only uses a summary of it", since
+        governance's class algebra states that aggregation does not downgrade
+        class. ``SYNTHETIC`` is legal only through a declared observation
+        operator, which is not something this repository provides, so it is
+        reported as not planner-legal from here.
+        """
+        return self in {
+            DataClass.OBSERVED,
+            DataClass.DERIVED,
+            DataClass.MODELED,
+            DataClass.ASSUMED,
+        }
+
+
+#: Governance's class algebra, in precedence order (``DATA_CLASSES.md`` §2):
+#: any ORACLE_ONLY input makes the result ORACLE_ONLY; else any RETROSPECTIVE
+#: input makes it RETROSPECTIVE; else a model output makes it MODELED; else
+#: DERIVED. Aggregation never downgrades class, "because summarization is the
+#: most common disguise for leakage".
+_CLASS_PRECEDENCE: tuple[DataClass, ...] = (
+    DataClass.ORACLE_ONLY,
+    DataClass.RETROSPECTIVE,
+    DataClass.MODELED,
+    DataClass.ASSUMED,
+    DataClass.DERIVED,
+    DataClass.SYNTHETIC,
+    DataClass.OBSERVED,
+)
+
+
+def combine_data_classes(classes: Iterable[DataClass]) -> DataClass:
+    """Apply governance's class algebra to a set of input classes.
+
+    Used when a layer is derived from several parents. The dominating class
+    wins, so a derivation cannot launder an ``ORACLE_ONLY`` or
+    ``RETROSPECTIVE`` input into something planner-legal.
+    """
+    present = {DataClass(c) for c in classes}
+    if not present:
+        raise ProvenanceError("combine_data_classes needs at least one class")
+    for candidate in _CLASS_PRECEDENCE:
+        if candidate in present:
+            # A pure-SYNTHETIC or pure-OBSERVED set keeps its own class; a mix
+            # of OBSERVED with anything transformed is DERIVED, which is what
+            # the caller passes explicitly.
+            return candidate
+    raise ProvenanceError(f"unrecognised data classes: {present}")
+
+
+def governance_class_name(data_class: DataClass) -> str:
+    """The uppercase spelling governance requires at an integration boundary."""
+    return DataClass(data_class).value.upper()
 
 
 class TemporalProvenance(str, Enum):
@@ -277,6 +366,26 @@ class ProvenanceRecord:
     #: OBSERVATION_TIME, ``"UNKNOWN"`` when the source does not say, and
     #: ``"not_applicable"`` only for a genuinely STATIC synthetic construct.
     temporal_reference: str = UNKNOWN
+    #: The interval over which these values are claimed to describe the world.
+    #: Distinct from ``temporal_reference``, which says *when the data is from*;
+    #: these say *when it is true of*. A 2021 land-cover product has
+    #: ``temporal_reference="2021"`` and a validity interval that a consumer
+    #: must decide on, which is exactly why both are recorded separately
+    #: (Phase 2 item 17, ``docs/DECISIONS.md`` D-0025).
+    #:
+    #: ``UNKNOWN`` means nobody established the interval. ``not_applicable``
+    #: means there is no such interval -- a synthetic construct describes no
+    #: moment in the world. The two are not interchangeable: only ``UNKNOWN``
+    #: counts as a gap.
+    valid_from: str = UNKNOWN
+    valid_to: str = UNKNOWN
+    #: For an elevation layer: ``"dsm"`` (first return -- canopy and rooftops),
+    #: ``"dtm"`` (bare earth), ``"not_applicable"`` for a non-elevation layer,
+    #: or ``UNKNOWN``. Structured rather than left to prose because the
+    #: difference is a ~34-degree fabricated slope across one 30 m cell at a
+    #: 20 m canopy edge (``docs/FAILURE_MODES.md`` F-TER-3), and a consumer
+    #: cannot be expected to grep a notes field for it.
+    surface_model: str = UNKNOWN
     original_crs: str = UNKNOWN
     output_crs: str = UNKNOWN
     #: ``(x_size, y_size)`` as positive lengths in ``resolution_unit``. A pair,
@@ -318,6 +427,31 @@ class ProvenanceRecord:
             "temporal_reference",
             validate_temporal_string(self.temporal_reference, "temporal_reference"),
         )
+        for field_name in ("valid_from", "valid_to"):
+            object.__setattr__(
+                self,
+                field_name,
+                validate_temporal_string(getattr(self, field_name), field_name),
+            )
+        if self.surface_model not in _SURFACE_MODELS:
+            raise ProvenanceError(
+                f"surface_model must be one of {sorted(_SURFACE_MODELS)}; got "
+                f"{self.surface_model!r}. 'dsm' versus 'dtm' is not a label: a "
+                "DSM's slope over forest is canopy slope, so a consumer that "
+                "guesses wrong fabricates terrain (docs/FAILURE_MODES.md "
+                "F-TER-3)."
+            )
+        if (
+            self.valid_from not in (UNKNOWN, NOT_APPLICABLE)
+            and self.valid_to not in (UNKNOWN, NOT_APPLICABLE)
+            and self.valid_to < self.valid_from
+        ):
+            # String comparison is correct for ISO-8601 at any precision, and
+            # an inverted interval is a mistake rather than an empty one.
+            raise ProvenanceError(
+                f"valid_to {self.valid_to!r} precedes valid_from "
+                f"{self.valid_from!r} for layer {self.layer_name!r}"
+            )
 
         if self.spatial_resolution is not None:
             res = tuple(float(v) for v in self.spatial_resolution)
@@ -386,6 +520,9 @@ class ProvenanceRecord:
             "data_class": child_class,
             "temporal_class": self.temporal_class,
             "temporal_reference": self.temporal_reference,
+            "valid_from": self.valid_from,
+            "valid_to": self.valid_to,
+            "surface_model": self.surface_model,
             "sources": self.sources,
             "transformations": self.transformations + (transformation,),
             "original_crs": self.original_crs,
@@ -430,6 +567,9 @@ class ProvenanceRecord:
             "data_class": self.data_class.value,
             "temporal_class": self.temporal_class.value,
             "temporal_reference": self.temporal_reference,
+            "valid_from": self.valid_from,
+            "valid_to": self.valid_to,
+            "surface_model": self.surface_model,
             "sources": [s.to_dict() for s in self.sources],
             "transformations": [t.to_dict() for t in self.transformations],
             "original_crs": self.original_crs,
@@ -453,11 +593,7 @@ class ProvenanceRecord:
         data = dict(payload)
         version = data.pop("schema_version", None)
         if version is not None and version != PROVENANCE_SCHEMA_VERSION:
-            raise ProvenanceError(
-                f"provenance schema_version {version!r} != supported "
-                f"{PROVENANCE_SCHEMA_VERSION!r}; refusing to guess the layout "
-                "of an unrecognised version (docs/INTERFACES.md)."
-            )
+            data = migrate_provenance_payload(data, version)
         data["sources"] = tuple(
             SourceRecord.from_dict(s) for s in data.get("sources", [])
         )
@@ -474,6 +610,77 @@ class ProvenanceRecord:
                 "silently drop provenance content."
             )
         return cls(**data)
+
+
+def _migrate_provenance_1_0_0_to_1_1_0(data: dict[str, Any]) -> dict[str, Any]:
+    """Add the fields 1.1.0 introduced, as ``UNKNOWN``.
+
+    Purely additive, and deliberately *not* clever. A 1.0.0 record genuinely
+    does not know its validity interval or whether its elevation source is a
+    surface or a terrain model, so ``UNKNOWN`` is the honest value. Inferring
+    ``surface_model="dsm"`` from a Copernicus source name during a migration
+    would be exactly the filename-based inference ``AGENTS.md`` §3 forbids --
+    and it would be indistinguishable afterwards from a fact somebody checked.
+    """
+    out = dict(data)
+    for field_name in ("valid_from", "valid_to", "surface_model"):
+        out.setdefault(field_name, UNKNOWN)
+    note = (
+        "migrated from provenance schema 1.0.0: valid_from, valid_to and "
+        "surface_model did not exist in that version and are UNKNOWN rather "
+        "than inferred"
+    )
+    existing = out.get("notes", "")
+    out["notes"] = f"{existing} | {note}" if existing else note
+    return out
+
+
+#: Explicit, one-step-at-a-time migrations between provenance schema versions
+#: (Phase 2 item 26). A version with no entry here is **refused**, not guessed
+#: at: the alternative is a reader that silently reinterprets a layout it does
+#: not know, which is the failure mode ``docs/INTERFACES.md`` exists to prevent.
+_PROVENANCE_MIGRATIONS: dict[str, tuple[str, Any]] = {
+    "1.0.0": ("1.1.0", _migrate_provenance_1_0_0_to_1_1_0),
+}
+
+
+def migrate_provenance_payload(
+    data: dict[str, Any], from_version: str
+) -> dict[str, Any]:
+    """Migrate a serialised provenance payload up to the supported version.
+
+    Applies the chain in :data:`_PROVENANCE_MIGRATIONS` step by step, so a
+    two-version-old record goes through every intermediate migration rather than
+    a single hand-written shortcut that would have to be re-derived each time a
+    version is added.
+
+    Raises :class:`ProvenanceError` for a version with no migration, including
+    any version *newer* than this reader supports -- a newer writer may have
+    changed the meaning of a field this reader thinks it understands.
+    """
+    version = from_version
+    payload = dict(data)
+    seen = [version]
+    while version != PROVENANCE_SCHEMA_VERSION:
+        step = _PROVENANCE_MIGRATIONS.get(version)
+        if step is None:
+            raise ProvenanceError(
+                f"provenance schema_version {from_version!r} != supported "
+                f"{PROVENANCE_SCHEMA_VERSION!r}, and no migration is registered "
+                f"from {version!r}. refusing to guess the layout of an "
+                "unrecognised version (docs/INTERFACES.md). a version newer "
+                "than this reader is refused for the same reason: a newer "
+                "writer may have changed what a field this reader recognises "
+                "actually means."
+            )
+        version, migrate = step
+        payload = migrate(payload)
+        if version in seen:  # pragma: no cover - guards a malformed registry
+            raise ProvenanceError(
+                f"provenance migration chain loops at {version!r}: {seen}"
+            )
+        seen.append(version)
+    return payload
 
 
 def _jsonable(value: Any) -> Any:

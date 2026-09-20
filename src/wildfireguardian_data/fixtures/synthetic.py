@@ -44,6 +44,7 @@ from ..crs import crs_to_string
 from ..fuels.classes import SYNTHETIC_DEMO_SCHEME, FuelClassScheme
 from ..fuels.io import fuel_layer_from_array
 from ..provenance.models import (
+    NOT_APPLICABLE,
     DataClass,
     ProvenanceRecord,
     SourceRecord,
@@ -140,6 +141,16 @@ def _synthetic_raster_provenance(
         value_unit=value_unit,
         vertical_datum="not_applicable (synthetic)",
         nodata_representation=nodata_text,
+        # A synthetic surface has no canopy, so it *is* bare earth. "dtm" is
+        # accurate rather than a placeholder, and it is what lets the analytic
+        # tests assert that a computed slope is terrain slope and not a canopy
+        # artifact (F-TER-3).
+        surface_model="dtm",
+        # A synthetic construct describes no moment in the world, so there is
+        # no validity interval to be unknown about. NOT_APPLICABLE, not
+        # UNKNOWN: only UNKNOWN counts as a gap (D-0009).
+        valid_from=NOT_APPLICABLE,
+        valid_to=NOT_APPLICABLE,
         random_seed=seed,
         notes=("SYNTHETIC. " + notes).strip(),
     )
@@ -165,6 +176,9 @@ def _synthetic_vector_provenance(
         output_crs=crs_to_string(crs),
         value_unit="not_applicable",
         nodata_representation="not_applicable",
+        surface_model=NOT_APPLICABLE,
+        valid_from=NOT_APPLICABLE,
+        valid_to=NOT_APPLICABLE,
         notes=("SYNTHETIC. " + notes).strip(),
     )
 
@@ -1040,6 +1054,10 @@ def korean_valley_fuels(
         data_class=DataClass.SYNTHETIC,
         temporal_class=TemporalProvenance.STATIC,
         temporal_reference="not_applicable",
+        # A synthetic construct describes no moment in the world, so there is
+        # no validity interval to be unknown about (D-0025).
+        valid_from=NOT_APPLICABLE,
+        valid_to=NOT_APPLICABLE,
         notes=(
             "classes derived from synthetic elevation bands plus seeded noise; "
             f"seed={seed}. a deliberate {(hole[0].stop - hole[0].start)}x"
@@ -1053,6 +1071,348 @@ def korean_valley_fuels(
 # --------------------------------------------------------------------------- #
 #: Fixture name -> zero-argument-callable factory. Used by the CLI
 #: (``wg-data make-fixtures``) and by ``source.kind: synthetic_fixture``.
+# --------------------------------------------------------------------------- #
+# The downstream CI integration fixture (Phase 2 item 29)
+# --------------------------------------------------------------------------- #
+#: Where the integration fixture lives. Offset from ``SYNTHETIC_ORIGIN`` so a
+#: bundle built from it cannot be confused with the larger valley fixture by
+#: coordinate alone.
+INTEGRATION_ORIGIN = (240_000.0, 490_000.0)
+
+#: The **study area** is 12x12 cells at 30 m: a 360 m square. Small enough that
+#: a downstream CI job can read the whole thing and assert on individual cells,
+#: and small enough that the committed bundle is kilobytes, not megabytes.
+INTEGRATION_STUDY_SHAPE = (12, 12)
+INTEGRATION_CELL_M = 30.0
+
+#: The **DEM** is 16x16, two cells larger on every side, exactly as a real fetch
+#: is buffered before clipping. Without that margin, Horn's 3x3 estimator drops
+#: the outer ring of the study area itself -- on a 12x12 grid that is 44 of 144
+#: cells, so the bundle would carry a permanent 30.6% missing-data WARNING that
+#: is an artifact of the fixture's size and nothing else. A downstream CI
+#: fixture should not ship a finding its consumers must learn to ignore.
+INTEGRATION_SHAPE = (16, 16)
+INTEGRATION_MARGIN_CELLS = 2
+
+#: The gradient of the integration DEM. Chosen so the closed-form answers are
+#: unambiguous rather than round: a downstream job that computes slope itself
+#: and gets 5.7106 degrees has almost certainly done it right, whereas an
+#: expected 0 or 45 could be produced by several different mistakes.
+INTEGRATION_DZ_DX = 0.10
+INTEGRATION_DZ_DY = 0.00
+
+
+def integration_fixture_dem(
+    *,
+    name: str = "dem",
+    crs: Any = SYNTHETIC_CRS,
+    origin: tuple[float, float] = INTEGRATION_ORIGIN,
+) -> RasterLayer:
+    """A 12x12 tilted plane rising due east at 10%.
+
+    Deliberately *analytic*, not arbitrary. Horn's estimator is exact on a
+    plane, so a downstream consumer that computes slope and aspect from this
+    DEM has a closed-form expectation to check against:
+
+    * slope  = atan(0.10)          = 5.710593 degrees;
+    * aspect = 270 degrees (downslope faces due west);
+    * at every cell of the 12x12 **study area**, because the DEM is 16x16 --
+      two cells larger on each side, so the estimator's unavoidable edge loss
+      falls outside the study area instead of inside it. Cells on the DEM's own
+      outer ring are nodata, since a 3x3 estimator has no 3x3 neighbourhood
+      there and this repository does not extrapolate (D-0005).
+
+    A fixture whose right answer is known is worth far more to a downstream CI
+    job than a realistic-looking one whose right answer is whatever this
+    repository last produced.
+    """
+    margin = INTEGRATION_MARGIN_CELLS * INTEGRATION_CELL_M
+    return tilted_plane(
+        name=name,
+        shape=INTEGRATION_SHAPE,
+        cell_size_m=INTEGRATION_CELL_M,
+        dz_dx=INTEGRATION_DZ_DX,
+        dz_dy=INTEGRATION_DZ_DY,
+        base_elevation_m=100.0,
+        crs=crs,
+        # Shifted out by the margin so the study area sits inside the DEM with
+        # room for the estimator's edge loss, rather than at its very edge.
+        origin=(origin[0] - margin, origin[1] - margin),
+    )
+
+
+def integration_fixture_fuels(
+    *,
+    name: str = "fuels",
+    template: RasterLayer | None = None,
+    crs: Any = SYNTHETIC_CRS,
+    origin: tuple[float, float] = INTEGRATION_ORIGIN,
+) -> RasterLayer:
+    """A 12x12 categorical raster on the DEM's grid: two classes and a hole.
+
+    Three properties a downstream consumer can assert:
+
+    * it is co-registered with :func:`integration_fixture_dem` cell-for-cell;
+    * the western half is one class and the eastern half another, so a
+      consumer can tell immediately whether it has transposed x and y --
+      which matters here, because EPSG:5187's authority axis order is
+      (northing, easting) and this package stores (easting, northing);
+    * the 2x2 block at rows 5-6, columns 5-6 is **nodata**, so the
+      missing-data path is exercised by default rather than only by a special
+      test. A consumer that reads nodata as a class, or as zero, will get a
+      wrong answer here instead of silently later.
+    """
+    if template is not None:
+        base = template
+    else:
+        # Built on the STUDY-AREA grid, not the buffered DEM grid: the pipeline
+        # passes the clipped DEM as the template, and this branch exists only
+        # for direct use, where matching the study area is what a caller means.
+        base = tilted_plane(
+            name="integration_fixture_fuels_grid",
+            shape=INTEGRATION_STUDY_SHAPE,
+            cell_size_m=INTEGRATION_CELL_M,
+            crs=crs,
+            origin=origin,
+        )
+    height, width = base.shape
+    scheme = SYNTHETIC_DEMO_SCHEME
+    codes = [code for code in sorted(scheme.codes) if code != scheme.nodata_code]
+    west_class, east_class = codes[0], codes[1]
+
+    data = np.full((height, width), west_class, dtype=np.int16)
+    data[:, width // 2 :] = east_class
+    hole = (slice(5, 7), slice(5, 7))
+    data[hole] = scheme.nodata_code
+
+    return fuel_layer_from_array(
+        data,
+        name=name,
+        transform=base.transform,
+        crs=base.crs,
+        scheme=scheme,
+        source=_synthetic_source("integration_fixture_fuels"),
+        data_class=DataClass.SYNTHETIC,
+        temporal_class=TemporalProvenance.STATIC,
+        temporal_reference="not_applicable",
+        valid_from=NOT_APPLICABLE,
+        valid_to=NOT_APPLICABLE,
+        notes=(
+            f"west half class {west_class}, east half class {east_class}, and a "
+            "deliberate 2x2 nodata block at rows 5-6 / cols 5-6. the east-west "
+            "split is there so a consumer that transposes x and y sees it "
+            "immediately"
+        ),
+    )
+
+
+def integration_fixture_roads(
+    *,
+    name: str = "roads",
+    crs: Any = SYNTHETIC_CRS,
+    origin: tuple[float, float] = INTEGRATION_ORIGIN,
+) -> VectorLayer:
+    """Three segments forming a T with two exits. Topology is hand-derived.
+
+    Laid out in local metres from ``origin``, inside the 360 m study area::
+
+        (0,180) A ---- B (180,180) ---- C (360,180)
+                       |
+                       D (180, 60)   <- the settlement
+
+    Hand-derived, and all of it confirmed against the pipeline: **1 connected
+    component**, 4 nodes, 3 edges, 480 m total. A and C reach the study-area
+    boundary, so there are **2 exits**. D carries the settlement.
+
+    The fixture's real value is that it makes one specific trap concrete:
+
+    * ``single_egress_candidates`` is **empty**, because D's component has two
+      exit nodes;
+    * ``critical_links`` contains **one** edge, B-D, whose removal leaves D
+      with no path to any exit.
+
+    So a consumer reading only ``single_egress_candidates`` concludes this
+    settlement is comfortably served, and is wrong. That is exactly what
+    ``docs/DECISIONS.md`` D-0008 and ``docs/FAILURE_MODES.md`` F-RD-6 warn
+    about, and a downstream CI job that asserts both numbers is checking it has
+    read both.
+
+    (The one critical link is also a correction: this docstring first claimed
+    zero, reasoning that D "has two ways out". It does not -- it reaches both
+    exits only through B, so B-D is a single point of failure. The metric was
+    right and the hand-derivation was wrong.)
+    """
+    x0, y0 = origin
+    segments = (
+        ("A-B", ((0.0, 180.0), (180.0, 180.0))),
+        ("B-C", ((180.0, 180.0), (360.0, 180.0))),
+        ("B-D", ((180.0, 180.0), (180.0, 60.0))),
+    )
+    features = tuple(
+        Feature(
+            LineString([(x0 + ex, y0 + ny) for ex, ny in coords]),
+            {
+                "road_id": f"SYN-INT-{segment_id}",
+                "name": f"Synthetic integration segment {segment_id}",
+                # highway is the one attribute the source genuinely has. The
+                # rest are absent rather than defaulted (D-0022), which is
+                # itself something a consumer should be exercised against.
+                "highway": "unclassified",
+            },
+        )
+        for segment_id, coords in segments
+    )
+    provenance = _synthetic_vector_provenance(
+        name=name,
+        generator="integration_fixture_roads",
+        parameters={
+            "segments": [segment_id for segment_id, _ in segments],
+            "expected_component_count": 1,
+            "expected_node_count": 4,
+            "expected_edge_count": 3,
+            "expected_exit_count": 2,
+            "expected_single_egress_candidate_count": 0,
+            "expected_critical_link_count": 1,
+            "expected_critical_link": "B-D",
+            "crs": crs_to_string(crs),
+        },
+        crs=crs,
+        notes=(
+            "a T with two boundary exits. 1 component, 4 nodes, 3 edges, 480 m, "
+            "2 exits, 0 single-egress candidates but 1 critical link (B-D). "
+            "the gap between those last two is the point: a consumer reading "
+            "only single_egress_candidates would call this settlement well "
+            "served (D-0008, F-RD-6)"
+        ),
+    )
+    return VectorLayer(name=name, features=features, crs=crs, provenance=provenance)
+
+
+def integration_fixture_villages(
+    *,
+    name: str = "villages",
+    crs: Any = SYNTHETIC_CRS,
+    origin: tuple[float, float] = INTEGRATION_ORIGIN,
+) -> VectorLayer:
+    """One settlement with an aggregate, invented count.
+
+    The count is 40, above the k-anonymity floor of 5, and the age strata sum
+    to it exactly. That is deliberate: the larger valley fixture exists to
+    exercise POP-001 and POP-003, and a *downstream CI* fixture should not
+    emit findings a consumer then has to learn to ignore. A consumer wanting
+    the unhappy paths uses ``korean_valley_villages``.
+
+    There is no per-person, per-household or medical attribute here, and there
+    never will be: this package's loaders raise on attribute names that look
+    like one (F-POP-1).
+    """
+    x0, y0 = origin
+    square = Polygon(
+        [
+            (x0 + 150.0, y0 + 30.0),
+            (x0 + 210.0, y0 + 30.0),
+            (x0 + 210.0, y0 + 90.0),
+            (x0 + 150.0, y0 + 90.0),
+        ]
+    )
+    features = (
+        Feature(
+            square,
+            {
+                "settlement_id": "SYN-INT-V-001",
+                "name": "Synthetic integration hamlet",
+                "population_total": 40,
+                "pop_0_14": 4,
+                "pop_15_64": 24,
+                "pop_65_plus": 12,
+                # Recorded, not omitted: a count with no stated basis is
+                # reported by POP-004, and "invented" is the honest basis for
+                # a synthetic figure.
+                "count_basis": "synthetic_invented",
+                "reference_date": "not_applicable",
+            },
+        ),
+    )
+    provenance = _synthetic_vector_provenance(
+        name=name,
+        generator="integration_fixture_villages",
+        parameters={
+            "settlement_count": 1,
+            "population_total": 40,
+            "strata_sum": 40,
+            "crs": crs_to_string(crs),
+        },
+        crs=crs,
+        notes=(
+            "one settlement, aggregate only. the count is invented and "
+            "describes no real place. age strata sum to the stated total and "
+            "the total is above the k-anonymity floor, so this fixture emits "
+            "no population findings for a consumer to learn to ignore"
+        ),
+    )
+    return VectorLayer(name=name, features=features, crs=crs, provenance=provenance)
+
+
+def integration_fixture_facilities(
+    *,
+    name: str = "facilities",
+    crs: Any = SYNTHETIC_CRS,
+    origin: tuple[float, float] = INTEGRATION_ORIGIN,
+) -> VectorLayer:
+    """One responder base and one candidate destination. Exactly item 29's ask.
+
+    Both carry ``operational_status: UNKNOWN`` and ``capacity_persons: None``,
+    because nobody established either. A downstream consumer is therefore
+    exercised against the real case -- a facility that exists and whose
+    capabilities are unknown -- rather than against a convenient invention.
+
+    ``kind: shelter`` records what the source calls it. It is **not** a finding
+    that the place is a viable wildfire refuge; this repository makes no such
+    assessment and no field here implies one (``AGENTS.md`` §5, A-FAC-1).
+    """
+    x0, y0 = origin
+    features = (
+        Feature(
+            Point(x0 + 20.0, y0 + 180.0),
+            {
+                "facility_id": "SYN-INT-RB-001",
+                "name": "Synthetic integration responder base",
+                "kind": "responder_base",
+                "operational_status": "UNKNOWN",
+                "capacity_persons": None,
+            },
+        ),
+        Feature(
+            Point(x0 + 340.0, y0 + 180.0),
+            {
+                "facility_id": "SYN-INT-SH-001",
+                "name": "Synthetic integration candidate destination",
+                "kind": "shelter",
+                "operational_status": "UNKNOWN",
+                "capacity_persons": None,
+            },
+        ),
+    )
+    provenance = _synthetic_vector_provenance(
+        name=name,
+        generator="integration_fixture_facilities",
+        parameters={
+            "responder_bases": 1,
+            "candidate_destinations": 1,
+            "crs": crs_to_string(crs),
+        },
+        crs=crs,
+        notes=(
+            "one responder base at the west exit, one candidate destination at "
+            "the east exit. 'kind' records what a source calls a place and is "
+            "not an assessment that it is a viable refuge; operational status "
+            "and capacity are UNKNOWN because nobody established them"
+        ),
+    )
+    return VectorLayer(name=name, features=features, crs=crs, provenance=provenance)
+
+
+
 FIXTURES: dict[str, Callable[..., Any]] = {
     "tilted_plane": tilted_plane,
     "flat_terrain": flat_terrain,
@@ -1067,6 +1427,11 @@ FIXTURES: dict[str, Callable[..., Any]] = {
     "korean_valley_villages": korean_valley_villages,
     "korean_valley_facilities": korean_valley_facilities,
     "korean_valley_fuels": korean_valley_fuels,
+    "integration_fixture_dem": integration_fixture_dem,
+    "integration_fixture_fuels": integration_fixture_fuels,
+    "integration_fixture_roads": integration_fixture_roads,
+    "integration_fixture_villages": integration_fixture_villages,
+    "integration_fixture_facilities": integration_fixture_facilities,
 }
 
 

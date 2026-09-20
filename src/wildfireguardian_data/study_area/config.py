@@ -60,6 +60,8 @@ _SOURCE_KINDS = {
     "geojson",
     "copernicus_dem_glo30",
     "osm_api",
+    "osm_facilities_api",
+    "esa_worldcover",
 }
 
 
@@ -79,9 +81,9 @@ class SourceSpec:
     """Where one layer's data comes from.
 
     ``kind`` is one of ``synthetic_fixture``, ``geotiff``, ``geojson``,
-    ``copernicus_dem_glo30``, ``osm_api``. The last two require network access
-    and are refused unless the caller passes ``--allow-network``
-    (``docs/DECISIONS.md`` D-0012).
+    ``copernicus_dem_glo30``, ``osm_api``, ``esa_worldcover``. The last three
+    require network access and are refused unless the caller passes
+    ``--allow-network`` (``docs/DECISIONS.md`` D-0012).
     """
 
     kind: str
@@ -122,7 +124,12 @@ class SourceSpec:
 
     @property
     def requires_network(self) -> bool:
-        return self.kind in {"copernicus_dem_glo30", "osm_api"}
+        return self.kind in {
+            "copernicus_dem_glo30",
+            "osm_api",
+            "osm_facilities_api",
+            "esa_worldcover",
+        }
 
     @property
     def is_local_file(self) -> bool:
@@ -254,6 +261,14 @@ class RoadsConfig:
         return cls(**data)
 
 
+#: Source kinds that dictate their own class scheme, because the fetcher reads a
+#: specific published product whose codes only mean one thing. Naming a
+#: different scheme against one of these is rejected rather than honoured: the
+#: codes would be read through the wrong legend, silently relabelling every
+#: cell (``docs/ASSUMPTIONS.md`` A-FU-2).
+_SOURCE_BOUND_FUEL_SCHEMES = {"esa_worldcover": "esa_worldcover_v200"}
+
+
 @dataclass(frozen=True)
 class FuelsConfig:
     """Fuel layer options. ``scheme`` names a scheme known to the build."""
@@ -261,6 +276,18 @@ class FuelsConfig:
     source: SourceSpec
     scheme: str = "synthetic_demo_v1"
     class_property: str | None = None
+
+    def __post_init__(self) -> None:
+        required = _SOURCE_BOUND_FUEL_SCHEMES.get(self.source.kind)
+        if required is not None and self.scheme != required:
+            raise ConfigError(
+                f"fuels.source.kind {self.source.kind!r} always produces the "
+                f"{required!r} class scheme, but fuels.scheme is "
+                f"{self.scheme!r}. reading those class codes through another "
+                "scheme's legend would relabel every cell with nothing in the "
+                "output to show it (docs/ASSUMPTIONS.md A-FU-2); set "
+                f"fuels.scheme: {required} or use a different source."
+            )
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> FuelsConfig:
@@ -349,6 +376,11 @@ class StudyAreaConfig:
     population: PopulationConfig | None = None
     facilities: FacilitiesConfig | None = None
     notes: str = ""
+    #: Why a layer this config does not build is missing, per slot. Reaches the
+    #: contract manifest's ``layers.<slot>.reason`` (D-0027). An absent layer
+    #: with no reason reports ``UNKNOWN``, which is itself a finding -- a gap
+    #: nobody documented -- so this is how a *documented* gap says so.
+    absent_layer_reasons: dict[str, str] = field(default_factory=dict)
     config_path: str | None = None
 
     def __post_init__(self) -> None:
@@ -390,6 +422,7 @@ class StudyAreaConfig:
             "crs": crs_to_string(self.crs),
             "bounds": list(self.bounds.as_tuple()),
             "notes": self.notes,
+            "absent_layer_reasons": dict(self.absent_layer_reasons),
             "config_path": self.config_path,
         }
         for key in ("terrain", "roads", "fuels", "population", "facilities"):
@@ -418,6 +451,7 @@ class StudyAreaConfig:
             "crs",
             "bounds",
             "notes",
+            "absent_layer_reasons",
             "terrain",
             "roads",
             "fuels",
@@ -440,6 +474,7 @@ class StudyAreaConfig:
             bounds=bounds,
             description=payload.get("description", ""),
             notes=payload.get("notes", ""),
+            absent_layer_reasons=dict(payload.get("absent_layer_reasons", {})),
             terrain=TerrainConfig.from_dict(payload["terrain"])
             if "terrain" in payload
             else None,

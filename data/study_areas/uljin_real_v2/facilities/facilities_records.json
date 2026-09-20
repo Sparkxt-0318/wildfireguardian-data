@@ -1,0 +1,72 @@
+[
+  {
+    "facility_id": "osm:node/11505317148",
+    "kind": "other",
+    "name": "구산리청암정",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "amenity=shelter",
+    "geometry_type": "Point",
+    "representative_point": [
+      231156.70086475826,
+      481319.6531918313
+    ],
+    "attributes": {
+      "osm_id": "11505317148",
+      "osm_type": "node",
+      "osm_version": "1",
+      "osm_timestamp": "2024-01-10T07:40:24Z",
+      "amenity": "shelter",
+      "shelter_type": "gazebo"
+    },
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  },
+  {
+    "facility_id": "osm:node/11505406086",
+    "kind": "other",
+    "name": "구산3리마을회관",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "amenity=townhall",
+    "geometry_type": "Point",
+    "representative_point": [
+      230837.04664887325,
+      480583.2667754278
+    ],
+    "attributes": {
+      "osm_id": "11505406086",
+      "osm_type": "node",
+      "osm_version": "1",
+      "osm_timestamp": "2024-01-10T08:42:08Z",
+      "amenity": "townhall"
+    },
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  },
+  {
+    "facility_id": "osm:way/1238519300",
+    "kind": "other",
+    "name": "구 노음초등학교 구고분교 터",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "amenity=school",
+    "geometry_type": "Point",
+    "representative_point": [
+      230472.2275059072,
+      480291.7039901728
+    ],
+    "attributes": {
+      "osm_id": "1238519300",
+      "osm_type": "way",
+      "osm_version": "1",
+      "osm_timestamp": "2024-01-10T08:42:08Z",
+      "amenity": "school"
+    },
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  }
+]

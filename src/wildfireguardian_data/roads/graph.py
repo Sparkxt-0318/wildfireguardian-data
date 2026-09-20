@@ -69,6 +69,8 @@ class RoadGraph:
     exploded_multilinestrings: int = 0
     dropped_zero_length: int = 0
     node_crossings_added: int = 0
+    shared_vertex_splits: int = 0
+    shared_vertices_found: int = 0
     metadata: dict[str, Any] = field(default_factory=dict)
 
     # -- basic properties --------------------------------------------------- #
@@ -128,6 +130,8 @@ class RoadGraph:
             "exploded_multilinestrings": self.exploded_multilinestrings,
             "dropped_zero_length": self.dropped_zero_length,
             "node_crossings_added": self.node_crossings_added,
+            "shared_vertex_splits": self.shared_vertex_splits,
+            "shared_vertices_found": self.shared_vertices_found,
             "distance_unit": self.distance_unit.value,
         }
 
@@ -186,6 +190,80 @@ def _explode_lines(layer: VectorLayer) -> tuple[list[tuple[int, LineString]], in
     return out, exploded, dropped
 
 
+#: Coordinates are compared after rounding to this many decimal places (in CRS
+#: units, so nanometres for a metre CRS). This is float-noise tolerance, not a
+#: snapping distance: two vertices are "shared" only when the source put them at
+#: the *same* place, and reprojection of one source node yields one output
+#: coordinate deterministically.
+_SHARED_VERTEX_DECIMALS = 9
+
+
+def _split_at_shared_vertices(
+    lines: list[tuple[int, LineString]]
+) -> tuple[list[tuple[int, LineString]], int, int]:
+    """Split lines at vertices that two different lines genuinely share.
+
+    This is **not** intersection noding (D-0007), and the distinction is the
+    whole point. A shared vertex means the source placed one coordinate in two
+    lines' coordinate lists -- an explicit assertion that they meet. A geometric
+    crossing with no shared vertex means the lines pass over each other, which
+    in OpenStreetMap is exactly how a bridge or tunnel is represented. So this
+    recovers the junctions the source states while still refusing to fabricate
+    the ones it does not.
+
+    Why it is needed: OSM (and most road GIS) encodes a junction as a shared
+    *node*, which is very often an **interior** vertex of a way rather than an
+    endpoint -- a side road meeting the middle of a through road. Connecting
+    only at endpoints therefore discards most of the topology the source
+    actually carries. In the Uljin extract, 35 of 41 shared OSM nodes between
+    road ways involved an interior vertex (``reports/ULJIN_ROAD_AUDIT.md``).
+
+    Returns ``(lines, splits_made, shared_vertex_count)``.
+    """
+    # Which parts touch each rounded coordinate.
+    owners: dict[tuple[float, float], set[int]] = {}
+    coords_per_part: list[list[tuple[float, float]]] = []
+    for part_index, (_, line) in enumerate(lines):
+        rounded = [
+            (round(x, _SHARED_VERTEX_DECIMALS), round(y, _SHARED_VERTEX_DECIMALS))
+            for x, y in line.coords
+        ]
+        coords_per_part.append(rounded)
+        for coordinate in rounded:
+            owners.setdefault(coordinate, set()).add(part_index)
+
+    shared = {c for c, parts in owners.items() if len(parts) > 1}
+    if not shared:
+        return lines, 0, 0
+
+    out: list[tuple[int, LineString]] = []
+    splits = 0
+    for part_index, (feature_index, line) in enumerate(lines):
+        rounded = coords_per_part[part_index]
+        # Interior vertices only: the endpoints already become nodes through
+        # endpoint clustering, so splitting there would just duplicate work.
+        cut_at = [
+            i for i in range(1, len(rounded) - 1) if rounded[i] in shared
+        ]
+        if not cut_at:
+            out.append((feature_index, line))
+            continue
+        coordinates = list(line.coords)
+        boundaries = [0, *cut_at, len(coordinates) - 1]
+        pieces = 0
+        for start, stop in zip(boundaries[:-1], boundaries[1:], strict=True):
+            segment = coordinates[start : stop + 1]
+            if len(segment) < 2:
+                continue
+            candidate = LineString(segment)
+            if candidate.length == 0.0:
+                continue
+            out.append((feature_index, candidate))
+            pieces += 1
+        splits += max(0, pieces - 1)
+    return out, splits, len(shared)
+
+
 def _cluster_endpoints(
     points: list[Point], tolerance: float
 ) -> tuple[list[int], dict[int, Point], float]:
@@ -239,6 +317,7 @@ def build_road_graph(
     layer: VectorLayer,
     *,
     snap_tolerance_m: float = DEFAULT_SNAP_TOLERANCE_M,
+    node_shared_vertices: bool = True,
     node_crossings: bool = False,
     name: str | None = None,
 ) -> RoadGraph:
@@ -249,10 +328,17 @@ def build_road_graph(
     snap_tolerance_m:
         Endpoints within this distance become one node (A-RD-2). ``0`` means
         exact coordinate identity.
+    node_shared_vertices:
+        ``True`` by default: lines are split where they **share a vertex**, so a
+        side road meeting the middle of a through road becomes a junction. This
+        recovers topology the source explicitly encodes -- OSM represents a
+        junction as a shared node, usually an interior vertex of a way -- and is
+        distinct from ``node_crossings`` (D-0020). Set ``False`` to reproduce the
+        endpoint-only behaviour, which under-connects any real road layer.
     node_crossings:
-        ``False`` by default: lines that cross without a shared endpoint are
-        **not** joined (D-0007), because a mid-segment crossing is often a
-        bridge or underpass and fabricating a junction there would silently
+        ``False`` by default: lines that cross **without sharing a vertex** are
+        **not** joined (D-0007), because such a crossing is how OSM represents a
+        bridge or tunnel, and fabricating a junction there would silently
         convert a single-egress community into a two-egress one. Setting this
         ``True`` splits crossing lines at their intersections; the choice is
         recorded in provenance and reported in the QA output.
@@ -283,6 +369,11 @@ def build_road_graph(
             f"layer {layer.name!r} yielded no usable line geometry "
             f"({dropped} zero-length feature(s) dropped)."
         )
+
+    shared_vertex_splits = 0
+    shared_vertex_count = 0
+    if node_shared_vertices:
+        lines, shared_vertex_splits, shared_vertex_count = _split_at_shared_vertices(lines)
 
     crossings_added = 0
     split_failures: list[dict[str, Any]] = []
@@ -318,6 +409,9 @@ def build_road_graph(
         operation="build_road_graph",
         parameters={
             "snap_tolerance_m": snap_tolerance_m,
+            "node_shared_vertices": node_shared_vertices,
+            "shared_vertices_found": shared_vertex_count,
+            "shared_vertex_splits": shared_vertex_splits,
             "node_crossings": node_crossings,
             "crossings_noded": crossings_added,
             "crossing_split_failures": split_failures,
@@ -335,9 +429,18 @@ def build_road_graph(
             "undirected topology QA graph; planar edge lengths in CRS metres, "
             "not travel distances (docs/ASSUMPTIONS.md A-RD-1, A-RD-5). "
             + (
+                f"split at {shared_vertex_splits} shared vertex/vertices, "
+                "recovering junctions the source encodes as shared nodes "
+                "(docs/DECISIONS.md D-0020). "
+                if node_shared_vertices
+                else "endpoint-only connection: junctions the source encodes at "
+                "interior vertices are NOT recovered. "
+            )
+            + (
                 "crossing lines were noded on request"
                 if node_crossings
-                else "lines crossing without a shared endpoint are NOT connected "
+                else "lines crossing WITHOUT a shared vertex are NOT connected, "
+                "which is how OSM represents a bridge or tunnel "
                 "(docs/DECISIONS.md D-0007)"
             )
         ),
@@ -356,6 +459,8 @@ def build_road_graph(
         exploded_multilinestrings=exploded,
         dropped_zero_length=dropped,
         node_crossings_added=crossings_added,
+        shared_vertex_splits=shared_vertex_splits,
+        shared_vertices_found=shared_vertex_count,
     )
 
 

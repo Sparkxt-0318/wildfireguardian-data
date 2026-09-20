@@ -19,6 +19,7 @@ from ..crs import crs_to_string, parse_crs
 from ..errors import IngestError, OptionalDependencyError
 from ..provenance.checksum import sha256_file
 from ..provenance.models import (
+    NOT_APPLICABLE,
     UNKNOWN,
     DataClass,
     ProvenanceRecord,
@@ -63,6 +64,15 @@ def read_road_geojson(
         original_crs=crs_to_string(crs) if crs is not None else UNKNOWN,
         output_crs=crs_to_string(crs) if crs is not None else UNKNOWN,
         value_unit="not_applicable",
+        # A vector layer has no cell size, no vertical datum and no nodata
+        # convention: those facts do not exist rather than being unknown, and
+        # recording UNKNOWN for them would dilute the incompleteness metric
+        # D-0009 exists to keep meaningful. The OSM fetcher already did this;
+        # the local-file loaders did not.
+        resolution_unit=NOT_APPLICABLE,
+        vertical_datum=NOT_APPLICABLE,
+        nodata_representation=NOT_APPLICABLE,
+        surface_model=NOT_APPLICABLE,
         checksum=sha256_file(source_path) if source_path.exists() else UNKNOWN,
         notes=notes,
     )
@@ -154,6 +164,15 @@ def read_road_vector(
         original_crs=crs_to_string(crs),
         output_crs=crs_to_string(crs),
         value_unit="not_applicable",
+        # A vector layer has no cell size, no vertical datum and no nodata
+        # convention: those facts do not exist rather than being unknown, and
+        # recording UNKNOWN for them would dilute the incompleteness metric
+        # D-0009 exists to keep meaningful. The OSM fetcher already did this;
+        # the local-file loaders did not.
+        resolution_unit=NOT_APPLICABLE,
+        vertical_datum=NOT_APPLICABLE,
+        nodata_representation=NOT_APPLICABLE,
+        surface_model=NOT_APPLICABLE,
         checksum=sha256_file(source_path) if source_path.exists() else UNKNOWN,
         notes=notes,
     )

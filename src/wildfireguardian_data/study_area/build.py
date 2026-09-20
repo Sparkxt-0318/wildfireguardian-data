@@ -34,7 +34,11 @@ from ..errors import ConfigError, NetworkAccessError
 from ..facilities.io import facilities_from_layer, load_facility_layer
 from ..facilities.models import FacilityKind
 from ..fixtures import synthetic as fixtures
-from ..fuels.classes import SYNTHETIC_DEMO_SCHEME, FuelClassScheme
+from ..fuels.classes import (
+    ESA_WORLDCOVER_V200_SCHEME,
+    SYNTHETIC_DEMO_SCHEME,
+    FuelClassScheme,
+)
 from ..fuels.io import read_fuel_geotiff
 from ..population.io import load_population_layer, villages_from_layer
 from ..provenance.models import (
@@ -66,10 +70,13 @@ from .config import SourceSpec, StudyAreaConfig
 
 __all__ = ["build_study_area", "KNOWN_FUEL_SCHEMES"]
 
-#: Fuel schemes a config may name. Only the explicitly synthetic demo scheme is
-#: shipped: this repository does not invent Korean fuel crosswalks (A-FU-1).
+#: Fuel schemes a config may name. Both are ``SchemeKind.SOURCE_CLASS``: the
+#: synthetic demo scheme's own classes, and ESA WorldCover's published land-cover
+#: legend. Neither is a fire-behaviour fuel model, and this repository still
+#: ships no crosswalk from land cover to one (A-FU-1, D-0024).
 KNOWN_FUEL_SCHEMES: dict[str, FuelClassScheme] = {
-    SYNTHETIC_DEMO_SCHEME.name: SYNTHETIC_DEMO_SCHEME
+    SYNTHETIC_DEMO_SCHEME.name: SYNTHETIC_DEMO_SCHEME,
+    ESA_WORLDCOVER_V200_SCHEME.name: ESA_WORLDCOVER_V200_SCHEME,
 }
 
 #: Facility source tags the example configs use, mapped to roles. Exposed so a
@@ -214,6 +221,15 @@ def _load_vector(
         from ..sources import fetch_osm_roads
 
         return fetch_osm_roads(
+            _bounds_to_wgs84(config.bounds),
+            allow_network=allow_network,
+            name=name,
+            cache_path=cache_dir / f"{config.study_area_id}_{name}_osm.xml",
+        )
+    if spec.kind == "osm_facilities_api":
+        from ..sources import fetch_osm_facilities
+
+        return fetch_osm_facilities(
             _bounds_to_wgs84(config.bounds),
             allow_network=allow_network,
             name=name,
@@ -417,10 +433,18 @@ def build_study_area(
                 temporal_class=TemporalProvenance(spec.temporal_class),
                 temporal_reference=spec.temporal_reference or UNKNOWN,
             )
+        elif spec.kind == "esa_worldcover":
+            from ..sources import fetch_esa_worldcover
+
+            fuel_layer = fetch_esa_worldcover(
+                _bounds_to_wgs84(config.bounds),
+                allow_network=allow_network,
+                buffer_deg=float(spec.options.get("buffer_deg", 0.005)),
+            )
         else:
             raise ConfigError(
                 f"source kind {spec.kind!r} is not a fuels source; use "
-                "'synthetic_fixture' or 'geotiff'"
+                "'synthetic_fixture', 'geotiff' or 'esa_worldcover'"
             )
         if not crs_equal(fuel_layer.crs, config.crs):
             if terrain_component is not None:
@@ -507,6 +531,8 @@ def build_study_area(
             "built_at": utc_now_iso(),
             "config": config.to_dict(),
             "allow_network": allow_network,
+            # Read by the contract manifest so an ABSENT layer can say WHY.
+            "absent_layer_reasons": dict(config.absent_layer_reasons),
             "build_notes": build_notes,
             "pipeline_order": [
                 "load",

@@ -41,6 +41,7 @@ from ..errors import (
     UnitError,
     WGDataError,
 )
+from .imports import IMPORT_COMMANDS
 
 __all__ = ["main", "build_parser"]
 
@@ -127,6 +128,50 @@ def build_parser() -> argparse.ArgumentParser:
     summarize.add_argument("bundle", help="path to a bundle directory")
     summarize.add_argument("--json", action="store_true", help="emit JSON")
 
+    provenance_parser = subparsers.add_parser(
+        "provenance",
+        help="print every layer's provenance, or one layer's in full",
+        description=(
+            "Report where each layer came from, what its values mean, and what "
+            "is not known about it. UNKNOWN is a reported finding, not a "
+            "formatting artifact (docs/DECISIONS.md D-0009)."
+        ),
+    )
+    provenance_parser.add_argument("bundle", help="path to a bundle directory")
+    provenance_parser.add_argument(
+        "--layer", default=None, help="report only this layer, in full"
+    )
+    provenance_parser.add_argument(
+        "--unknown-only",
+        action="store_true",
+        help="report only the fields that are UNKNOWN",
+    )
+    provenance_parser.add_argument("--json", action="store_true", help="emit JSON")
+
+    compat = subparsers.add_parser(
+        "compatibility",
+        help="report which consumers' declared inputs this bundle satisfies",
+        description=(
+            "Report readiness for FORECAST_VALUE, OSSE and ASSISTED_DISPATCH. "
+            "READY means every input that consumer named is present with "
+            "interpretable provenance. It does NOT mean the data is accurate, "
+            "the sources authoritative, or any result computed from it correct: "
+            "this repository makes no claim of scientific validity for any "
+            "bundle."
+        ),
+    )
+    compat.add_argument("bundle", help="path to a bundle directory")
+    compat.add_argument(
+        "--profile",
+        default=None,
+        help="report only this consumer profile",
+    )
+    compat.add_argument("--json", action="store_true", help="emit JSON")
+
+    from .imports import add_import_parsers
+
+    add_import_parsers(subparsers)
+
     fixtures_parser = subparsers.add_parser(
         "make-fixtures",
         help="write the synthetic fixtures to a directory",
@@ -152,7 +197,12 @@ def build_parser() -> argparse.ArgumentParser:
 def _cmd_build(args: argparse.Namespace) -> int:
     from ..study_area.build import build_study_area
     from ..study_area.config import StudyAreaConfig
-    from ..study_area.serialize import write_bundle, write_validation_report
+    from ..study_area.serialize import (
+        read_bundle,
+        write_bundle,
+        write_bundle_manifest,
+        write_validation_report,
+    )
     from ..study_area.summary import summarize_bundle
     from ..validation.bundle_checks import validate_bundle_directory
 
@@ -170,6 +220,24 @@ def _cmd_build(args: argparse.Namespace) -> int:
     write_validation_report(written, report.to_dict(strict=args.strict))
 
     status = report.status(strict=args.strict)
+    # Re-write the contract manifest now that validation has actually run, so
+    # its ``validation`` block carries the result rather than "NOT_RUN". The
+    # ``created_at`` written moments ago is preserved, because it records when
+    # the bundle was built and not when this line executed.
+    write_bundle_manifest(
+        written,
+        # The bundle as written, not as built: checksums exist only once the
+        # files do, so the in-memory bundle's provenance still says UNKNOWN.
+        # BND-023 catches the difference (D-0014, D-0027).
+        read_bundle(written),
+        created_at=_existing_created_at(written),
+        validation={
+            "status": status,
+            "strict": bool(args.strict),
+            "counts": report.counts,
+            "report_path": "validation/report.json",
+        },
+    )
     if args.json:
         print(
             json.dumps(
@@ -191,6 +259,25 @@ def _cmd_build(args: argparse.Namespace) -> int:
         print(report.to_text())
         print(f"status: {status}")
     return EXIT_VALIDATION_FAILED if status == "fail" else EXIT_OK
+
+
+def _existing_created_at(directory: Path) -> str | None:
+    """The ``created_at`` already on disk, or ``None`` if there is none.
+
+    Preserved across a re-write so the field keeps meaning "when this bundle was
+    built" rather than "when it was last touched".
+    """
+    from ..integration.manifest import BUNDLE_MANIFEST_NAME
+
+    path = Path(directory) / BUNDLE_MANIFEST_NAME
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8")).get("created_at")
+    except (OSError, json.JSONDecodeError, AttributeError):
+        # A corrupt contract manifest is not a reason to fail a build that
+        # otherwise succeeded; it is about to be overwritten anyway.
+        return None
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:
@@ -316,14 +403,197 @@ def _cmd_version(_: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_provenance(args: argparse.Namespace) -> int:
+    """Report provenance. Exits non-zero only on a *blocking* gap.
+
+    An UNKNOWN field is a finding, not a failure -- an honest gap is the correct
+    output when nobody established the fact (D-0009). The exception is the three
+    fields without which a layer's values cannot be interpreted at all, which
+    ``validate-study-area`` reports as PRV-001; this command agrees with it
+    rather than inventing a second opinion.
+    """
+    from ..study_area.serialize import read_bundle
+
+    bundle = read_bundle(args.bundle)
+    blocking_fields = {"output_crs", "value_unit", "nodata_representation"}
+
+    records = dict(sorted(bundle.provenance.items()))
+    if args.layer is not None:
+        if args.layer not in records:
+            print(
+                f"bundle has no layer {args.layer!r}; it has "
+                f"{sorted(records)}",
+                file=sys.stderr,
+            )
+            return EXIT_USAGE
+        records = {args.layer: records[args.layer]}
+
+    blocking_found: dict[str, list[str]] = {}
+    for name, record in records.items():
+        found = sorted(set(record.unknown_fields()) & blocking_fields)
+        if found:
+            blocking_found[name] = found
+
+    if args.json:
+        payload = {
+            "schema_version": "1.0.0",
+            "bundle_id": bundle.study_area_id,
+            "layers": {
+                name: (
+                    {"unknown_fields": record.unknown_fields()}
+                    if args.unknown_only
+                    else record.to_dict()
+                )
+                for name, record in records.items()
+            },
+            "blocking_unknown_fields": blocking_found,
+        }
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+    else:
+        for name, record in records.items():
+            print(f"== {name}")
+            if args.unknown_only:
+                unknown = record.unknown_fields()
+                if unknown:
+                    print(f"  UNKNOWN ({len(unknown)}): {', '.join(unknown)}")
+                else:
+                    print("  no UNKNOWN fields")
+                print()
+                continue
+            print(f"  data_class:        {record.data_class.value}")
+            print(f"  temporal_class:    {record.temporal_class.value}")
+            print(f"  temporal_ref:      {record.temporal_reference}")
+            print(f"  valid:             {record.valid_from} .. {record.valid_to}")
+            print(f"  surface_model:     {record.surface_model}")
+            print(f"  value_unit:        {record.value_unit}")
+            print(f"  missing data as:   {record.nodata_representation}")
+            print(f"  output_crs:        {record.output_crs}")
+            for source in record.sources:
+                print(f"  source:            {source.name}")
+                print(f"    identifier:      {source.url_or_identifier}")
+                print(f"    source_date:     {source.source_date}")
+                print(f"    licence:         {source.licence}")
+            if record.parents:
+                print(f"  derived from:      {', '.join(record.parents)}")
+            unknown = record.unknown_fields()
+            if unknown:
+                print(f"  UNKNOWN ({len(unknown)}):     {', '.join(unknown)}")
+            if args.layer is not None and not args.unknown_only:
+                for transformation in record.transformations:
+                    print(f"  transformation:    {transformation.operation}")
+                    for key in sorted(transformation.parameters):
+                        print(f"    {key}: {transformation.parameters[key]}")
+                if record.notes:
+                    print(f"  notes:             {record.notes}")
+            print()
+        if blocking_found:
+            print(
+                "BLOCKING: these layers have UNKNOWN in a field without which "
+                "their values cannot be interpreted (validation PRV-001): "
+                + "; ".join(
+                    f"{name}: {', '.join(fields)}"
+                    for name, fields in blocking_found.items()
+                )
+            )
+    return EXIT_VALIDATION_FAILED if blocking_found else EXIT_OK
+
+
+def _cmd_compatibility(args: argparse.Namespace) -> int:
+    """Report readiness per consumer profile. Never asserts validity.
+
+    Exit code is 0 whatever the readiness: INCOMPLETE is a true and useful
+    answer about a bundle, not an error in producing it. A CI job that wants to
+    gate on readiness reads the JSON.
+    """
+    from ..integration import build_compatibility_report
+    from ..integration.manifest import build_bundle_manifest
+    from ..study_area.serialize import read_bundle
+
+    bundle = read_bundle(args.bundle)
+    manifest = build_bundle_manifest(
+        bundle, created_at=_existing_created_at(Path(args.bundle)) or "UNKNOWN"
+    )
+    report = build_compatibility_report(bundle, manifest)
+
+    if args.profile is not None:
+        if args.profile not in report["profiles"]:
+            print(
+                f"unknown profile {args.profile!r}; known: "
+                f"{sorted(report['profiles'])}",
+                file=sys.stderr,
+            )
+            return EXIT_USAGE
+        report["profiles"] = {args.profile: report["profiles"][args.profile]}
+
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        return EXIT_OK
+
+    print(f"bundle: {report['bundle_id']}")
+    governance = report["governance"]
+    print(f"data classes: {', '.join(governance['data_classes_present'])}")
+    if not governance["all_layers_planner_legal"]:
+        print(
+            "  NOTE: not every layer is planner-legal under research "
+            f"governance: {', '.join(governance['not_planner_legal'])}"
+        )
+    print()
+    for name, profile in report["profiles"].items():
+        print(f"== {name}: {profile['readiness']}")
+        for slot in profile["inputs"]:
+            mark = "+" if slot["status"] == "PRESENT" else "-"
+            detail = ""
+            if slot["status"] != "PRESENT":
+                detail = f"  ({slot['reason']})"
+            elif slot.get("material_limitations"):
+                detail = f"  [{', '.join(slot['material_limitations'])}]"
+            print(f"  {mark} {slot['slot']}{detail}")
+        print("  not supplied by this repository:")
+        for item in profile["not_supplied_here"]:
+            print(f"    - {item}")
+        print()
+    print(
+        "READY means the named inputs are present with interpretable "
+        "provenance. it is NOT a claim that the data is accurate or that any "
+        "result computed from it would be correct."
+    )
+    return EXIT_OK
+
+
+def _cmd_import(args: argparse.Namespace) -> int:
+    """Run one ``import-*`` command. Its own module; see ``cli/imports.py``."""
+    from .imports import run_import
+
+    summary = run_import(args.command, args)
+    if args.json:
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
+    else:
+        print(f"imported {summary['layer']} -> {summary['written']}")
+        print(f"provenance: {summary['provenance']}")
+        checksum = summary["checksum"]
+        print(f"sha256: {checksum['sha256']}")
+        print(f"  {checksum['note']}")
+        unknown = summary["unknown_provenance_fields"]
+        if unknown:
+            print(f"UNKNOWN ({len(unknown)}): {', '.join(unknown)}")
+            print(
+                "  these are honest gaps, not failures. supply them if you know "
+                "them; do not guess them (AGENTS.md section 3)"
+            )
+    return EXIT_OK
+
+
 _COMMANDS = {
     "build-study-area": _cmd_build,
+    "provenance": _cmd_provenance,
+    "compatibility": _cmd_compatibility,
     "validate-study-area": _cmd_validate,
     "summarize-study-area": _cmd_summarize,
     "make-fixtures": _cmd_make_fixtures,
     "list-fixtures": _cmd_list_fixtures,
     "version": _cmd_version,
 }
+_COMMANDS.update({command: _cmd_import for command in IMPORT_COMMANDS})
 
 
 def main(argv: Sequence[str] | None = None) -> int:

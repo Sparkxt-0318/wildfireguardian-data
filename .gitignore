@@ -20,6 +20,18 @@ venv/
 htmlcov/
 .DS_Store
 
+# Credentials. Several Korean sources need an API key per dataset, so a
+# developer here will eventually have one on disk. A key committed once is
+# committed forever, so the ignore is in place before the file exists rather
+# than after (Phase 2 item 5). Keys are read from the environment; this
+# repository writes no credential to any tracked file and prints none.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.netrc
+
 # Locally built bundles other than the two committed examples
 # (docs/DATA_PROVENANCE.md lists which are committed and why).
 data/study_areas/*
@@ -27,3 +39,18 @@ data/study_areas/*
 !data/study_areas/uljin_valley_synthetic_v1/**
 !data/study_areas/uljin_real_v1/
 !data/study_areas/uljin_real_v1/**
+# The downstream CI integration fixture. Committed because its whole purpose is
+# to be depended on by another repository's CI, which cannot build it itself
+# (Phase 2 item 29). Kilobytes, deterministic, and obviously synthetic.
+!data/study_areas/wg_integration_fixture_synthetic_v1/
+!data/study_areas/wg_integration_fixture_synthetic_v1/**
+# The second real geography (Phase 2 item 21). Committed so the claim that
+# this repository's schema is not Uljin-specific is checkable rather than
+# asserted. Carries ESA/Copernicus, ESA WorldCover CC-BY 4.0, and OSM ODbL
+# obligations -- see its manifest's licences block.
+!data/study_areas/naju_real_v1/
+!data/study_areas/naju_real_v1/**
+# The complete real bundle (Phase 2 item 20): four of five layers from real
+# sources, population ABSENT with a documented reason.
+!data/study_areas/uljin_real_v2/
+!data/study_areas/uljin_real_v2/**

@@ -167,3 +167,38 @@ def test_clip_then_slope_covers_the_requested_area_when_buffered():
     # the neighbourhood the estimator needs (docs/DECISIONS.md D-0005).
     inner = slope_layer.data[1:-1, 1:-1]
     assert np.isfinite(inner).all()
+
+
+def test_a_grid_change_within_one_crs_is_refused_not_silently_ignored():
+    """F-BND-6, found while testing the integration contract.
+
+    ``reproject_raster`` short-circuits when the CRS is unchanged, which is
+    right -- but it used to do so *after* accepting a ``dst_resolution`` or
+    ``target_grid``, returning the input object untouched. A caller asking for
+    30 m to become 37 m got 30 m back, with no error, and every cell index it
+    computed afterwards was wrong by the difference. A silent no-op in response
+    to an explicit parameter is the failure mode AGENTS.md section 7 forbids.
+    """
+    from wildfireguardian_data.errors import ConfigError
+    from wildfireguardian_data.fixtures import make_fixture
+    from wildfireguardian_data.raster import GridTransform
+    from wildfireguardian_data.terrain.reproject import reproject_raster
+
+    layer = make_fixture("tilted_plane")
+
+    # No grid request: returning it unchanged is correct and stays allowed.
+    assert reproject_raster(layer, layer.crs) is layer
+
+    for kwargs in (
+        {"dst_resolution": 37.0},
+        {"dst_resolution": (37.0, 41.0)},
+        {
+            "target_grid": GridTransform(0.0, 0.0, 37.0, 37.0),
+            "target_shape": (10, 10),
+        },
+    ):
+        with pytest.raises(ConfigError) as excinfo:
+            reproject_raster(layer, layer.crs, **kwargs)
+        message = str(excinfo.value)
+        assert "within its own CRS" in message
+        assert "F-BND-6" in message

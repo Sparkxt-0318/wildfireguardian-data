@@ -109,13 +109,24 @@ agent on a normal network should re-try every one of them.
 | `overpass-api.de` and two mirrors | 000 (tunnel closed) | environment, not service. Overpass would lift the OSM bbox size limit |
 | `download.geofabrik.de` | 000 (tunnel closed) | environment, not service. Would give a whole-country OSM extract |
 
+> **Superseded for access status.** The table above is the Phase 1 probe.
+> `reports/SOURCE_ACCESS_STATUS.md` re-probed every host on 2026-09-20 and
+> classifies each under the Phase 2 taxonomy; read that first. It also corrects
+> one Phase 1 reading: `map.ngii.go.kr`'s HTTP 400 was taken as evidence that
+> the endpoint was wrong, and today the host is proxy-blocked, so we have no
+> evidence about the endpoint at all.
+
 ### Consequences of those failures, stated plainly
 
-- **No real Korean vegetation or fuel data was obtained.** The repository
-  therefore ships *no* Korean fuel dataset and *no* crosswalk, only a generic
-  ingestion architecture and an explicitly synthetic demo scheme
-  (`ASSUMPTIONS.md` A-FU-1). The `uljin_real_v1` bundle has **no fuels layer** —
-  absent, not filled in.
+- **No *Korean* vegetation or fuel dataset was obtained.** A global one now is:
+  ESA WorldCover 10 m 2021 v200, CC-BY 4.0, carried as **land cover** with ESA's
+  own legend (`DECISIONS.md` D-0024). It is not a fuel model and no crosswalk to
+  one is shipped (`ASSUMPTIONS.md` A-FU-1).
+  The best Korean candidate, 임상도 (forest type map, 1:5,000, EPSG:5179, with
+  species/age/diameter/density), was **found and fully documented** but is
+  `REGISTRATION_REQUIRED` and carries an unresolved licence contradiction — see
+  `reports/KOREAN_FUELS_CANDIDATES.md`. It is not ingested, so nothing derived
+  from it is committed.
 - **No real aggregate population was obtained.** `uljin_real_v1` has **no
   population layer**.
 - **No real facility data was obtained.** `uljin_real_v1` has **no facilities
@@ -130,6 +141,9 @@ agent on a normal network should re-try every one of them.
 |---|---|---|---|
 | `data/study_areas/uljin_valley_synthetic_v1` | synthetic fixtures only | yes | fully reproducible with no network; what CI builds |
 | `data/study_areas/uljin_real_v1` | Copernicus DEM GLO-30 + OpenStreetMap | yes | carries ESA/Copernicus attribution and ODbL obligations; terrain and roads only |
+| `data/study_areas/uljin_real_v2` | Copernicus DEM GLO-30 + ESA WorldCover 2021 v200 + OpenStreetMap (roads and facilities) | yes | **the complete real bundle** (Phase 2 item 20): four of five layers. Population ABSENT with a documented reason. Supersedes `uljin_real_v1`, whose terrain and roads are built from identical options; v1 stays because the road audit and second-geography reports quote its numbers |
+| `data/study_areas/naju_real_v1` | Copernicus DEM GLO-30 + ESA WorldCover 2021 v200 + OpenStreetMap | yes | the second geography (Phase 2 item 21): Yeongsan river plain, Naju-si, Jeollanam-do, EPSG:5186. Terrain, land cover and roads; population and facilities ABSENT. Carries ESA/Copernicus, CC-BY 4.0 and ODbL obligations. See `reports/SECOND_GEOGRAPHY.md` |
+| `data/study_areas/wg_integration_fixture_synthetic_v1` | synthetic fixtures only | yes | the downstream CI fixture (Phase 2 item 29). 83 KB, all five layers, closed-form expected results. No licence obligations: nothing in it came from anywhere |
 
 Raw fetched source data lives in `data/raw/` and is **git-ignored**
 (`DECISIONS.md` D-0012). Reproducibility comes from provenance + checksums + a

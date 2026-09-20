@@ -1,0 +1,248 @@
+{
+  "schema_version": "1.0.0",
+  "target": "directory:data/study_areas/naju_real_v1",
+  "status": "pass_with_warnings",
+  "strict": false,
+  "counts": {
+    "ERROR": 0,
+    "WARNING": 11,
+    "INFO": 11
+  },
+  "context": {
+    "crs": "EPSG:5186",
+    "bounds": {
+      "min_x": 175200.0,
+      "min_y": 270660.0,
+      "max_x": 179190.0,
+      "max_y": 274680.0,
+      "crs": "EPSG:5186"
+    },
+    "layers": [
+      "dem",
+      "slope_deg",
+      "aspect_deg",
+      "roads",
+      "fuels"
+    ],
+    "schema_version": "1.1.0",
+    "directory": "data/study_areas/naju_real_v1"
+  },
+  "findings": [
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5186 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['valid_from', 'valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "dem",
+      "detail": {
+        "fields": [
+          "valid_from",
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-009",
+      "severity": "INFO",
+      "message": "elevation source is a DIGITAL SURFACE MODEL: over forest, slope and aspect describe the canopy top, not the ground. a 20 m canopy step across one 30 m cell yields a ~34 degree slope that no terrain has (docs/FAILURE_MODES.md F-TER-3)",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='UNKNOWN', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5186 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['valid_from', 'valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "slope_deg",
+      "detail": {
+        "fields": [
+          "valid_from",
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-009",
+      "severity": "INFO",
+      "message": "elevation source is a DIGITAL SURFACE MODEL: over forest, slope and aspect describe the canopy top, not the ground. a 20 m canopy step across one 30 m cell yields a ~34 degree slope that no terrain has (docs/FAILURE_MODES.md F-TER-3)",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='UNKNOWN', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5186 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['valid_from', 'valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "aspect_deg",
+      "detail": {
+        "fields": [
+          "valid_from",
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-009",
+      "severity": "INFO",
+      "message": "elevation source is a DIGITAL SURFACE MODEL: over forest, slope and aspect describe the canopy top, not the ground. a 20 m canopy step across one 30 m cell yields a ~34 degree slope that no terrain has (docs/FAILURE_MODES.md F-TER-3)",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='UNKNOWN', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5186 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "roads",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "1 provenance field(s) are UNKNOWN: ['valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "roads",
+      "detail": {
+        "fields": [
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='2026-09-20T03:45:34.630518+00:00', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "roads",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5186 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "fuels",
+      "detail": {}
+    },
+    {
+      "code": "RAS-004",
+      "severity": "INFO",
+      "message": "raster declares a nodata value but contains no missing cells",
+      "layer": "dem",
+      "detail": {
+        "nodata": "nan"
+      }
+    },
+    {
+      "code": "RAS-004",
+      "severity": "INFO",
+      "message": "raster declares a nodata value but contains no missing cells",
+      "layer": "fuels",
+      "detail": {
+        "nodata": "0.0"
+      }
+    },
+    {
+      "code": "RD-001",
+      "severity": "WARNING",
+      "message": "road network has 7 connected components; as digitised, parts of it do not connect to each other. this is often a missing junction node rather than a real disconnection (docs/DECISIONS.md D-0007)",
+      "layer": "roads",
+      "detail": {
+        "component_count": 7
+      }
+    },
+    {
+      "code": "RD-002",
+      "severity": "WARNING",
+      "message": "1 isolated segment(s): single edges alone in their component with no exit",
+      "layer": "roads",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "code": "RD-005",
+      "severity": "INFO",
+      "message": "some exit nodes were inferred from the study-area boundary rather than from source tags; egress counts therefore depend on where the study area was cut (docs/ASSUMPTIONS.md A-RD-4)",
+      "layer": "roads",
+      "detail": {
+        "boundary_exits": [
+          83,
+          122,
+          130,
+          132,
+          133,
+          235,
+          270,
+          357,
+          370,
+          374,
+          661,
+          666,
+          671,
+          672,
+          679,
+          682,
+          685,
+          689,
+          690,
+          718,
+          738,
+          740,
+          770,
+          816,
+          906,
+          917,
+          991,
+          992,
+          997,
+          1063
+        ]
+      }
+    },
+    {
+      "code": "RD-006",
+      "severity": "WARNING",
+      "message": "10 line pair(s) cross without a shared node. either genuine grade separation, or missing junction nodes that under-connect the network (docs/DECISIONS.md D-0007)",
+      "layer": "roads",
+      "detail": {
+        "count": 10
+      }
+    }
+  ]
+}

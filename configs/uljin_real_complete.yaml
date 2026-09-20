@@ -1,0 +1,125 @@
+# THE COMPLETE real Uljin bundle (Phase 2 item 20). Requires network access.
+#
+# Supersedes `uljin_real_v1` by adding two layers. Its terrain and roads are
+# built from the identical source and options, so those layers are unchanged;
+# `uljin_real_v1` stays committed because reports/ULJIN_ROAD_AUDIT.md and
+# reports/SECOND_GEOGRAPHY.md quote its numbers.
+#
+# Four of five layers are present. POPULATION IS ABSENT, and the reason is
+# recorded below rather than left to be inferred.
+#
+# ── The facilities mapping is the interesting part of this file ──────────────
+#
+# OSM has exactly three facility-tagged elements in this 4 km box, and TWO OF
+# THREE would be badly misread by any pipeline that trusted the tag:
+#
+#   amenity=shelter   구산리청암정 — but shelter_type=gazebo. A traditional
+#                     pavilion. Mapping this to `shelter` would have invented
+#                     an evacuation destination out of a decorative structure.
+#   amenity=school    "구 노음초등학교 구고분교 터" — 구 means former and 터
+#                     means SITE OF. The school does not stand. Mapping this to
+#                     a refuge would place people in an empty field.
+#   amenity=townhall  구산3리마을회관 — a village hall, and a real building.
+#                     Whether it is a designated assembly point is a fact
+#                     nobody here has verified.
+#
+# So all three map to `other`: the places exist, and none of them is an
+# established wildfire refuge. That is a FINDING, not a gap — this box supports
+# zero refuge candidates, and saying so is the point of keeping
+# `facility_exists` distinct from `facility_is_viable_wildfire_refuge`
+# (Phase 2 item 10, docs/ASSUMPTIONS.md A-FAC-1/2, docs/FAILURE_MODES.md
+# F-FAC-3).
+#
+# NO FIRE STATION is mapped in this box. That is a fact about the box and about
+# OSM coverage, NOT a finding that Uljin-gun has no fire service. The mapping
+# still lists fire_station, so one would be picked up wherever the data has it.
+#
+# Attribution obligations travel with this bundle:
+#   terrain   - (C) ESA / Copernicus Programme, Copernicus DEM GLO-30
+#   landcover - (C) ESA WorldCover 2021 v200, CC-BY 4.0
+#   roads     - (C) OpenStreetMap contributors, ODbL 1.0
+#   facilities- (C) OpenStreetMap contributors, ODbL 1.0
+study_area_id: uljin_real_v2
+description: >
+  Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do,
+  on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap
+  roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022
+  Uljin-Samcheok fire burned this region) and because both sources have verified
+  coverage here.
+notes: >
+  The terrain is a DIGITAL SURFACE MODEL: GLO-30 includes canopy and buildings,
+  so slope over forest here is canopy slope, not ground slope
+  (docs/FAILURE_MODES.md F-TER-3). OSM rural completeness is UNKNOWN, so the
+  road network is a lower bound on what exists on the ground, and the egress
+  counts derived from it inherit that limitation.
+
+# Why the one missing layer is missing. Reaches the contract manifest's
+# layers.population.reason, so a consumer reads a documented gap rather than
+# UNKNOWN (docs/DECISIONS.md D-0027).
+absent_layer_reasons:
+  population: >
+    ABSENT. No aggregate population was obtained. KOSIS (kosis.kr) and SGIS
+    (sgis.kostat.go.kr) are the authoritative sources and both are
+    PROXY_FAILURE from this environment; OpenStreetMap carries no population
+    tag anywhere in this box, and place=village gives a location without a
+    count. Nothing was estimated. See reports/SOURCE_ACCESS_STATUS.md.
+
+# KGD2002 / East Belt 2010 -- the Korean belt system covering this longitude.
+crs: EPSG:5187
+bounds: [227500.0, 478500.0, 231500.0, 482500.0]
+
+terrain:
+  source:
+    kind: copernicus_dem_glo30
+    options:
+      # About 1 km of margin in degrees, so the reprojection and the 3x3
+      # derivative both have data at the study boundary.
+      buffer_deg: 0.01
+  # Reproject from the source's EPSG:4326 degree grid to a 30 m metre grid.
+  # GLO-30's nominal 30 m is at the equator; at 36.9 N its cells are about
+  # 30 m north-south and 24 m east-west, so 30 m here is a resampling choice
+  # and is recorded as one.
+  target_resolution_m: 30.0
+  resampling: bilinear
+  derivatives: [slope, aspect]
+  clip_buffer_cells: 2
+  vertical_datum: EGM2008 geoid (per Copernicus DEM product specification)
+
+roads:
+  source:
+    kind: osm_api
+  snap_tolerance_m: 1.0
+  boundary_tolerance_m: 30.0
+  clip_mode: intersects
+  node_crossings: false
+
+fuels:
+  source:
+    kind: esa_worldcover
+    options:
+      buffer_deg: 0.005
+  scheme: esa_worldcover_v200
+
+facilities:
+  source:
+    kind: osm_facilities_api
+  # The role is mapped from the source's own tag, and the mapping is the whole
+  # point of this block. See the header for why all three map to 'other'.
+  kind_property: osm_matched_tag
+  kind_map:
+    "amenity=shelter": other
+    "amenity=townhall": other
+    "amenity=school": other
+    "amenity=community_centre": other
+    "amenity=fire_station": fire_station
+    "emergency=fire_station": fire_station
+    "amenity=police": responder_base
+    "amenity=hospital": other
+    "amenity=clinic": other
+    "amenity=place_of_worship": other
+    "emergency=assembly_point": other
+    "building=civic": other
+    "building=public": other
+    "building=school": other
+    "building=community_centre": other
+  unmapped: error

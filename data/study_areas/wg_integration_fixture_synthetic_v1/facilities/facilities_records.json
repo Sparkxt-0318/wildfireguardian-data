@@ -1,0 +1,36 @@
+[
+  {
+    "facility_id": "SYN-INT-RB-001",
+    "kind": "responder_base",
+    "name": "Synthetic integration responder base",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "responder_base",
+    "geometry_type": "Point",
+    "representative_point": [
+      240020.0,
+      490180.0
+    ],
+    "attributes": {},
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  },
+  {
+    "facility_id": "SYN-INT-SH-001",
+    "kind": "shelter",
+    "name": "Synthetic integration candidate destination",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "suitability_assessed": false,
+    "suitability_note": "UNKNOWN",
+    "source_kind_tag": "shelter",
+    "geometry_type": "Point",
+    "representative_point": [
+      240340.0,
+      490180.0
+    ],
+    "attributes": {},
+    "caveat": "role is source-declared, not verified; this record makes no claim that the facility is usable or safe (docs/ASSUMPTIONS.md A-FAC-1/2)"
+  }
+]

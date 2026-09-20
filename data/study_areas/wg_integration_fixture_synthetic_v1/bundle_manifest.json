@@ -1,0 +1,438 @@
+{
+  "bundle_schema_version": "1.0.0",
+  "bundle_id": "wg_integration_fixture_synthetic_v1",
+  "created_at": "2026-09-20T03:40:31.750504+00:00",
+  "study_area": {
+    "study_area_id": "wg_integration_fixture_synthetic_v1",
+    "bounds": {
+      "min_x": 240000.0,
+      "min_y": 490000.0,
+      "max_x": 240360.0,
+      "max_y": 490360.0,
+      "crs": "EPSG:5187"
+    },
+    "extent_m": [
+      360.0,
+      360.0
+    ]
+  },
+  "crs": "EPSG:5187",
+  "canonical_grid": {
+    "grid": {
+      "x_origin": 239970.0,
+      "y_origin": 490390.0,
+      "x_size": 30.0,
+      "y_size": 30.0
+    },
+    "shape": [
+      14,
+      14
+    ],
+    "crs": "EPSG:5187",
+    "status": "SHARED"
+  },
+  "layers": {
+    "terrain": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "dem",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "not_applicable",
+          "valid_to": "not_applicable",
+          "surface_model": "dtm",
+          "units": {
+            "values": "m",
+            "resolution": "metre",
+            "vertical_datum": "not_applicable (synthetic)"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "5b450897717a9c68608273c3a7f9ce5a538173e2bcbd9603ad7d537e11ce1641",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.tilted_plane",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "dem"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE"
+          ]
+        },
+        {
+          "name": "slope_deg",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "not_applicable",
+          "valid_to": "not_applicable",
+          "surface_model": "dtm",
+          "units": {
+            "values": "deg",
+            "resolution": "metre",
+            "vertical_datum": "not_applicable (synthetic)"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "84d2550781accda44c5651f3b244c70e4f68142aad830bd781cd2c1f9fd10ff8",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.tilted_plane",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "dem"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE"
+          ]
+        },
+        {
+          "name": "aspect_deg",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "not_applicable",
+          "valid_to": "not_applicable",
+          "surface_model": "dtm",
+          "units": {
+            "values": "deg_azimuth_grid_north",
+            "resolution": "metre",
+            "vertical_datum": "not_applicable (synthetic)"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "6ff5b97337afd7673d566a9b6765f12d0c634d0ea20aa5d2978b87560aa4e9b4",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.tilted_plane",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "dem"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE"
+          ]
+        }
+      ]
+    },
+    "roads": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "roads",
+          "geometry": "vector",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "not_applicable",
+          "valid_to": "not_applicable",
+          "surface_model": "not_applicable",
+          "units": {
+            "values": "not_applicable",
+            "resolution": "UNKNOWN",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": null,
+          "missing_data_representation": "not_applicable",
+          "checksum": "c841d55a5517691d7da2a93da65419dd3a08de84658b668030aee198a9632308",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.integration_fixture_roads",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "resolution_unit",
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "roads"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE"
+          ]
+        }
+      ],
+      "graph": {
+        "status": "PRESENT",
+        "source": "road QA report",
+        "node_count": 4,
+        "edge_count": 3,
+        "component_count": 1,
+        "total_length_m": 480.0,
+        "length_unit": "m",
+        "directed": false,
+        "noting": "counts describe graph topology as digitised. they do not state that any route is passable, any area reachable, or anyone trapped (AGENTS.md section 5). lengths are planar geometry in the analysis CRS, not travel distances (A-RD-5)"
+      }
+    },
+    "fuels": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "fuels",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "not_applicable",
+          "valid_to": "not_applicable",
+          "surface_model": "not_applicable",
+          "units": {
+            "values": "class",
+            "resolution": "metre",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "255",
+          "checksum": "d84abed0c22f5e9f8ebdc2b8dc3dee4b1cb1712602ad73831fd1c39d7a3e34cf",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.integration_fixture_fuels",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "fuels"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE"
+          ]
+        }
+      ],
+      "class_scheme": {
+        "status": "PRESENT",
+        "name": "synthetic_demo_v1",
+        "scheme_kind": "source_class",
+        "represents": "invented land-cover-like classes, for testing only",
+        "class_count": 6,
+        "nodata_code": 255,
+        "spatial_resolution_m": null,
+        "vintage": "not_applicable",
+        "licence": "same as this repository",
+        "known_limitations": [],
+        "is_fire_behaviour_fuel_model": false
+      }
+    },
+    "population": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "villages",
+          "geometry": "vector",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "not_applicable",
+          "valid_to": "not_applicable",
+          "surface_model": "not_applicable",
+          "units": {
+            "values": "not_applicable",
+            "resolution": "UNKNOWN",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": null,
+          "missing_data_representation": "not_applicable",
+          "checksum": "002ecbe635a13e865176ed2f879110a2032a4527462eeda5cb835fe48ff0cd74",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.integration_fixture_villages",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "resolution_unit",
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "villages"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE"
+          ]
+        }
+      ]
+    },
+    "facilities": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "facilities",
+          "geometry": "vector",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "not_applicable",
+          "valid_to": "not_applicable",
+          "surface_model": "not_applicable",
+          "units": {
+            "values": "not_applicable",
+            "resolution": "UNKNOWN",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": null,
+          "missing_data_representation": "not_applicable",
+          "checksum": "3c8333aa270acf54f8d895a1b6555048d23dba16404401bcb3d861e99d47b459",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.integration_fixture_facilities",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "resolution_unit",
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "facilities"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE"
+          ]
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "provenance_schema_version": [
+      "1.1.0"
+    ],
+    "internal_bundle_schema_version": "1.1.0",
+    "layer_count": 7,
+    "unknown_field_count": 14,
+    "data_classes_present": [
+      "SYNTHETIC"
+    ]
+  },
+  "validation": {
+    "status": "pass_with_warnings",
+    "strict": false,
+    "counts": {
+      "ERROR": 0,
+      "WARNING": 10,
+      "INFO": 19
+    },
+    "report_path": "validation/report.json"
+  },
+  "checksums": {
+    "dem": "5b450897717a9c68608273c3a7f9ce5a538173e2bcbd9603ad7d537e11ce1641",
+    "slope_deg": "84d2550781accda44c5651f3b244c70e4f68142aad830bd781cd2c1f9fd10ff8",
+    "aspect_deg": "6ff5b97337afd7673d566a9b6765f12d0c634d0ea20aa5d2978b87560aa4e9b4",
+    "roads": "c841d55a5517691d7da2a93da65419dd3a08de84658b668030aee198a9632308",
+    "fuels": "d84abed0c22f5e9f8ebdc2b8dc3dee4b1cb1712602ad73831fd1c39d7a3e34cf",
+    "villages": "002ecbe635a13e865176ed2f879110a2032a4527462eeda5cb835fe48ff0cd74",
+    "facilities": "3c8333aa270acf54f8d895a1b6555048d23dba16404401bcb3d861e99d47b459"
+  },
+  "caveats": [
+    "this manifest reports what each layer is and where it came from. it does NOT assert that the bundle is scientifically valid, fit for any particular analysis, or that anything in it is safe, passable, or usable (AGENTS.md sections 5 and 8)",
+    "an ABSENT layer is absent. nothing was estimated, interpolated, or defaulted to fill it (AGENTS.md section 3)",
+    "data_class is uppercase here and lowercase in this repository's own artifacts; see docs/DECISIONS.md D-0023 for the RETROSPECTIVE axis collapse this boundary performs"
+  ]
+}

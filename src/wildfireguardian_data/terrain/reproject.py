@@ -97,6 +97,23 @@ def reproject_raster(
     src_crs = require_crs(layer.crs, context=f"reprojecting {layer.name!r}")
     target = require_crs(dst_crs, context=f"reprojecting {layer.name!r}")
     if src_crs.equals(target):
+        # Same CRS: there is nothing to reproject, so the layer is returned
+        # unchanged. But if the caller also asked for a different grid, doing
+        # nothing silently would discard an explicit request -- the caller would
+        # believe its layer had been resampled when it had not, and every
+        # downstream cell index would be wrong by the difference. Refuse
+        # loudly instead (docs/FAILURE_MODES.md F-BND-6, AGENTS.md section 7).
+        if dst_resolution is not None or target_grid is not None:
+            raise ConfigError(
+                f"reproject_raster was asked to put {layer.name!r} on a "
+                f"different grid within its own CRS "
+                f"({crs_to_string(src_crs)}), which this function does not do: "
+                "resampling inside one CRS is a resolution change, not a "
+                "reprojection, and silently ignoring the request would leave "
+                "the caller believing the layer had been resampled when it had "
+                "not (docs/FAILURE_MODES.md F-BND-6). clip or resample it "
+                "explicitly, or reproject to the CRS you actually want."
+            )
         return layer
 
     method_name = resampling or RESAMPLING_FOR_KIND[layer.kind]
@@ -213,6 +230,16 @@ def reproject_raster(
             "dst_nodata": repr(dst_nodata),
             "dst_cells_square": new_grid.is_square,
             "target_grid_supplied": target_grid is not None,
+            # The co-registration contract (Phase 2 item 16). The guard above
+            # already *refuses* an averaging method on a categorical layer, but
+            # a refusal leaves no record. Writing the kind and both affines into
+            # provenance means a consumer can audit, after the fact and without
+            # re-running anything, whether class codes were ever averaged and
+            # whether this layer really landed on the grid it claims to share.
+            "raster_kind": layer.kind.value,
+            "categorical_or_continuous": layer.kind.value,
+            "source_grid": layer.transform.to_dict(),
+            "target_grid": new_grid.to_dict(),
         },
         notes=(
             "resampling changes values; cell size and grid origin both change. "

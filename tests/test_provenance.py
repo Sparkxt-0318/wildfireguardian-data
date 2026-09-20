@@ -236,3 +236,149 @@ def test_array_checksum_distinguishes_dtype_and_shape():
 def test_json_checksum_is_key_order_independent():
     assert sha256_json({"a": 1, "b": 2}) == sha256_json({"b": 2, "a": 1})
     assert sha256_json({"a": 1}) != sha256_json({"a": 2})
+
+
+# --------------------------------------------------------------------------- #
+# Temporal validity, surface model, and explicit migration (Phase 2 items 17/26)
+# --------------------------------------------------------------------------- #
+def _minimal_record(**overrides):
+    from wildfireguardian_data.provenance.models import (
+        DataClass,
+        ProvenanceRecord,
+        SourceRecord,
+        TemporalProvenance,
+    )
+
+    payload = dict(
+        layer_name="layer",
+        data_class=DataClass.OBSERVED,
+        temporal_class=TemporalProvenance.ANNUAL,
+        temporal_reference="2021",
+        sources=(SourceRecord(name="s", url_or_identifier="u"),),
+    )
+    payload.update(overrides)
+    return ProvenanceRecord(**payload)
+
+
+def test_validity_interval_defaults_to_unknown_not_to_a_guess():
+    record = _minimal_record()
+    assert record.valid_from == "UNKNOWN"
+    assert record.valid_to == "UNKNOWN"
+    assert record.surface_model == "UNKNOWN"
+    # And that gap is visible, not silent.
+    assert {"valid_from", "valid_to", "surface_model"} <= set(record.unknown_fields())
+
+
+def test_not_applicable_validity_is_not_counted_as_a_gap():
+    # A synthetic construct describes no moment in the world. Only UNKNOWN is a
+    # gap; conflating the two would dilute the incompleteness metric (D-0009).
+    record = _minimal_record(
+        valid_from="not_applicable",
+        valid_to="not_applicable",
+        surface_model="not_applicable",
+    )
+    unknown = set(record.unknown_fields())
+    assert not ({"valid_from", "valid_to", "surface_model"} & unknown)
+
+
+def test_an_inverted_validity_interval_is_rejected():
+    with pytest.raises(ProvenanceError) as excinfo:
+        _minimal_record(valid_from="2022-03-05", valid_to="2021-01-01")
+    assert "precedes" in str(excinfo.value)
+    # A single instant is a legitimate interval, not an inverted one.
+    assert _minimal_record(valid_from="2022-03-05", valid_to="2022-03-05")
+
+
+def test_validity_fields_preserve_precision_and_reject_junk():
+    # Year precision stays year precision: a source that knows only the year
+    # must not be recorded as if it knew the day (A-T-3).
+    assert _minimal_record(valid_from="2021").valid_from == "2021"
+    assert _minimal_record(valid_to="2021-03").valid_to == "2021-03"
+    with pytest.raises(ProvenanceError):
+        _minimal_record(valid_from="early 2021")
+
+
+def test_surface_model_is_a_closed_set():
+    # An unrecognised spelling is refused rather than stored: a consumer
+    # switching on this field would read an unknown string as neither, and a
+    # DSM read as a DTM turns canopy steps into terrain (F-TER-3).
+    for value in ("dsm", "dtm", "not_applicable", "UNKNOWN"):
+        assert _minimal_record(surface_model=value).surface_model == value
+    for value in ("DSM", "surface", "dem", ""):
+        with pytest.raises(ProvenanceError) as excinfo:
+            _minimal_record(surface_model=value)
+        assert "surface_model" in str(excinfo.value)
+
+
+def test_a_1_0_0_payload_migrates_explicitly_and_says_so():
+    from wildfireguardian_data.provenance.models import (
+        PROVENANCE_SCHEMA_VERSION,
+        ProvenanceRecord,
+    )
+
+    payload = _minimal_record().to_dict()
+    for gone in ("valid_from", "valid_to", "surface_model"):
+        payload.pop(gone)
+    payload["schema_version"] = "1.0.0"
+
+    restored = ProvenanceRecord.from_dict(payload)
+    assert restored.schema_version == PROVENANCE_SCHEMA_VERSION
+    # The migration fills UNKNOWN, never a guess -- and leaves a trace, so the
+    # gap cannot later be mistaken for a fact somebody checked.
+    assert restored.valid_from == restored.valid_to == "UNKNOWN"
+    assert restored.surface_model == "UNKNOWN"
+    assert "migrated from provenance schema 1.0.0" in restored.notes
+
+
+def test_an_unregistered_schema_version_is_refused_not_guessed():
+    from wildfireguardian_data.provenance.models import ProvenanceRecord
+
+    payload = _minimal_record().to_dict()
+    # A *newer* version is refused for the same reason as an unknown older one:
+    # the writer may have changed what a field this reader recognises means.
+    payload["schema_version"] = "9.9.9"
+    with pytest.raises(ProvenanceError) as excinfo:
+        ProvenanceRecord.from_dict(payload)
+    assert "no migration is registered" in str(excinfo.value)
+
+
+def test_the_committed_real_bundle_still_reads_through_the_migration():
+    # The point of a migration: an already-published bundle keeps working.
+    from wildfireguardian_data.study_area import read_bundle
+
+    bundle = read_bundle("data/study_areas/uljin_real_v1")
+    dem = bundle.provenance["dem"]
+    assert dem.schema_version == "1.1.0"
+    # Its validity was never established, so it reads UNKNOWN. Notably the
+    # migration does NOT set surface_model="dsm" from the Copernicus source
+    # name, even though that happens to be true: inferring it would be
+    # indistinguishable afterwards from a fact somebody verified.
+    assert dem.surface_model == "UNKNOWN"
+
+
+def test_reproject_records_the_co_registration_contract():
+    # Phase 2 item 16: the guard that refuses averaging a categorical layer
+    # leaves no trace, so the kind and both grids are recorded for audit.
+    import numpy as np
+
+    from wildfireguardian_data.fixtures import make_fixture
+    from wildfireguardian_data.terrain.reproject import reproject_raster
+
+    dem = make_fixture("tilted_plane")
+    warped = reproject_raster(dem, "EPSG:32652", resampling="bilinear")
+    params = warped.provenance.transformations[-1].parameters
+    assert params["categorical_or_continuous"] == "continuous"
+    assert params["raster_kind"] == "continuous"
+    assert set(params["source_grid"]) == {"x_origin", "y_origin", "x_size", "y_size"}
+    assert set(params["target_grid"]) == {"x_origin", "y_origin", "x_size", "y_size"}
+    # The recorded target grid is the grid the output actually has.
+    assert params["target_grid"] == warped.transform.to_dict()
+    assert np.isfinite(warped.transform.x_size)
+
+    # And the field is read off the layer, not hardcoded: a categorical layer
+    # records "categorical", which is what makes the record worth auditing.
+    fuels = make_fixture("korean_valley_fuels")
+    warped_fuels = reproject_raster(fuels, "EPSG:32652")
+    fuel_params = warped_fuels.provenance.transformations[-1].parameters
+    assert fuel_params["categorical_or_continuous"] == "categorical"
+    assert fuel_params["resampling"] == "nearest"

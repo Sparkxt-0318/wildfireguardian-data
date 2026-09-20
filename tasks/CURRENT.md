@@ -1,12 +1,56 @@
 # CURRENT
 
-**Status: Phase 1 complete. Nothing is in flight.** This file lists what should
-be done next, in priority order.
+**Status: Phase 2 complete; frozen at `v0.2.0`.** Read `AGENTS.md` before
+starting anything below. Each item states what "done" looks like, because
+"improve the road data" is not a task.
 
-Read `AGENTS.md` before starting any of it. Each item states what "done" looks
-like, because "improve the road data" is not a task.
+> **The freeze rule (Phase 2 item 34).** Do not add data-processing
+> abstractions until a real downstream need exposes a gap. The two known gaps
+> are not abstractions: one is a registration form, the other is a proxy.
 
----
+Phase 2's outcome is in `reports/PHASE2_INTEGRATION_READINESS.md`. In short:
+five committed bundles, **0 ERROR findings in all five**, two real Korean
+geographies in different belt CRSs, a versioned contract that cannot drift from
+its own data, and 31 decision records. 446 tests pass.
+
+### The two things actually blocking further data work
+
+1. **Aggregate population — nothing, anywhere.** KOSIS and SGIS are
+   `PROXY_FAILURE` from this environment and OSM has no `population` tag in
+   either study box. `FORECAST_VALUE` is `INCOMPLETE` solely because of this,
+   and the settlement-dependent road diagnostics (single-egress candidates,
+   critical links) are **structurally unavailable** on both real bundles.
+2. **임상도 is unblocked and unretrieved.** The authoritative Korean forest
+   stand map needs a free account on `www.bigdata-forest.kr` and an answer to
+   its licence contradiction — its page states CC-BY *and* "all rights
+   reserved". A human with a browser, not a better fetcher. Fully documented in
+   `reports/KOREAN_FUELS_CANDIDATES.md`.
+
+### Ported-in work identified but not done
+
+`reports/LEGACY_DATA_PIPELINE_COMPARISON.md` classified two components of the
+main repository as `PORT_WITH_FIXES` and neither has been ported:
+
+- **`measure_osm_completeness.py`** — measures the thing `F-RD-3` leaves at
+  `UNKNOWN`. Better than anything here.
+- **Multi-tile mosaicking** — a real capability this repository lacks; refusing
+  a straddling request is the right default but not a complete answer.
+- A **nodata-fraction gate** (refuse a raster over 50% nodata) is also
+  classified `PORT_WITH_FIXES` and deliberately not adopted: promoting a
+  WARNING to an ERROR is a scientific change and needs its own reviewed commit.
+
+### Open questions recorded rather than answered
+
+- **Naju's 7 road components are not audited** to the depth of the Uljin
+  report. 98.7% of edges are in one component and the other six total 4.95 km
+  of 184, but nothing claims they are real rather than clip artifacts.
+- **The Copernicus DEM's temporal validity is `UNKNOWN`** on purpose, so
+  `PRV-010` fires on every terrain layer in every real bundle. How long a DSM
+  stays valid is genuinely open: its bare-earth component is static and its
+  canopy component is not.
+- **The benchmark tolerance disagreement** (`reports/BENCHMARK_CROSS_CHECK.md`):
+  1.11 × 10⁻⁷ degrees of float32 storage against a 1 × 10⁻⁹ tolerance. Not
+  changed here; the recommendation belongs to the benchmark repository.
 
 ## 1. Replace or cross-check the road source with authoritative Korean data
 
@@ -38,17 +82,29 @@ compared over forested and non-forested cells with the difference reported; or,
 if no DTM is obtainable, a written estimate of the bias with its method, added
 to `FAILURE_MODES.md` F-TER-3.
 
-## 3. Add real Korean vegetation data, or leave the fuels layer absent
+## 3. Ingest 임상도, the Korean forest stand map
 
-**Why.** No Korean vegetation data was obtained, so the repository ships only a
-generic architecture and an explicitly synthetic demo scheme. That is the
-correct current state — the wrong move is inventing a crosswalk (A-FU-1).
+**Status: unblocked, and the highest-value action left.** Superseded in part —
+ESA WorldCover now provides *global* land cover for the real bundle (D-0024),
+so the fuels slot is no longer empty. But WorldCover has no species, age or
+density, and class 10 `tree_cover` is a Korean pine plantation and a riparian
+broadleaf stand alike. Those are different fuels.
 
-**Done when.** Either a sourced `FuelClassScheme` exists, citing a real
-published classification, with a real layer ingested through
-`fuels.read_fuel_geotiff`; or `docs/DATA_PROVENANCE.md` records a further
-documented attempt and failure. **Do not** add a Korean fuel scheme from
-memory.
+**What to do.** 임상도 (1:5,000, EPSG:5179, 51 species groups, diameter/age/
+crown-density classes) is fully documented in
+`reports/KOREAN_FUELS_CANDIDATES.md` and is `REGISTRATION_REQUIRED` — a free
+account on `www.bigdata-forest.kr`, not a technical barrier. **Resolve its
+licence contradiction first**: the product page states CC-BY *and* "all rights
+reserved", so the effective redistribution licence is `UNKNOWN` and nothing
+derived from it may be committed until that is settled, preferably by getting
+the data from 산림청 directly.
+
+**Done when.** A sourced `VegetationClassScheme` exists with the publisher's own
+code dictionaries (not reconstructed from sample values), `임상나무높이`'s unit
+is established rather than assumed, per-polygon interpretation vintage reaches
+`valid_from`/`valid_to`, and the layer is ingested via `wg-data import-fuels`.
+**Do not** add a Korean fuel scheme from memory, and do not crosswalk it to a
+fire-behaviour fuel model here (`docs/SCOPE.md`, D-0024).
 
 ## 4. Aggregate population for the real study area
 
@@ -120,7 +176,8 @@ These are decided behaviour. Do not "fix" them without a `DECISIONS.md` entry.
 
 | Limitation | Where |
 |---|---|
-| Lines crossing without a shared node are not connected | D-0007, F-RD-1 |
+| Lines are connected where they share a *vertex*, not only an endpoint | D-0020 |
+| Lines merely *crossing* with no shared vertex are still not connected | D-0007, F-RD-1 |
 | Derivative edges and nodata neighbours are `nodata` | D-0005, F-TER-1/2 |
 | Aspect is `NaN` on flat ground, never `0` | D-0006 |
 | Aspect is from grid north, not true north | A-TER-5, F-TER-5 |

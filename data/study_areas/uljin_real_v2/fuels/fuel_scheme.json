@@ -1,0 +1,80 @@
+{
+  "name": "esa_worldcover_v200",
+  "scheme_kind": "source_class",
+  "represents": "land cover, classified from Sentinel-1 and Sentinel-2 imagery. NOT a fire-behaviour fuel model and not a forest-type map: 'Tree cover' means canopy cover >= 10%, with no species, load, or moisture information",
+  "data_class": "observed",
+  "source": "ESA WorldCover 10 m 2021 v200 (ESA WorldCover project / Copernicus Sentinel)",
+  "source_url": "https://esa-worldcover.org",
+  "spatial_resolution_m": 10.0,
+  "vintage": "2021 (01 January to 31 December, per Product User Manual V2.0 §3.4.3)",
+  "coverage": "global land areas observed by Sentinel-2, to 82.75 degrees N",
+  "licence": "CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/)",
+  "units": "class",
+  "nodata_code": 0,
+  "classes": [
+    {
+      "code": 10,
+      "label": "tree_cover",
+      "description": "any area dominated by trees with cover of 10% or more; understorey, built-up and water may be present below the canopy"
+    },
+    {
+      "code": 20,
+      "label": "shrubland",
+      "description": "dominated by natural shrubs with cover of 10% or more; woody perennials under 5 m with no defined main stem"
+    },
+    {
+      "code": 30,
+      "label": "grassland",
+      "description": "dominated by natural herbaceous plants with cover of 10% or more; may include uncultivated cropland"
+    },
+    {
+      "code": 40,
+      "label": "cropland",
+      "description": "annual cropland, sowed or planted and harvestable at least once within 12 months of sowing"
+    },
+    {
+      "code": 50,
+      "label": "built_up",
+      "description": "buildings and other man-made structures"
+    },
+    {
+      "code": 60,
+      "label": "bare_or_sparse_vegetation",
+      "description": "bare or sparsely vegetated areas"
+    },
+    {
+      "code": 70,
+      "label": "snow_and_ice",
+      "description": "permanent snow and ice"
+    },
+    {
+      "code": 80,
+      "label": "permanent_water_bodies",
+      "description": "permanent water bodies"
+    },
+    {
+      "code": 90,
+      "label": "herbaceous_wetland",
+      "description": "herbaceous wetland"
+    },
+    {
+      "code": 95,
+      "label": "mangroves",
+      "description": "mangroves"
+    },
+    {
+      "code": 100,
+      "label": "moss_and_lichen",
+      "description": "moss and lichen"
+    }
+  ],
+  "known_limitations": [
+    "cloud artefacts can persist in areas of high cloud cover despite the use of Sentinel-1 (Product User Manual V2.0 §4)",
+    "Sentinel-2 orbit or processing-block borders can be visible as hard edges where classes are easily confused (PUM §4)",
+    "mountain shadows and glacier ablation zones are sometimes misclassified as water bodies (PUM §4) -- directly relevant in steep Korean valleys, where a shadowed slope may read as class 80",
+    "irrigated agriculture and herbaceous wetland are spectrally similar and are sometimes confused (PUM §4)",
+    "10 m land cover is not a fuel model: it carries no species composition, fuel load, canopy bulk density, or moisture, all of which a fire-behaviour model needs"
+  ],
+  "notes": "nodata code is 0, which is the value the product itself uses and which the tile declares as its nodata. class 0 is therefore NOT a land-cover class.",
+  "semantics": "nominal categories; no ordering, no flammability ranking, no spread parameters (docs/ASSUMPTIONS.md A-FU-3). these are the SOURCE's own classes, not a fuel model: mapping them onto fire-behaviour fuels is a separate modelling step that this repository does not perform"
+}

@@ -1,0 +1,81 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "EPSG:5187"
+  }
+ },
+ "wg_crs_wkt": "PROJCRS[\"KGD2002 / East Belt 2010\",BASEGEOGCRS[\"KGD2002\",DATUM[\"Korean Geodetic Datum 2002\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4737]],CONVERSION[\"Korea East Belt 2010\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",38,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",129,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",1,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",200000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",600000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"northing (X)\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"easting (Y)\",east,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Cadastre, topographic mapping.\"],AREA[\"Republic of Korea (South Korea) - onshore between 128°E and 130°E.\"],BBOX[34.49,128,38.64,129.65]],ID[\"EPSG\",5187]]",
+ "wg_layer_name": "facilities",
+ "wg_feature_kind": "UNKNOWN",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     231156.70086475826,
+     481319.6531918313
+    ]
+   },
+   "properties": {
+    "facility_id": "osm:node/11505317148",
+    "osm_id": "11505317148",
+    "osm_type": "node",
+    "osm_version": "1",
+    "osm_timestamp": "2024-01-10T07:40:24Z",
+    "osm_matched_tag": "amenity=shelter",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "amenity": "shelter",
+    "name": "구산리청암정",
+    "shelter_type": "gazebo"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     230837.04664887325,
+     480583.2667754278
+    ]
+   },
+   "properties": {
+    "facility_id": "osm:node/11505406086",
+    "osm_id": "11505406086",
+    "osm_type": "node",
+    "osm_version": "1",
+    "osm_timestamp": "2024-01-10T08:42:08Z",
+    "osm_matched_tag": "amenity=townhall",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "amenity": "townhall",
+    "name": "구산3리마을회관"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     230472.2275059072,
+     480291.7039901728
+    ]
+   },
+   "properties": {
+    "facility_id": "osm:way/1238519300",
+    "osm_id": "1238519300",
+    "osm_type": "way",
+    "osm_version": "1",
+    "osm_timestamp": "2024-01-10T08:42:08Z",
+    "osm_matched_tag": "amenity=school",
+    "operational_status": "UNKNOWN",
+    "capacity_persons": null,
+    "amenity": "school",
+    "name": "구 노음초등학교 구고분교 터"
+   }
+  }
+ ]
+}

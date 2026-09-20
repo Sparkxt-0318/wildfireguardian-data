@@ -419,3 +419,475 @@ round trip.
 were rebuilt. The validation report itself cannot be checksummed, because it is
 written after validation (D-0014); that is stated in the manifest's
 `unchecksummed` block rather than left implicit.
+
+---
+
+## D-0020 | 2026-09-20 | accepted | Lines are connected where they share a vertex, not only at endpoints
+
+**Decision.** `roads.build_road_graph(node_shared_vertices=True)` — now the
+default — splits lines at vertices that two different lines genuinely share, so
+a side road meeting the middle of a through road becomes a junction.
+
+**Rejected.** (a) Endpoint-only connection, the Phase 1 behaviour; (b) full
+intersection noding, which D-0007 rejects and still rejects.
+
+**Why.** Found by the Phase 2 road audit
+(`reports/ULJIN_ROAD_AUDIT.md`). OpenStreetMap — and most road GIS — encodes a
+junction as a **shared node**, which is usually an **interior** vertex of a way.
+In the Uljin extract, 35 of 41 shared OSM node IDs involved an interior vertex,
+so endpoint-only connection recovered 6 of 41 real junctions and turned the rest
+into fragment boundaries: 22 components, 17 of them single edges, largest
+holding 12.9 % of edges. With shared-vertex noding the same 31 source ways form
+2 components, 94.1 % of edges in the largest, and **total length is unchanged at
+28.784 km** — no geometry added, removed or moved.
+
+**Why this does not reopen D-0007.** The two rules test different things, and
+OSM distinguishes them precisely. A *shared vertex* is the source placing one
+coordinate in two lines' coordinate lists — an explicit assertion that they
+meet. A *geometric crossing with no shared vertex* is how a bridge or tunnel is
+represented. So this recovers stated junctions while still refusing to fabricate
+unstated ones, and the un-noded-crossing diagnostic still reports the latter.
+
+**Consequence.** Edge counts rise (31 → 68 for Uljin) because a way carrying
+several junctions becomes several edges; that is what makes degree, bridge and
+articulation-point analysis meaningful. Comparison is by rounded coordinate
+(9 decimal places) — float-noise tolerance, not a snapping distance. Setting
+`node_shared_vertices=False` reproduces Phase 1 behaviour for comparison.
+
+---
+
+## D-0021 | 2026-09-20 | accepted | An exit is a departure node, and a boundary crossing is an exit
+
+**Decision.** `roads.identify_exit_nodes` records three separately-labelled
+kinds of exit — `from_source_tags`, `from_boundary_crossing` (an edge's geometry
+crosses the study-area boundary ring), and `from_boundary` (node proximity) —
+and in each case marks the **departure** node: the endpoint(s) lying inside the
+study area.
+
+**Rejected.** (a) Node proximity alone, the Phase 1 behaviour; (b) marking both
+endpoints of a leaving edge.
+
+**Why.** Two errors in opposite directions, both found by the road audit. With
+`clip_mode="intersects"` whole features are kept, so a road leaving the area has
+no *node* near the boundary: proximity alone found **1** exit on the Uljin
+bundle where **4** roads actually cross the boundary — a large under-count of
+egress, the quantity this project most cares about. Conversely, marking both
+endpoints of a tagged edge over-counts, and a single tagged through-road would
+contribute two exits and stop a genuinely single-egress component being reported
+as one.
+
+**Consequence.** `ExitNodeSet` gained fields, so the road-QA JSON gained keys
+(report `schema_version` 1.0.0 → 1.1.0). `crosses` rather than `intersects` is
+the crossing predicate: an edge merely *touching* the ring at its own endpoint
+has not left the area, and that endpoint is already covered by proximity.
+
+---
+
+## D-0022 | 2026-09-20 | accepted | Road attributes are carried when present and absent when not
+
+**Decision.** `roads` carries `highway`, `oneway`, `lanes`, `surface`, `bridge`,
+`tunnel`, `layer`, `maxspeed`, `access`, `width` and every other source tag as
+**opaque properties**, and `roads.qa` reports per-attribute availability. No
+attribute is defaulted by road class.
+
+**Rejected.** Filling missing attributes with per-class defaults (for example
+`lanes=2` for `unclassified`, `surface=paved` for `residential`), which is what
+a routing consumer will eventually want.
+
+**Why.** Those defaults are a *modelling* choice, and their right values depend
+on the analysis. Writing them into the data layer would make a fabricated value
+indistinguishable from a sourced one in exactly the field a travel-time model
+multiplies by. The Uljin extract makes the stakes concrete: `oneway`, `lanes`,
+`surface`, `maxspeed`, `access` and `width` are absent from **every** kept way,
+so a defaulting pipeline would have produced a fully-attributed road layer of
+which none of the attributes came from the source.
+
+**Consequence.** A downstream routing model must supply its own defaults, and
+should do so in a separate, declared parameter layer so its assumptions stay
+visible. `roads.qa.attribute_availability` gives it the per-attribute counts to
+decide with.
+
+## D-0023 | 2026-09-20 | accepted | `DataClass` carries governance's seven classes, and `RETROSPECTIVE` stays on two axes
+
+**Decision.** `DataClass` is extended from this repository's original four
+values to all seven classes in `wildfireguardian-research-governance`
+`governance/DATA_CLASSES.md` (`OBSERVED`, `MODELED`, `DERIVED`, `SYNTHETIC`,
+`ASSUMED`, `RETROSPECTIVE`, `ORACLE_ONLY`), governance's class algebra is
+implemented in `combine_data_classes`, and `governance_class_name` emits the
+uppercase spelling their `OC-029` requires at an integration boundary. This
+repository still only *produces* `OBSERVED`, `DERIVED`, `MODELED` and
+`SYNTHETIC`; the other three exist so an inbound value can be labelled and
+refused.
+
+**The conflict this resolves.** Governance treats `RETROSPECTIVE` as a *data
+class* — one slot in the same enum as `OBSERVED`. This repository already
+treats retrospectiveness as a *temporal* property, `TemporalProvenance.RETROSPECTIVE`,
+orthogonal to whether a value was measured or modelled. Both readings are
+defensible and they disagree: a burn-scar polygon digitised after a fire is,
+in our terms, `data_class=OBSERVED` **and**
+`temporal_class=RETROSPECTIVE` — two facts governance can only express as one.
+
+**Resolution.** Keep both axes internally; collapse them only at the export
+boundary, with `RETROSPECTIVE` dominant. A layer whose `temporal_class` is
+`RETROSPECTIVE` exports as governance class `RETROSPECTIVE` regardless of how
+its values were obtained, because that is the direction that cannot cause
+leakage: over-reporting retrospectiveness makes a planner refuse data it could
+legally have used, while under-reporting it hands a planner a fact from the
+future.
+
+**Rejected.** (a) Dropping `TemporalProvenance.RETROSPECTIVE` to match
+governance's single axis — it would lose the ability to say *both* that a layer
+is an observation and that it was compiled after the fact, which is precisely
+the distinction `docs/ASSUMPTIONS.md` A-T-1 exists to keep. (b) Ignoring
+governance's class and exporting `OBSERVED` — that is the leakage direction.
+
+**Consequence.** `DataClass.planner_legal` reports `RETROSPECTIVE` and
+`ORACLE_ONLY` as never planner-legal, and reports `SYNTHETIC` as not
+planner-legal *from here*, since governance permits synthetic input only through
+a declared observation operator and this repository provides none. The
+export-boundary collapse is a lossy projection: a consumer that needs both axes
+must read the bundle's own provenance, not only its governance class.
+
+## D-0024 | 2026-09-20 | accepted | ESA WorldCover is carried as land cover, and this repository does not convert it to a fuel model
+
+**Decision.** `fuels.source.kind: esa_worldcover` fetches ESA WorldCover 10 m
+2021 v200 and carries its published 11-class legend as a
+`SchemeKind.SOURCE_CLASS` scheme (`esa_worldcover_v200`). It is warped onto the
+DEM's grid with **nearest-neighbour** resampling (D-0018, A-FU-3) and stored as
+a categorical raster. No crosswalk from those classes to a fire-behaviour fuel
+model (Anderson 13, Scott & Burgan 40, or a Korean equivalent) is shipped,
+computed, or implied.
+
+**Rejected.** Shipping a land-cover-to-fuel-model lookup table, which is what a
+fire-spread consumer actually needs and what would make the layer immediately
+useful.
+
+**Why.** Such a table is a *modelling* artifact, not a property of the data: the
+same WorldCover class 10 (`tree_cover`) is a different fuel in a Korean pine
+plantation than in a riparian broadleaf stand, and the mapping depends on
+species composition, stand age, and season — none of which WorldCover encodes.
+Publishing a crosswalk here would make a modelled parameter indistinguishable
+from an observed class, in the field a rate-of-spread model reads directly. That
+is the `SOURCE_CLASS` versus `MODELED_CROSSWALK` distinction, and it is why
+`VegetationClassScheme` raises if a `MODELED_CROSSWALK` scheme is declared
+`OBSERVED`.
+
+**Naming.** The layer is vegetation/land cover. `FuelClass` and `FuelClassScheme`
+remain as aliases of `VegetationClass` and `VegetationClassScheme` for callers,
+but the primary names say what the data is.
+
+**Consequence.** A downstream fire-behaviour model must supply its own crosswalk
+and declare it `MODELED_CROSSWALK` with its own provenance. That work belongs in
+a fuels repository, not here (`docs/SCOPE.md`). Two WorldCover limitations carry
+straight into Korean study areas and are recorded on the scheme: mountain
+shadows are sometimes classified as water, and the product's 2021 vintage
+predates the 2022 Uljin fire, so it is pre-fire land cover for that event and
+must not be read as post-fire state.
+
+## D-0025 | 2026-09-20 | accepted | Provenance schema 1.1.0: temporal validity, surface model, and explicit migrations
+
+**Decision.** `ProvenanceRecord` gains three fields and
+`PROVENANCE_SCHEMA_VERSION` becomes `1.1.0`:
+
+- **`valid_from` / `valid_to`** — the interval over which the values are claimed
+  to describe the world. Validated by `validate_temporal_string`, so they keep
+  their precision (`"2021"` stays a year), accept `UNKNOWN` and
+  `not_applicable`, and an inverted interval raises.
+- **`surface_model`** — a closed set: `"dsm"`, `"dtm"`, `not_applicable`,
+  `UNKNOWN`. An unrecognised spelling raises.
+
+**Why `valid_from`/`valid_to` are not `temporal_reference`.** They answer
+different questions. `temporal_reference` says *when the data is from*;
+the validity interval says *when it is true of*. A 2021 land-cover product has
+`temporal_reference="2021"`, but whether it is still valid in 2023 is a separate
+claim that the product does not make. Collapsing them would mean a consumer
+asking "is this pre-fire?" had to answer it from an acquisition date, which is
+the reasoning that puts post-event data into a pre-event analysis.
+
+**Why `surface_model` is structured.** It was already in the Copernicus notes
+prose. A consumer cannot be expected to grep a free-text field for a fact that
+decides whether a forested slope is terrain or canopy — and a 20 m canopy step
+across one 30 m cell is a ~34° slope that no terrain has (F-TER-3). It is now a
+field, and `PRV-009` reports it as INFO on every DSM-derived layer.
+
+**What is deliberately *not* filled in.**
+
+- The Copernicus DEM's validity is `UNKNOWN`, **not** its 2011–2015 acquisition
+  window. How long a DSM stays valid is a real open question: the bare-earth
+  component is effectively static while the canopy component is not, and this
+  product does not separate them. Writing the acquisition window into a
+  *validity* interval would assert an expiry date we invented.
+- The 1.0.0 → 1.1.0 migration sets all three fields to `UNKNOWN`. It does **not**
+  infer `surface_model="dsm"` from a Copernicus source name, even though that
+  happens to be true, because afterwards an inference would be indistinguishable
+  from a fact somebody verified (`AGENTS.md` §3).
+- Synthetic fixtures get `surface_model="dtm"` and `not_applicable` validity.
+  `"dtm"` is accurate, not a placeholder — a synthetic surface has no canopy —
+  and it is what lets the analytic tests assert that a computed slope is terrain
+  slope. `not_applicable` rather than `UNKNOWN` because a synthetic construct
+  describes no moment in the world, and only `UNKNOWN` counts as a gap (D-0009).
+
+**Migrations are explicit** (Phase 2 item 26). `_PROVENANCE_MIGRATIONS` maps
+each version to its successor and a function; `migrate_provenance_payload`
+applies the chain one step at a time, so a two-version-old record passes through
+every intermediate migration rather than a hand-written shortcut. A version with
+no registered migration is **refused** — including one *newer* than this reader,
+because a newer writer may have changed the meaning of a field this reader
+thinks it understands. Every migration appends a note saying what it filled and
+that it was not inferred.
+
+**Consequence.** The committed `uljin_real_v1` bundle was written at 1.0.0 and
+still reads, through the migration, with its three new fields `UNKNOWN` — which
+is the honest state for a bundle nobody established those facts for. `PRV-010`
+now fires on it as a WARNING. That is the check doing its job, not a regression.
+
+**Rejected.** Bumping the version without a migration and regenerating the
+committed bundles. Rebuilding `uljin_real_v1` needs network access and the AWS
+tile list is mutable (D-0012), so "just rebuild it" is not available — and a
+schema that cannot read its own published output is not a schema, it is a
+breaking change with a version number on it.
+
+## D-0026 | 2026-09-20 | accepted | Reprojection records the co-registration contract
+
+**Decision.** `reproject_raster` records `raster_kind`,
+`categorical_or_continuous`, `source_grid` and `target_grid` (as
+`GridTransform` dicts, not bare affine tuples) in its `Transformation`
+parameters, alongside the CRSs, resolutions and resampling method it already
+recorded.
+
+**Why.** The guard that refuses an averaging resampler on a `CATEGORICAL` layer
+already existed and raises (A-FU-3). But a refusal leaves no trace, so there was
+no way to establish *after the fact* — from a bundle alone, without re-running
+anything — that class codes were never averaged, or that a layer claiming to
+share the DEM's grid actually landed on it. Two of the things Phase 2 item 16
+asks for were enforced but not auditable.
+
+**Consequence.** `target_grid` is asserted in tests to equal the output layer's
+own transform, so the record cannot drift from the raster it describes.
+
+## D-0027 | 2026-09-20 | accepted | Two manifests: the writer's record, and the downstream contract
+
+**Decision.** A bundle carries two manifests.
+
+- `manifest.json` (`BUNDLE_SCHEMA_VERSION`, currently 1.1.0) is the **writer's
+  record**: file paths, formats, dtypes, cell counts, per-file checksums. A
+  reader needs it to load the bundle back.
+- `bundle_manifest.json` (`BUNDLE_CONTRACT_SCHEMA_VERSION`, 1.0.0), built by
+  `integration/manifest.py`, is the **contract**: the only thing another
+  WildfireGuardian repository is permitted to code against. It carries
+  `bundle_id`, `bundle_schema_version`, `created_at`, `study_area`, `crs`,
+  `canonical_grid`, a fixed five-slot `layers` object, `provenance`,
+  `validation` and `checksums`.
+
+**Rejected.** One manifest doing both jobs, which is fewer files and less code.
+
+**Why two.**
+
+1. **Absence must be representable.** The contract's `layers` object always has
+   all five slots — `terrain`, `roads`, `fuels`, `population`, `facilities` —
+   each with a `status` and, when `ABSENT`, a reason. The writer's record lists
+   only the layers that exist, so "no population layer" is a *missing key*,
+   which a consumer reads as easily as an oversight as a finding. An absent
+   layer with no documented reason reports its reason as `UNKNOWN`, which is
+   itself the finding: a gap nobody wrote down.
+2. **The contract must be stable when storage is not.** Phase 2 item 34 freezes
+   this schema. If the contract were the writer's record, changing how rasters
+   are stored would break a downstream dependency for no scientific reason.
+3. **Three versions, three reasons to change.** `BUNDLE_SCHEMA_VERSION`,
+   `PROVENANCE_SCHEMA_VERSION` and `BUNDLE_CONTRACT_SCHEMA_VERSION` move
+   independently, and a consumer cares about exactly one of them.
+
+**Drift is impossible by construction, and checked anyway.** The contract is
+*derived*, never hand-maintained — but derivation only helps if somebody
+re-derives it, so `validate-study-area` does: `BND-023` re-derives the contract
+and reports any difference as an ERROR. `created_at` and the `validation` block
+are excluded from that comparison, the first because it cannot be re-derived and
+the second because validation runs after the write (D-0014).
+
+**Derived from the bundle *read back from disk*, not the in-memory one** — for
+exactly the D-0014 reason. Checksums exist only once the files do, so the
+in-memory bundle's provenance still says `UNKNOWN`; deriving the contract from
+it puts an unchecksummed contract next to a checksummed bundle. This is not
+hypothetical: `BND-023` caught it in both the library and the CLI path the first
+time the check ran. The extra read also proves the write round-trips.
+
+**Road topology comes from the persisted QA report, not the live `RoadGraph`.**
+`read_bundle` does not reconstruct the graph object, so a contract sourced from
+it would say different things about the same bundle depending on whether it had
+just been built or read from disk. A contract that disagrees with itself is not
+a contract.
+
+**Consequence.** `data_class` is **uppercase** in the contract and lowercase in
+this repository's own artifacts, as research governance requires (their
+`OC-029`), and the `RETROSPECTIVE` axis collapse described in D-0023 happens at
+this boundary and nowhere else.
+
+## D-0028 | 2026-09-20 | accepted | Readiness is completeness; this repository never claims validity
+
+**Decision.** `wg-data compatibility` reports, per consumer profile
+(`FORECAST_VALUE`, `OSSE`, `ASSISTED_DISPATCH`), one of `READY`,
+`READY_WITH_LIMITATIONS`, `INCOMPLETE`, or
+`OUT_OF_SCOPE_FOR_THIS_REPOSITORY`.
+
+**`READY` means exactly one thing:** every input that consumer named is present
+and carries provenance sufficient to interpret it. It does **not** mean the data
+is accurate, the resolution adequate, the sources authoritative, or that any
+result computed from it would be correct. Phase 2 item 28 requires reporting
+readiness "without claiming scientific validity", and this is how.
+
+**The uncomfortable consequence, accepted deliberately.** A bundle of entirely
+synthetic fixtures is `READY` for all three profiles. That is correct — it is
+what a fixture is *for*, and it is what lets downstream CI run without network
+access. So the report puts `data_classes_present`,
+`all_layers_planner_legal` and `contains_synthetic` next to the verdict, and a
+test asserts that an all-synthetic bundle reporting `READY` also reports
+`all_layers_planner_legal: false`. A reader who takes `READY` as a quality
+claim has to ignore three adjacent fields to do it.
+
+**`not_supplied_here` is part of the contract, not a backlog.** Each profile
+lists, in machine-readable form, what this repository will not provide:
+forecasts and fuel-model crosswalks for `FORECAST_VALUE`; the nature model's
+dynamic state and observation operators for `OSSE`; all mission logic, routing
+and travel-time estimation for `ASSISTED_DISPATCH`. This turns `docs/SCOPE.md`
+from a paragraph somebody has to find into a field somebody's code can read.
+
+**Grid mismatch is scoped to the consumers it affects.** A
+`CANONICAL_GRID_MISMATCHED` bundle is a material limitation for
+`FORECAST_VALUE` and `OSSE`, which index two or more rasters by the same
+(row, col), and not for `ASSISTED_DISPATCH`, which does not. Conversely
+`REPROJECTED_ONTO_ITS_OWN_GRID` is recorded per layer but is deliberately *not*
+material: it is expected of the layer that *defines* the canonical grid, so
+treating it as a problem would flag every bundle for doing the right thing.
+
+**Exit code 0 whatever the readiness.** `INCOMPLETE` is a true and useful answer
+about a bundle, not an error in producing one. A CI job that wants to gate on
+readiness reads `--json`.
+
+## D-0029 | 2026-09-20 | accepted | The downstream CI fixture is analytic, not realistic
+
+**Decision.** `data/study_areas/wg_integration_fixture_synthetic_v1` is
+committed as a dependency for other repositories' CI (Phase 2 item 29). It is
+83 KB: a 12×12 study area at 30 m with all five layers, built by
+`configs/integration_fixture_synthetic.yaml` from five new fixtures.
+
+**Every expected result is closed-form or hand-derived, never a snapshot.**
+
+- The DEM is a plane rising due east at 10%. Horn's estimator is exact on a
+  plane, so slope is `atan(0.10)` = 5.710593° and aspect is 270° at **all 144**
+  study-area cells, with zero missing — verified, not asserted.
+- Fuels is co-registered cell-for-cell, split west/east into two classes, with
+  a 2×2 nodata block.
+- Roads is a T: 1 component, 4 nodes, 3 edges, 480 m, 2 exits.
+
+**Why this matters more than realism.** A downstream repository pins its CI to
+this bundle. If the expected values were regression snapshots of whatever this
+repository last produced, a bug here would propagate there with a green test
+suite in between — the exact failure mode `AGENTS.md` §7 rejects ("never write a
+test that merely asserts the current output"). A fixture whose right answer is
+independently known is worth more than one that looks like Korea.
+
+**The road fixture exists to expose one specific trap.**
+`single_egress_candidates` is **empty** — the component has two exits — while
+`critical_links` has **one** entry: removing the T's stem cuts the settlement
+off from both. A consumer reading only the first field concludes the settlement
+is comfortably served, and is wrong. That is D-0008 and F-RD-6 made concrete and
+assertable.
+
+Worth recording: the count of critical links was hand-derived as **zero** and
+that was **wrong**. The settlement reaches both exits only through the junction,
+so the stem is a single point of failure. The metric was right and the reasoning
+about it was not — which is a better argument for the fixture than any
+successful derivation would have been.
+
+**The DEM is 16×16 for a 12×12 study area**, buffered two cells on every side
+exactly as a real fetch is before clipping. Without that margin the estimator's
+edge loss falls *inside* the study area: on a 12×12 grid that is 44 of 144
+cells, a permanent 30.6% missing-data WARNING that is an artifact of the
+fixture's size and nothing else.
+
+**One expected WARNING remains, and is asserted rather than removed.** `RAS-003`
+fires on `slope_deg` and `aspect_deg` at 26.5%, which is the retained 1-cell
+buffer ring — a large fraction of a small layer, and ~2% on the 204×204 valley
+fixture. Resizing the fixture until a true finding stopped firing would be
+tuning data to satisfy a check. Instead the config documents it, the test
+asserts it fires, and the guidance is explicit: **downstream CI should gate on
+ERRORs, of which this bundle has none — not on WARNINGs, which every honest
+bundle has.**
+
+**Rejected.** Reusing `uljin_valley_synthetic_v1`. It is 204×204, and it
+deliberately carries positive findings — strata that do not sum, a count below
+the k-anonymity floor, an orphan track, an unnoded crossing. Those are right for
+*this* repository's tests and wrong for a *downstream* fixture, where every
+emitted finding is something a consumer must learn to ignore. So the two
+fixtures have opposite designs on purpose: that one exercises the unhappy paths,
+this one is clean apart from the documented ring.
+
+**It is `READY` for all three consumer profiles and no layer in it is
+planner-legal.** Both facts are asserted together, because the first without the
+second would read as a quality claim (D-0028).
+
+## D-0030 | 2026-09-20 | accepted | OSM facilities are fetched as existence only, with no role
+
+**Decision.** `fetch_osm_facilities` returns facility-like OSM elements as
+points in EPSG:4326, carrying every tag opaquely plus `facility_id`,
+`osm_matched_tag`, `operational_status: UNKNOWN` and `capacity_persons: None`.
+It assigns **no role**. `DEFAULT_OSM_FACILITY_TAGS` says which elements are
+*kept*, never what they *are*; the caller maps roles through the required
+`facilities.kind_map`.
+
+**Rejected.** A built-in tag-to-role mapping — `amenity=shelter` → `shelter`,
+`amenity=school` → `temporary_refuge_candidate` — which is what a consumer
+wants and is one dictionary away.
+
+**Why, with evidence rather than principle.** OSM has exactly three
+facility-tagged elements in the Uljin study box, and **two of three** would be
+badly misread by that dictionary:
+
+- `amenity=shelter` is 구산리청암정 with `shelter_type=gazebo` — a traditional
+  pavilion, not a refuge;
+- `amenity=school` is "구 노음초등학교 구고분교 **터**" — `터` means *site of*,
+  so the school does not stand.
+
+A built-in mapping would have produced two evacuation destinations, one a
+decorative structure and one an empty field, each indistinguishable in the
+output from a real one. Instead all three map to `other` in
+`uljin_real_v2`: **this box supports zero refuge candidates**, which is a
+finding (`docs/FAILURE_MODES.md` F-FAC-3).
+
+**`facility_id` comes from OSM's own identity** (`osm:node/123`), not from the
+name. A name is neither unique nor stable; an OSM id resolves for anyone who
+looks it up.
+
+**A way becomes its `representative_point`, not its centroid.** The centroid of
+a concave footprint can fall outside the footprint, which would place a facility
+somewhere it is not.
+
+**An empty result is raised, not returned.** "No facilities were found in this
+box" and "this box has no facilities" are different claims and only the first is
+supported. The same asymmetry is recorded as F-FAC-4: no fire station is mapped
+in the Uljin box, and that is a fact about OSM coverage, never a finding that
+Uljin-gun has no fire service.
+
+**Consequence.** Nothing prevents an operator writing
+`"amenity=shelter": shelter` in a config. The guard is that they must write it,
+in a reviewed file, with the contradicting evidence (`shelter_type=gazebo`)
+preserved beside it in the bundle — not that it is impossible.
+
+## D-0031 | 2026-09-20 | accepted | An absent layer may state why, and `UNKNOWN` means undocumented
+
+**Decision.** `StudyAreaConfig` accepts `absent_layer_reasons`, a per-slot
+string that reaches the contract manifest's `layers.<slot>.reason` (D-0027).
+
+**Why.** The contract already represented absence as a value rather than a
+missing key, but every absence read `reason: "UNKNOWN"` — so a gap somebody had
+investigated and documented was indistinguishable from one nobody had looked at.
+Those are different findings.
+
+`uljin_real_v2` now says, in the artifact a consumer actually reads, that its
+population layer is absent because KOSIS and SGIS are both `PROXY_FAILURE` from
+this environment, that OSM carries no population tag anywhere in the box, and
+that nothing was estimated.
+
+**Consequence.** `reason: "UNKNOWN"` keeps its meaning and gains a sharper one:
+the gap was **not documented**. That is itself a finding about the bundle's
+preparation, and it is now visible as one.

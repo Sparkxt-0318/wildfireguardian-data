@@ -1,0 +1,49 @@
+{
+  "name": "synthetic_demo_v1",
+  "scheme_kind": "source_class",
+  "represents": "invented land-cover-like classes, for testing only",
+  "data_class": "synthetic",
+  "source": "UNKNOWN",
+  "source_url": "UNKNOWN",
+  "spatial_resolution_m": null,
+  "vintage": "not_applicable",
+  "coverage": "not_applicable (synthetic)",
+  "licence": "same as this repository",
+  "units": "class",
+  "nodata_code": 255,
+  "classes": [
+    {
+      "code": 1,
+      "label": "non_vegetated",
+      "description": "bare ground, rock, built-up, water"
+    },
+    {
+      "code": 2,
+      "label": "grass_or_crop",
+      "description": "herbaceous cover including paddy and dry field"
+    },
+    {
+      "code": 3,
+      "label": "shrub",
+      "description": "shrubland and regenerating cover"
+    },
+    {
+      "code": 4,
+      "label": "broadleaf_forest",
+      "description": "broadleaf-dominated forest canopy"
+    },
+    {
+      "code": 5,
+      "label": "conifer_forest",
+      "description": "conifer-dominated forest canopy"
+    },
+    {
+      "code": 6,
+      "label": "mixed_forest",
+      "description": "mixed broadleaf and conifer canopy"
+    }
+  ],
+  "known_limitations": [],
+  "notes": "SYNTHETIC. invented for testing and for the synthetic example bundle; it is not a crosswalk to any Korean classification and must not be treated as one.",
+  "semantics": "nominal categories; no ordering, no flammability ranking, no spread parameters (docs/ASSUMPTIONS.md A-FU-3). these are the SOURCE's own classes, not a fuel model: mapping them onto fire-behaviour fuels is a separate modelling step that this repository does not perform"
+}

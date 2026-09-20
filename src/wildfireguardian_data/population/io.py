@@ -21,6 +21,7 @@ from ..crs import crs_to_string
 from ..errors import IngestError, PrivacyGuardError
 from ..provenance.checksum import sha256_file
 from ..provenance.models import (
+    NOT_APPLICABLE,
     UNKNOWN,
     DataClass,
     ProvenanceRecord,
@@ -157,6 +158,15 @@ def load_population_layer(
         original_crs=crs_to_string(crs) if crs is not None else UNKNOWN,
         output_crs=crs_to_string(crs) if crs is not None else UNKNOWN,
         value_unit="count",
+        # A vector layer has no cell size, no vertical datum and no nodata
+        # convention: those facts do not exist rather than being unknown, and
+        # recording UNKNOWN for them would dilute the incompleteness metric
+        # D-0009 exists to keep meaningful. The OSM fetcher already did this;
+        # the local-file loaders did not.
+        resolution_unit=NOT_APPLICABLE,
+        vertical_datum=NOT_APPLICABLE,
+        nodata_representation=NOT_APPLICABLE,
+        surface_model=NOT_APPLICABLE,
         checksum=sha256_file(source_path) if source_path.exists() else UNKNOWN,
         notes=(f"aggregation_level={aggregation_level}" + (f" | {notes}" if notes else "")),
     )

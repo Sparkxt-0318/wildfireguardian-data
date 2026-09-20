@@ -1,0 +1,119 @@
+# The downstream CI integration fixture (Phase 2 item 29).
+#
+# SYNTHETIC, and deliberately tiny: a 12x12 cell DEM over a 360 m square, three
+# road segments, one settlement, one responder base, one candidate destination.
+# Small enough that a consumer's CI job can read the whole bundle and assert on
+# individual cells, and small enough that the committed bundle is kilobytes.
+#
+# Why this exists separately from uljin_valley_synthetic_v1: that bundle is
+# 204x204 and deliberately carries positive QA findings (strata that do not sum,
+# a count below the k-anonymity floor, an orphan track, an unnoded crossing).
+# Those are the right thing for *this* repository's tests and the wrong thing
+# for a *downstream* CI fixture, where every emitted finding is something a
+# consumer has to learn to ignore.
+#
+# What makes it worth depending on: the right answers are known in closed form,
+# not read off this repository's output.
+#
+#   terrain  the DEM is a plane rising due east at 10%, so Horn's estimator is
+#            exact: slope = atan(0.10) = 5.710593 deg and aspect = 270 deg at
+#            every interior cell, with nodata at every edge cell (D-0005).
+#   fuels    co-registered cell-for-cell with the DEM. West half one class,
+#            east half another, so a consumer that transposes x and y sees it
+#            at once -- which matters, because EPSG:5187's authority axis order
+#            is (northing, easting) while this package stores (easting,
+#            northing). A 2x2 nodata block at rows 5-6 / cols 5-6 exercises
+#            the missing-data path by default.
+#   roads    a T with two boundary exits: 1 component, 4 nodes, 3 edges,
+#            480 m, 2 exits. Then the part worth having a fixture for:
+#            single_egress_candidates is EMPTY (the component has two exits)
+#            while critical_links has ONE entry (removing B-D cuts the
+#            settlement off from both of them). A consumer reading only
+#            single_egress_candidates concludes this settlement is well served
+#            and is wrong -- exactly the trap D-0008 and F-RD-6 describe.
+#
+# Expected findings, which are NOT defects:
+#
+#   RAS-003 on slope_deg and aspect_deg, 26.5% of cells missing. This is the
+#           retained 1-cell buffer ring, where a 3x3 estimator has no
+#           neighbourhood. Over the 12x12 STUDY AREA both layers are complete:
+#           zero missing cells, slope 5.710593 and aspect 270 at all 144. On a
+#           tiny grid the ring is a large fraction of the layer; on the 204x204
+#           valley fixture the same behaviour is ~2% and stays under the
+#           threshold. Gate downstream CI on ERRORs, of which this bundle has
+#           none -- not on WARNINGs, which every honest bundle has.
+#   FAC-001/002/003, PRV-005, BND-006, CRS-004: all expected and all
+#           informational. Capacities and operational statuses are UNKNOWN
+#           because nobody established them.
+#
+# Needs no network and is fully deterministic: the fixtures are closed-form
+# constructions, so there is no seed to record beyond the ones in provenance.
+study_area_id: wg_integration_fixture_synthetic_v1
+description: >
+  Tiny, deterministic, obviously synthetic study-area bundle for downstream CI.
+  Terrain, categorical fuels, a road graph, one aggregate settlement, one
+  responder base and one candidate destination, on a 360 m square.
+notes: >
+  SYNTHETIC. Every layer is DataClass.SYNTHETIC and describes no real place.
+  This bundle is a test fixture: it is READY for every consumer profile, which
+  is what a fixture is for, and no layer in it is planner-legal under research
+  governance (docs/DECISIONS.md D-0023, D-0028). Expected results are stated in
+  the header of configs/integration_fixture_synthetic.yaml and asserted in
+  tests/test_integration_fixture.py.
+
+# KGD2002 / East Belt 2010. Offset from the valley fixture so a bundle built
+# here cannot be confused with that one by coordinate alone.
+crs: EPSG:5187
+# (min_x, min_y, max_x, max_y) = (easting, northing). A 360 m square.
+bounds: [240000.0, 490000.0, 240360.0, 490360.0]
+
+terrain:
+  source:
+    kind: synthetic_fixture
+    fixture: integration_fixture_dem
+  derivatives: [slope, aspect]
+  slope_unit: deg
+  # 1, not the default 2: the fixture is only 12 cells across, so a 2-cell
+  # buffer would be a sixth of the study area. Horn's 3x3 estimator needs 1.
+  clip_buffer_cells: 1
+
+roads:
+  source:
+    kind: synthetic_fixture
+    fixture: integration_fixture_roads
+  snap_tolerance_m: 1.0
+  boundary_tolerance_m: 30.0
+  # The settlement centroid sits 60 m from the T's foot.
+  settlement_snap_m: 100.0
+  clip_mode: intersects
+  node_crossings: false
+
+fuels:
+  source:
+    kind: synthetic_fixture
+    fixture: integration_fixture_fuels
+  scheme: synthetic_demo_v1
+
+population:
+  source:
+    kind: synthetic_fixture
+    fixture: integration_fixture_villages
+  aggregation_level: synthetic_village
+  id_property: settlement_id
+  name_property: name
+  total_property: population_total
+  age_strata:
+    - [pop_0_14, 0, 15]
+    - [pop_15_64, 15, 65]
+    - [pop_65_plus, 65, null]
+
+facilities:
+  source:
+    kind: synthetic_fixture
+    fixture: integration_fixture_facilities
+  kind_property: kind
+  kind_map:
+    responder_base: responder_base
+    # 'shelter' records what a source calls the place. It is not a finding that
+    # the place is a viable wildfire refuge (AGENTS.md section 5, A-FAC-1).
+    shelter: shelter

@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.0.0",
+  "target": "directory:data/study_areas/uljin_real_v2",
+  "status": "pass_with_warnings",
+  "strict": false,
+  "counts": {
+    "ERROR": 0,
+    "WARNING": 12,
+    "INFO": 14
+  },
+  "context": {
+    "crs": "EPSG:5187",
+    "bounds": {
+      "min_x": 227500.0,
+      "min_y": 478500.0,
+      "max_x": 231500.0,
+      "max_y": 482500.0,
+      "crs": "EPSG:5187"
+    },
+    "layers": [
+      "dem",
+      "slope_deg",
+      "aspect_deg",
+      "roads",
+      "fuels",
+      "facilities"
+    ],
+    "schema_version": "1.1.0",
+    "directory": "data/study_areas/uljin_real_v2"
+  },
+  "findings": [
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['valid_from', 'valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "dem",
+      "detail": {
+        "fields": [
+          "valid_from",
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-009",
+      "severity": "INFO",
+      "message": "elevation source is a DIGITAL SURFACE MODEL: over forest, slope and aspect describe the canopy top, not the ground. a 20 m canopy step across one 30 m cell yields a ~34 degree slope that no terrain has (docs/FAILURE_MODES.md F-TER-3)",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='UNKNOWN', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['valid_from', 'valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "slope_deg",
+      "detail": {
+        "fields": [
+          "valid_from",
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-009",
+      "severity": "INFO",
+      "message": "elevation source is a DIGITAL SURFACE MODEL: over forest, slope and aspect describe the canopy top, not the ground. a 20 m canopy step across one 30 m cell yields a ~34 degree slope that no terrain has (docs/FAILURE_MODES.md F-TER-3)",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='UNKNOWN', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['valid_from', 'valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "aspect_deg",
+      "detail": {
+        "fields": [
+          "valid_from",
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-009",
+      "severity": "INFO",
+      "message": "elevation source is a DIGITAL SURFACE MODEL: over forest, slope and aspect describe the canopy top, not the ground. a 20 m canopy step across one 30 m cell yields a ~34 degree slope that no terrain has (docs/FAILURE_MODES.md F-TER-3)",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='UNKNOWN', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "roads",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "1 provenance field(s) are UNKNOWN: ['valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "roads",
+      "detail": {
+        "fields": [
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='2026-09-20T04:03:04.945244+00:00', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "roads",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "fuels",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "facilities",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "1 provenance field(s) are UNKNOWN: ['valid_to']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "facilities",
+      "detail": {
+        "fields": [
+          "valid_to"
+        ]
+      }
+    },
+    {
+      "code": "PRV-010",
+      "severity": "WARNING",
+      "message": "temporal validity is not established (valid_from='2026-09-20T04:03:07.295836+00:00', valid_to='UNKNOWN'). a consumer cannot tell from this layer alone whether it describes the world before or after a given event, so it must not be treated as pre-event truth without establishing that separately",
+      "layer": "facilities",
+      "detail": {}
+    },
+    {
+      "code": "RAS-004",
+      "severity": "INFO",
+      "message": "raster declares a nodata value but contains no missing cells",
+      "layer": "dem",
+      "detail": {
+        "nodata": "nan"
+      }
+    },
+    {
+      "code": "RAS-004",
+      "severity": "INFO",
+      "message": "raster declares a nodata value but contains no missing cells",
+      "layer": "fuels",
+      "detail": {
+        "nodata": "0.0"
+      }
+    },
+    {
+      "code": "FAC-001",
+      "severity": "INFO",
+      "message": "3 facility/facilities have no suitability assessment. this repository performs none; presence in a dataset is not fitness for purpose (docs/ASSUMPTIONS.md A-FAC-1)",
+      "layer": "facilities",
+      "detail": {
+        "facility_ids": [
+          "osm:node/11505317148",
+          "osm:node/11505406086",
+          "osm:way/1238519300"
+        ]
+      }
+    },
+    {
+      "code": "FAC-002",
+      "severity": "WARNING",
+      "message": "3 facility/facilities have UNKNOWN operational status; do not assume operational",
+      "layer": "facilities",
+      "detail": {
+        "facility_ids": [
+          "osm:node/11505317148",
+          "osm:node/11505406086",
+          "osm:way/1238519300"
+        ]
+      }
+    },
+    {
+      "code": "FAC-003",
+      "severity": "INFO",
+      "message": "3 facility/facilities have no sourced capacity. it is not estimated from footprint area (A-FAC-3)",
+      "layer": "facilities",
+      "detail": {
+        "facility_ids": [
+          "osm:node/11505317148",
+          "osm:node/11505406086",
+          "osm:way/1238519300"
+        ]
+      }
+    },
+    {
+      "code": "RD-001",
+      "severity": "WARNING",
+      "message": "road network has 2 connected components; as digitised, parts of it do not connect to each other. this is often a missing junction node rather than a real disconnection (docs/DECISIONS.md D-0007)",
+      "layer": "roads",
+      "detail": {
+        "component_count": 2
+      }
+    },
+    {
+      "code": "RD-005",
+      "severity": "INFO",
+      "message": "some exit nodes were inferred from the study-area boundary rather than from source tags; egress counts therefore depend on where the study area was cut (docs/ASSUMPTIONS.md A-RD-4)",
+      "layer": "roads",
+      "detail": {
+        "boundary_exits": [
+          8
+        ]
+      }
+    }
+  ]
+}

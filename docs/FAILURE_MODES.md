@@ -290,6 +290,54 @@ that is unreachable in smoke. `operational_status` defaults to `UNKNOWN`,
 is **never** estimated from footprint area, and `FAC-001`/`FAC-002` report the
 gaps. No check can substitute for a site assessment.
 
+The "may be a bus-stop shelter" was written as a hypothetical. It is not one:
+see F-FAC-3.
+
+### F-FAC-3 — An OSM tag read as a capability (BY DESIGN, prevented — with measured evidence)
+
+This was the most instructive finding of Phase 2, and it is not hypothetical.
+
+OpenStreetMap has exactly **three** facility-tagged elements inside the 4 km
+Uljin study box. **Two of the three would be badly misread by any pipeline that
+trusted the tag:**
+
+| OSM tag | What it actually is |
+|---|---|
+| `amenity=shelter` | **구산리청암정**, and `shelter_type=gazebo` — a traditional pavilion. Mapping this to `shelter` invents an evacuation destination out of a decorative structure. |
+| `amenity=school` | **"구 노음초등학교 구고분교 터"** — `구` means *former* and `터` means *site of*. The school does not stand. Mapping this to a refuge places people in an empty field. |
+| `amenity=townhall` | 구산3리마을회관, a real village hall. Plausible as an assembly point, and whether it is a *designated* one is a fact nobody here has verified. |
+
+So in `uljin_real_v2` all three map to `other`: the places exist, and **none of
+them is an established wildfire refuge**. Zero refuge candidates in this box is
+a finding, not a gap.
+
+**What prevents it.** `fetch_osm_facilities` assigns no role at all — it records
+`osm_matched_tag` and stops. `facilities.kind_map` is **required** and has no
+default (`FacilitiesConfig` raises without it), so a role is always a choice
+somebody wrote down. And the misleading evidence is preserved: `shelter_type=gazebo`
+and the `터` in the name both survive into the bundle, so the mapping decision
+stays auditable rather than becoming folklore.
+
+**What is still not caught.** Nothing here would stop an operator writing
+`"amenity=shelter": shelter` in a config. The guard is that they must write it,
+in a file, under review — not that they cannot.
+
+### F-FAC-4 — An unmapped facility read as a nonexistent one (NOT CAUGHT)
+
+No fire station is mapped in the Uljin box. That is a fact about the box and
+about OSM's Korean rural coverage, **not** a finding that Uljin-gun has no fire
+service — and the difference is the kind a downstream table quietly erases.
+`fetch_osm_facilities` refuses to return an empty layer for this reason: "no
+facilities were found here" and "this area has no facilities" are different
+claims, and only the first is supported. The layer's provenance notes say so in
+those words.
+
+The same asymmetry applies to every `amenity` this repository looks for. A
+consumer counting mapped fire stations per region is measuring OSM coverage at
+least as much as fire-service provision (see also F-RD-3, and the main
+repository's own `measure_osm_completeness.py`, classified `PORT_WITH_FIXES` in
+`reports/LEGACY_DATA_PIPELINE_COMPARISON.md`).
+
 ---
 
 ## Bundles and process

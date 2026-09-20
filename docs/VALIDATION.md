@@ -49,7 +49,7 @@ validates the directory, then stores the report in
 
 ## Finding catalogue
 
-51 codes. They are stable and greppable, so a CI job can act on a specific
+53 codes. They are stable and greppable, so a CI job can act on a specific
 finding without matching prose. Generated from the code; see
 `validation/checks.py` and `validation/bundle_checks.py`. A test asserts that
 this table and the code agree in both directions, so a new check cannot ship
@@ -77,6 +77,8 @@ undocumented and a removed one cannot linger here.
 | `PRV-006` | INFO | layer is RETROSPECTIVE: not available to any real-time decision; using it as observation-time data is the temporal analogue of data leakage |
 | `PRV-007` | WARNING | non-static layer with no `temporal_reference` |
 | `PRV-008` | WARNING | no checksum recorded |
+| `PRV-009` | INFO | elevation source is a DSM, so forest slope is canopy slope (F-TER-3) |
+| `PRV-010` | WARNING | temporal validity not established (`valid_from`/`valid_to` UNKNOWN) |
 | `VEC-001` | ERROR | vector layer has no features |
 | `VEC-002` | WARNING | mixed geometry types; consumers assuming one type will skip the others |
 | `VEC-003` | ERROR | invalid geometry (self-intersection); area and intersection results undefined |
@@ -115,6 +117,9 @@ undocumented and a removed one cannot linger here.
 | `BND-018` | ERROR | a manifest extra does not match its recorded checksum — the QA report or statistics have been edited since the bundle was written |
 | `BND-019` | ERROR | a provenance sidecar the manifest checksums is missing |
 | `BND-020` | ERROR | a provenance sidecar does not match its recorded checksum — the provenance has been edited |
+| `BND-021` | WARNING | no `bundle_manifest.json`: the bundle carries no downstream contract (D-0027) |
+| `BND-022` | ERROR | `bundle_manifest.json` is unreadable, or declares a `bundle_schema_version` this package cannot re-derive |
+| `BND-023` | ERROR | `bundle_manifest.json` disagrees with what the bundle derives; a consumer reads the contract instead of the data |
 
 ## What the test suite checks, and how
 

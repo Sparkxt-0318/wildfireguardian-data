@@ -194,3 +194,112 @@ One review finding was left as documentation rather than code: the
 grid-north/true-north convergence is still not corrected in the aspect layer,
 but it is now **quantified** — `crs.meridian_convergence_deg` returns it, and
 the magnitudes for the shipped study areas are in `FAILURE_MODES.md` F-TER-5.
+
+---
+
+# Phase 2 — the integration-readiness phase (frozen at `v0.2.0`, 2026-09-20)
+
+Full answers to the brief's twelve questions are in
+`reports/PHASE2_INTEGRATION_READINESS.md`. What follows is what was *built*,
+and — more usefully for whoever comes next — **what turned out to be wrong.**
+
+## The headline: the road fragmentation was ours, not OpenStreetMap's
+
+`uljin_real_v1` reported 22 disconnected road components, and Phase 1 wrote that
+up as likely OSM rural sparsity. **That was wrong.** 35 of 41 shared OSM node
+IDs were *interior vertices* of a way, and the graph builder noded only at
+endpoints. Shared-vertex noding (D-0020) collapses 22 components to **2, with
+identical total length** — the fix connects, it does not move geometry.
+
+Two follow-on corrections came out of the same audit:
+
+- The two "crossings without a node" were **missing junctions**, not the two
+  `bridge=yes` ways, which cross streams. That corrected a guess in the Phase 1
+  write-up.
+- The legacy pipeline's apparently perfect connectivity over the same ground is
+  an **artifact**: `retain_all` is unset there, so osmnx silently deletes every
+  non-largest component. Confirmed from the source, not inferred.
+
+## The finding that mattered most: two OSM tags would have lied
+
+OSM has exactly three facility-tagged elements in the 4 km Uljin box, and **two
+of three** would be badly misread by any pipeline that trusted the tag:
+
+- `amenity=shelter` is 구산리청암정 with `shelter_type=gazebo` — a traditional
+  pavilion. Mapped to `shelter`, it becomes an evacuation destination invented
+  out of a decorative structure.
+- `amenity=school` is "구 노음초등학교 구고분교 **터**" — `터` means *site of*.
+  The school does not stand. Mapped to a refuge, it puts people in a field.
+
+So all three map to `other`, and the Uljin box supports **zero refuge
+candidates**. `F-FAC-1` had offered "may be a bus-stop shelter" as a
+hypothetical; `F-FAC-3` now records the measured case. This is the concrete
+justification for `facility_exists` versus
+`facility_is_viable_wildfire_refuge`.
+
+## Defects found in this repository's own code, by its own new tests
+
+1. **The contract manifest was derived from the in-memory bundle**, whose
+   provenance reads `UNKNOWN` because checksums exist only once the files do —
+   so a checksummed bundle shipped with an unchecksummed contract. `BND-023`
+   caught it the first time it ran, in both the library and CLI paths.
+2. **`reproject_raster` silently ignored `dst_resolution`** when the CRS was
+   unchanged, returning the input object. A caller asking 30 m → 37 m got 30 m
+   back with no error and every subsequent cell index wrong. `F-BND-6` said
+   that case was refused; it now actually is.
+3. **`Iterable` was missing from `provenance/models.py`'s imports**, hidden by
+   `from __future__ import annotations`.
+4. **Three local-file vector loaders recorded `resolution_unit`,
+   `vertical_datum` and `nodata_representation` as `UNKNOWN`** where the facts
+   do not exist. That diluted the incompleteness metric `D-0009` exists to keep
+   meaningful; a fully-declared import now reports one honest gap instead of
+   nine.
+5. **The documented validation-check count was already stale** before two codes
+   were added — the catalogue test pins names, not the count.
+
+## Expectations of mine that were wrong, not the code
+
+Recorded because a passing suite that encodes the author's own mistake is the
+failure mode Agent C exists to catch:
+
+- The integration fixture's critical-link count was hand-derived as **zero**.
+  It is **one**: the settlement sits at a leaf, so the T's stem is a single
+  point of failure. The metric was right and my reasoning was not.
+- Three Phase 1-era test expectations (aspect on a south-rising surface,
+  a boundary-crossing critical link, duplicate-geometry grouping) were also
+  mine to fix rather than the code's.
+- The adversarial critical-link set was **six** cases, not the seven the brief
+  asked for. Two were added: a settlement sitting *on* the exit (two graph
+  bridges, zero critical links — the likeliest false positive), and one access
+  road shared by two hamlets (reported once naming both, never double-counted).
+
+## Built
+
+- **Two real geographies.** `uljin_real_v2` (terrain, land cover, roads,
+  facilities) and `naju_real_v1` on the Yeongsan river plain — a **different
+  belt CRS** (5186 vs 5187) and an order of magnitude apart in relief, slope and
+  road density. Naju exercised **flat-ground aspect on real data for the first
+  time**: 619 cells at slope exactly 0.0, every one `NaN`, where Uljin has none.
+- **The canonical contract** `bundle_manifest.json` (D-0027), versioned
+  separately from the storage layout and from provenance, with all five layer
+  slots always present and absence carrying a reason (D-0031). Drift is an
+  ERROR.
+- **`wg-data provenance`, `compatibility` and four `import-*` commands**, the
+  last for sources that cannot be fetched from code — every provenance fact
+  required, and the checksum decision never skippable, only waivable.
+- **Provenance 1.1.0** with `valid_from`/`valid_to`/`surface_model` and an
+  explicit migration chain, so the already-published bundle still reads.
+- **ESA WorldCover** as land cover, never as a fuel model (D-0024).
+- **The downstream CI fixture**, 83 KB, with closed-form expected answers
+  rather than snapshots (D-0029).
+- **Seven reports**, including the first-ever run of the benchmark suite's eight
+  relevant cases (47/52 and 19/21 matched; every mismatch explained, none a
+  logic defect) and a measured comparison against the main repository.
+
+## Not done, and why
+
+**Aggregate population: nothing, anywhere.** KOSIS and SGIS are
+`PROXY_FAILURE`; OSM has no `population` tag in either box. Nothing was
+estimated. **임상도**, the authoritative Korean forest stand map, is documented
+and unretrieved: it needs a free account and an answer to its licence
+contradiction, which is a human with a browser rather than a better fetcher.

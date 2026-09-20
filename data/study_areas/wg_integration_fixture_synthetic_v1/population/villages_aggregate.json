@@ -1,0 +1,44 @@
+[
+  {
+    "settlement_id": "SYN-INT-V-001",
+    "name": "Synthetic integration hamlet",
+    "population_total": 40,
+    "count_basis": "synthetic_invented",
+    "reference_date": "not_applicable",
+    "centroid": [
+      240180.0,
+      490060.0
+    ],
+    "centroid_kind": "representative_point",
+    "has_geometry": true,
+    "age_strata": {
+      "strata": [
+        {
+          "lower": 0,
+          "upper": 15,
+          "label": "0-14",
+          "count": 4,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 15,
+          "upper": 65,
+          "label": "15-64",
+          "count": 24,
+          "interval": "half_open_[lower,upper)_years"
+        },
+        {
+          "lower": 65,
+          "upper": null,
+          "label": "65+",
+          "count": 12,
+          "interval": "half_open_[lower,upper)_years"
+        }
+      ],
+      "total_counted": 40,
+      "has_missing_counts": false
+    },
+    "strata_total_matches_total": true,
+    "attributes": {}
+  }
+]

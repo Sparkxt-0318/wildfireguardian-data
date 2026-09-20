@@ -1,0 +1,71 @@
+{
+  "checksum": "002ecbe635a13e865176ed2f879110a2032a4527462eeda5cb835fe48ff0cd74",
+  "checksum_algorithm": "sha256",
+  "data_class": "synthetic",
+  "layer_name": "villages",
+  "nodata_representation": "not_applicable",
+  "notes": "SYNTHETIC. one settlement, aggregate only. the count is invented and describes no real place. age strata sum to the stated total and the total is above the k-anonymity floor, so this fixture emits no population findings for a consumer to learn to ignore",
+  "original_crs": "EPSG:5187",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "villages"
+  ],
+  "random_seed": null,
+  "resolution_unit": "UNKNOWN",
+  "schema_version": "1.1.0",
+  "sources": [
+    {
+      "acquisition_date": "not_applicable",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "name": "wildfireguardian_data.fixtures.synthetic.integration_fixture_villages",
+      "notes": "SYNTHETIC test input. describes no real place. any resemblance to Korean terrain is limited to the coordinate range used.",
+      "publisher": "wildfireguardian-data (this repository)",
+      "source_date": "not_applicable",
+      "url_or_identifier": "in-repository synthetic generator"
+    }
+  ],
+  "spatial_resolution": null,
+  "surface_model": "not_applicable",
+  "temporal_class": "static",
+  "temporal_reference": "not_applicable",
+  "transformations": [
+    {
+      "notes": "hand-constructed geometry with known topology",
+      "operation": "synthesise_integration_fixture_villages",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "population_total": 40,
+        "settlement_count": 1,
+        "strata_sum": 40
+      },
+      "timestamp": "2026-09-20T03:40:31.654238+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "whole features kept by 'intersects' test; geometry unmodified",
+      "operation": "clip_vector",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "features_in": 1,
+        "features_out": 1,
+        "features_truncated": 0,
+        "mode": "intersects",
+        "requested_bounds": [
+          240000.0,
+          490000.0,
+          240360.0,
+          490360.0
+        ]
+      },
+      "timestamp": "2026-09-20T03:40:31.654479+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "valid_from": "not_applicable",
+  "valid_to": "not_applicable",
+  "value_unit": "not_applicable",
+  "vertical_datum": "UNKNOWN"
+}

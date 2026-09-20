@@ -1,0 +1,149 @@
+{
+  "checksum": "e44d7f7819fc40ceae6b70904ed9908141caaed5912a73f94e95d97712bbbc98",
+  "checksum_algorithm": "sha256",
+  "data_class": "derived",
+  "layer_name": "fuels",
+  "nodata_representation": "0",
+  "notes": "LAND COVER, NOT A FUEL MODEL. geographic CRS: reproject with nearest-neighbour before use on a metre grid (D-0002, D-0010).",
+  "original_crs": "EPSG:4326",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "landcover_esa_worldcover"
+  ],
+  "random_seed": null,
+  "resolution_unit": "metre",
+  "schema_version": "1.1.0",
+  "sources": [
+    {
+      "acquisition_date": "2026-09-20T04:03:06.014224+00:00",
+      "licence": "CC-BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "name": "ESA WorldCover 10 m 2021 v200 (land cover)",
+      "notes": "VERIFIED FROM THE TILE METADATA: licence 'CC-BY 4.0 - https://creativecommons.org/licenses/by/4.0/'; product_version 'V2.0.0'; time_start '2021-01-01T00:00:00Z' to time_end '2021-12-31T23:59:59Z'; grid alignment AREA_OR_POINT='Area'; EPSG:4326, 1/12000 degree cells, uint8, nodata 0. VERIFIED FROM https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/docs/WorldCover_PUM_V2.0.pdf: the 11 class codes and their definitions (Table 3, page 15), and the limitations recorded on the class scheme (section 4). THIS IS LAND COVER, NOT FUEL: 'Tree cover' means canopy cover of 10% or more, with no species, load, or moisture information. Mapping these classes onto a fire-behaviour fuel model is a modelling step this repository does not perform (docs/DECISIONS.md D-0024). Note the manual's own limitation that mountain shadows are sometimes misclassified as water, which is directly relevant in steep Korean valleys.",
+      "publisher": "ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium",
+      "source_date": "2021",
+      "url_or_identifier": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N36E129_Map.tif"
+    }
+  ],
+  "spatial_resolution": [
+    30.0,
+    30.0
+  ],
+  "surface_model": "not_applicable",
+  "temporal_class": "annual",
+  "temporal_reference": "2021",
+  "transformations": [
+    {
+      "notes": "windowed COG read over HTTPS; no resampling at this stage. categorical: only nearest-neighbour resampling is valid downstream (docs/ASSUMPTIONS.md A-FU-3)",
+      "operation": "fetch_esa_worldcover_window",
+      "parameters": {
+        "buffer_deg": 0.005,
+        "cell_size_deg": [
+          8.333333333333333e-05,
+          8.333333333333333e-05
+        ],
+        "classes_present": [
+          10,
+          30,
+          40,
+          50,
+          60,
+          80
+        ],
+        "file_nodata": "0.0",
+        "product_version": "V2.0.0",
+        "read_bounds_wgs84": [
+          129.30356383932218,
+          36.899743125299246,
+          129.3586115273316,
+          36.945911404648875
+        ],
+        "requested_bounds_wgs84": [
+          129.30856383932218,
+          36.90474312529925,
+          129.3536115273316,
+          36.94091140464887
+        ],
+        "scheme": "esa_worldcover_v200",
+        "scheme_kind": "source_class",
+        "tile": "N36E129",
+        "tile_tags": {
+          "AREA_OR_POINT": "Area",
+          "algorithm_version": "V2.0.0",
+          "copyright": "ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium",
+          "creation_time": "2022-10-21 07:35:40.236136",
+          "legend": "10  Tree cover\n20  Shrubland\n30  Grassland\n40  Cropland\n50  Built-up\n60  Bare/sparse vegetation\n70  Snow and ice\n80  Permanent water bodies\n90  Herbaceous wetland\n95  Mangroves\n100 Moss and lichen\n",
+          "license": "CC-BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+          "product_crs": "EPSG:4326",
+          "product_grid": "3x3 degree tiling grid",
+          "product_tile": "N36E129",
+          "product_type": "LandCover Map",
+          "product_version": "V2.0.0",
+          "reference": "https://esa-worldcover.org",
+          "time_end": "2021-12-31T23:59:59Z",
+          "time_start": "2021-01-01T00:00:00Z",
+          "title": "ESA WorldCover product at 10m resolution for year 2021"
+        },
+        "url": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N36E129_Map.tif",
+        "window_shape": [
+          554,
+          661
+        ]
+      },
+      "timestamp": "2026-09-20T04:03:06.018055+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "resampling changes values; cell size and grid origin both change. missing cells were carried as NaN through the warp so sentinels could not be averaged into real values",
+      "operation": "reproject_raster",
+      "parameters": {
+        "categorical_or_continuous": "categorical",
+        "dst_cells_square": true,
+        "dst_crs": "EPSG:5187",
+        "dst_nodata": "0",
+        "dst_resolution": [
+          30.0,
+          30.0
+        ],
+        "raster_kind": "categorical",
+        "requested_dst_resolution": null,
+        "resampling": "nearest",
+        "shape_after": [
+          139,
+          138
+        ],
+        "shape_before": [
+          554,
+          661
+        ],
+        "source_grid": {
+          "x_origin": 129.3035,
+          "x_size": 8.333333333333333e-05,
+          "y_origin": 36.94591666666667,
+          "y_size": 8.333333333333333e-05
+        },
+        "src_crs": "EPSG:4326",
+        "src_nodata": "0",
+        "src_resolution": [
+          8.333333333333333e-05,
+          8.333333333333333e-05
+        ],
+        "target_grid": {
+          "x_origin": 227424.59313739528,
+          "x_size": 30.0,
+          "y_origin": 482583.71999023855,
+          "y_size": 30.0
+        },
+        "target_grid_supplied": true
+      },
+      "timestamp": "2026-09-20T04:03:06.022827+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "valid_from": "2021",
+  "valid_to": "2021",
+  "value_unit": "class",
+  "vertical_datum": "not_applicable"
+}
