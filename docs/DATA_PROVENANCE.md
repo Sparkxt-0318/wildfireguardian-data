@@ -141,6 +141,7 @@ agent on a normal network should re-try every one of them.
 |---|---|---|---|
 | `data/study_areas/uljin_valley_synthetic_v1` | synthetic fixtures only | yes | fully reproducible with no network; what CI builds |
 | `data/study_areas/uljin_real_v1` | Copernicus DEM GLO-30 + OpenStreetMap | yes | carries ESA/Copernicus attribution and ODbL obligations; terrain and roads only |
+| `data/study_areas/wg_integration_fixture_synthetic_v1` | synthetic fixtures only | yes | the downstream CI fixture (Phase 2 item 29). 83 KB, all five layers, closed-form expected results. No licence obligations: nothing in it came from anywhere |
 
 Raw fetched source data lives in `data/raw/` and is **git-ignored**
 (`DECISIONS.md` D-0012). Reproducibility comes from provenance + checksums + a

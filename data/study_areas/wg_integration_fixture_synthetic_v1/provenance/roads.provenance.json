@@ -1,0 +1,80 @@
+{
+  "checksum": "c841d55a5517691d7da2a93da65419dd3a08de84658b668030aee198a9632308",
+  "checksum_algorithm": "sha256",
+  "data_class": "synthetic",
+  "layer_name": "roads",
+  "nodata_representation": "not_applicable",
+  "notes": "SYNTHETIC. a T with two boundary exits. 1 component, 4 nodes, 3 edges, 480 m, 2 exits, 0 single-egress candidates but 1 critical link (B-D). the gap between those last two is the point: a consumer reading only single_egress_candidates would call this settlement well served (D-0008, F-RD-6)",
+  "original_crs": "EPSG:5187",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "roads"
+  ],
+  "random_seed": null,
+  "resolution_unit": "UNKNOWN",
+  "schema_version": "1.1.0",
+  "sources": [
+    {
+      "acquisition_date": "not_applicable",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "name": "wildfireguardian_data.fixtures.synthetic.integration_fixture_roads",
+      "notes": "SYNTHETIC test input. describes no real place. any resemblance to Korean terrain is limited to the coordinate range used.",
+      "publisher": "wildfireguardian-data (this repository)",
+      "source_date": "not_applicable",
+      "url_or_identifier": "in-repository synthetic generator"
+    }
+  ],
+  "spatial_resolution": null,
+  "surface_model": "not_applicable",
+  "temporal_class": "static",
+  "temporal_reference": "not_applicable",
+  "transformations": [
+    {
+      "notes": "hand-constructed geometry with known topology",
+      "operation": "synthesise_integration_fixture_roads",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "expected_component_count": 1,
+        "expected_critical_link": "B-D",
+        "expected_critical_link_count": 1,
+        "expected_edge_count": 3,
+        "expected_exit_count": 2,
+        "expected_node_count": 4,
+        "expected_single_egress_candidate_count": 0,
+        "segments": [
+          "A-B",
+          "B-C",
+          "B-D"
+        ]
+      },
+      "timestamp": "2026-09-20T03:40:31.655901+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "whole features kept by 'intersects' test; geometry unmodified",
+      "operation": "clip_vector",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "features_in": 3,
+        "features_out": 3,
+        "features_truncated": 0,
+        "mode": "intersects",
+        "requested_bounds": [
+          240000.0,
+          490000.0,
+          240360.0,
+          490360.0
+        ]
+      },
+      "timestamp": "2026-09-20T03:40:31.656138+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "valid_from": "not_applicable",
+  "valid_to": "not_applicable",
+  "value_unit": "not_applicable",
+  "vertical_datum": "UNKNOWN"
+}

@@ -1,0 +1,302 @@
+{
+  "schema_version": "1.0.0",
+  "target": "directory:data/study_areas/wg_integration_fixture_synthetic_v1",
+  "status": "pass_with_warnings",
+  "strict": false,
+  "counts": {
+    "ERROR": 0,
+    "WARNING": 10,
+    "INFO": 19
+  },
+  "context": {
+    "crs": "EPSG:5187",
+    "bounds": {
+      "min_x": 240000.0,
+      "min_y": 490000.0,
+      "max_x": 240360.0,
+      "max_y": 490360.0,
+      "crs": "EPSG:5187"
+    },
+    "layers": [
+      "dem",
+      "slope_deg",
+      "aspect_deg",
+      "roads",
+      "fuels",
+      "villages",
+      "facilities"
+    ],
+    "schema_version": "1.1.0",
+    "directory": "data/study_areas/wg_integration_fixture_synthetic_v1"
+  },
+  "findings": [
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "1 provenance field(s) are UNKNOWN: ['sources[0].licence_url']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "dem",
+      "detail": {
+        "fields": [
+          "sources[0].licence_url"
+        ]
+      }
+    },
+    {
+      "code": "PRV-005",
+      "severity": "INFO",
+      "message": "layer is SYNTHETIC: constructed for testing, and makes no claim about any real place (docs/GLOSSARY.md)",
+      "layer": "dem",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "1 provenance field(s) are UNKNOWN: ['sources[0].licence_url']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "slope_deg",
+      "detail": {
+        "fields": [
+          "sources[0].licence_url"
+        ]
+      }
+    },
+    {
+      "code": "PRV-005",
+      "severity": "INFO",
+      "message": "layer is SYNTHETIC: constructed for testing, and makes no claim about any real place (docs/GLOSSARY.md)",
+      "layer": "slope_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "1 provenance field(s) are UNKNOWN: ['sources[0].licence_url']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "aspect_deg",
+      "detail": {
+        "fields": [
+          "sources[0].licence_url"
+        ]
+      }
+    },
+    {
+      "code": "PRV-005",
+      "severity": "INFO",
+      "message": "layer is SYNTHETIC: constructed for testing, and makes no claim about any real place (docs/GLOSSARY.md)",
+      "layer": "aspect_deg",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "roads",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "3 provenance field(s) are UNKNOWN: ['resolution_unit', 'sources[0].licence_url', 'vertical_datum']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "roads",
+      "detail": {
+        "fields": [
+          "resolution_unit",
+          "sources[0].licence_url",
+          "vertical_datum"
+        ]
+      }
+    },
+    {
+      "code": "PRV-005",
+      "severity": "INFO",
+      "message": "layer is SYNTHETIC: constructed for testing, and makes no claim about any real place (docs/GLOSSARY.md)",
+      "layer": "roads",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "fuels",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "2 provenance field(s) are UNKNOWN: ['sources[0].licence_url', 'vertical_datum']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "fuels",
+      "detail": {
+        "fields": [
+          "sources[0].licence_url",
+          "vertical_datum"
+        ]
+      }
+    },
+    {
+      "code": "PRV-005",
+      "severity": "INFO",
+      "message": "layer is SYNTHETIC: constructed for testing, and makes no claim about any real place (docs/GLOSSARY.md)",
+      "layer": "fuels",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "villages",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "3 provenance field(s) are UNKNOWN: ['resolution_unit', 'sources[0].licence_url', 'vertical_datum']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "villages",
+      "detail": {
+        "fields": [
+          "resolution_unit",
+          "sources[0].licence_url",
+          "vertical_datum"
+        ]
+      }
+    },
+    {
+      "code": "PRV-005",
+      "severity": "INFO",
+      "message": "layer is SYNTHETIC: constructed for testing, and makes no claim about any real place (docs/GLOSSARY.md)",
+      "layer": "villages",
+      "detail": {}
+    },
+    {
+      "code": "CRS-004",
+      "severity": "INFO",
+      "message": "CRS EPSG:5187 declares authority axis order (Northing, Easting); this package stores coordinates as (Easting, Northing). a consumer reading authority order will transpose x and y",
+      "layer": "facilities",
+      "detail": {}
+    },
+    {
+      "code": "PRV-002",
+      "severity": "WARNING",
+      "message": "3 provenance field(s) are UNKNOWN: ['resolution_unit', 'sources[0].licence_url', 'vertical_datum']. an honest gap, reported so incompleteness is visible rather than silent (docs/DECISIONS.md D-0009)",
+      "layer": "facilities",
+      "detail": {
+        "fields": [
+          "resolution_unit",
+          "sources[0].licence_url",
+          "vertical_datum"
+        ]
+      }
+    },
+    {
+      "code": "PRV-005",
+      "severity": "INFO",
+      "message": "layer is SYNTHETIC: constructed for testing, and makes no claim about any real place (docs/GLOSSARY.md)",
+      "layer": "facilities",
+      "detail": {}
+    },
+    {
+      "code": "RAS-004",
+      "severity": "INFO",
+      "message": "raster declares a nodata value but contains no missing cells",
+      "layer": "dem",
+      "detail": {
+        "nodata": "nan"
+      }
+    },
+    {
+      "code": "RAS-003",
+      "severity": "WARNING",
+      "message": "26.5% of cells are missing (threshold 10%); derived layers will have at least this much missing, plus one cell of edge loss per derivative pass",
+      "layer": "slope_deg",
+      "detail": {
+        "missing_cells": 52,
+        "total_cells": 196,
+        "missing_fraction": 0.2653061224489796
+      }
+    },
+    {
+      "code": "RAS-003",
+      "severity": "WARNING",
+      "message": "26.5% of cells are missing (threshold 10%); derived layers will have at least this much missing, plus one cell of edge loss per derivative pass",
+      "layer": "aspect_deg",
+      "detail": {
+        "missing_cells": 52,
+        "total_cells": 196,
+        "missing_fraction": 0.2653061224489796
+      }
+    },
+    {
+      "code": "FAC-001",
+      "severity": "INFO",
+      "message": "2 facility/facilities have no suitability assessment. this repository performs none; presence in a dataset is not fitness for purpose (docs/ASSUMPTIONS.md A-FAC-1)",
+      "layer": "facilities",
+      "detail": {
+        "facility_ids": [
+          "SYN-INT-RB-001",
+          "SYN-INT-SH-001"
+        ]
+      }
+    },
+    {
+      "code": "FAC-002",
+      "severity": "WARNING",
+      "message": "2 facility/facilities have UNKNOWN operational status; do not assume operational",
+      "layer": "facilities",
+      "detail": {
+        "facility_ids": [
+          "SYN-INT-RB-001",
+          "SYN-INT-SH-001"
+        ]
+      }
+    },
+    {
+      "code": "FAC-003",
+      "severity": "INFO",
+      "message": "2 facility/facilities have no sourced capacity. it is not estimated from footprint area (A-FAC-3)",
+      "layer": "facilities",
+      "detail": {
+        "facility_ids": [
+          "SYN-INT-RB-001",
+          "SYN-INT-SH-001"
+        ]
+      }
+    },
+    {
+      "code": "RD-005",
+      "severity": "INFO",
+      "message": "some exit nodes were inferred from the study-area boundary rather than from source tags; egress counts therefore depend on where the study area was cut (docs/ASSUMPTIONS.md A-RD-4)",
+      "layer": "roads",
+      "detail": {
+        "boundary_exits": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "code": "BND-006",
+      "severity": "INFO",
+      "message": "7 layer(s) are SYNTHETIC: ['dem', 'slope_deg', 'aspect_deg', 'roads', 'fuels', 'villages', 'facilities']. this bundle describes no real place and must not be used for any statement about one",
+      "layer": null,
+      "detail": {}
+    }
+  ]
+}

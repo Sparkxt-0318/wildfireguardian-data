@@ -762,3 +762,66 @@ treating it as a problem would flag every bundle for doing the right thing.
 **Exit code 0 whatever the readiness.** `INCOMPLETE` is a true and useful answer
 about a bundle, not an error in producing one. A CI job that wants to gate on
 readiness reads `--json`.
+
+## D-0029 | 2026-09-20 | accepted | The downstream CI fixture is analytic, not realistic
+
+**Decision.** `data/study_areas/wg_integration_fixture_synthetic_v1` is
+committed as a dependency for other repositories' CI (Phase 2 item 29). It is
+83 KB: a 12×12 study area at 30 m with all five layers, built by
+`configs/integration_fixture_synthetic.yaml` from five new fixtures.
+
+**Every expected result is closed-form or hand-derived, never a snapshot.**
+
+- The DEM is a plane rising due east at 10%. Horn's estimator is exact on a
+  plane, so slope is `atan(0.10)` = 5.710593° and aspect is 270° at **all 144**
+  study-area cells, with zero missing — verified, not asserted.
+- Fuels is co-registered cell-for-cell, split west/east into two classes, with
+  a 2×2 nodata block.
+- Roads is a T: 1 component, 4 nodes, 3 edges, 480 m, 2 exits.
+
+**Why this matters more than realism.** A downstream repository pins its CI to
+this bundle. If the expected values were regression snapshots of whatever this
+repository last produced, a bug here would propagate there with a green test
+suite in between — the exact failure mode `AGENTS.md` §7 rejects ("never write a
+test that merely asserts the current output"). A fixture whose right answer is
+independently known is worth more than one that looks like Korea.
+
+**The road fixture exists to expose one specific trap.**
+`single_egress_candidates` is **empty** — the component has two exits — while
+`critical_links` has **one** entry: removing the T's stem cuts the settlement
+off from both. A consumer reading only the first field concludes the settlement
+is comfortably served, and is wrong. That is D-0008 and F-RD-6 made concrete and
+assertable.
+
+Worth recording: the count of critical links was hand-derived as **zero** and
+that was **wrong**. The settlement reaches both exits only through the junction,
+so the stem is a single point of failure. The metric was right and the reasoning
+about it was not — which is a better argument for the fixture than any
+successful derivation would have been.
+
+**The DEM is 16×16 for a 12×12 study area**, buffered two cells on every side
+exactly as a real fetch is before clipping. Without that margin the estimator's
+edge loss falls *inside* the study area: on a 12×12 grid that is 44 of 144
+cells, a permanent 30.6% missing-data WARNING that is an artifact of the
+fixture's size and nothing else.
+
+**One expected WARNING remains, and is asserted rather than removed.** `RAS-003`
+fires on `slope_deg` and `aspect_deg` at 26.5%, which is the retained 1-cell
+buffer ring — a large fraction of a small layer, and ~2% on the 204×204 valley
+fixture. Resizing the fixture until a true finding stopped firing would be
+tuning data to satisfy a check. Instead the config documents it, the test
+asserts it fires, and the guidance is explicit: **downstream CI should gate on
+ERRORs, of which this bundle has none — not on WARNINGs, which every honest
+bundle has.**
+
+**Rejected.** Reusing `uljin_valley_synthetic_v1`. It is 204×204, and it
+deliberately carries positive findings — strata that do not sum, a count below
+the k-anonymity floor, an orphan track, an unnoded crossing. Those are right for
+*this* repository's tests and wrong for a *downstream* fixture, where every
+emitted finding is something a consumer must learn to ignore. So the two
+fixtures have opposite designs on purpose: that one exercises the unhappy paths,
+this one is clean apart from the documented ring.
+
+**It is `READY` for all three consumer profiles and no layer in it is
+planner-legal.** Both facts are asserted together, because the first without the
+second would read as a quality claim (D-0028).

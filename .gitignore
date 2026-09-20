@@ -39,3 +39,8 @@ data/study_areas/*
 !data/study_areas/uljin_valley_synthetic_v1/**
 !data/study_areas/uljin_real_v1/
 !data/study_areas/uljin_real_v1/**
+# The downstream CI integration fixture. Committed because its whole purpose is
+# to be depended on by another repository's CI, which cannot build it itself
+# (Phase 2 item 29). Kilobytes, deterministic, and obviously synthetic.
+!data/study_areas/wg_integration_fixture_synthetic_v1/
+!data/study_areas/wg_integration_fixture_synthetic_v1/**

@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.1.0",
+  "study_area_id": "wg_integration_fixture_synthetic_v1",
+  "crs": "EPSG:5187",
+  "crs_wkt": "PROJCRS[\"KGD2002 / East Belt 2010\",BASEGEOGCRS[\"KGD2002\",DATUM[\"Korean Geodetic Datum 2002\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4737]],CONVERSION[\"Korea East Belt 2010\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",38,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",129,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",1,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",200000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",600000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"northing (X)\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"easting (Y)\",east,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Cadastre, topographic mapping.\"],AREA[\"Republic of Korea (South Korea) - onshore between 128°E and 130°E.\"],BBOX[34.49,128,38.64,129.65]],ID[\"EPSG\",5187]]",
+  "bounds": {
+    "min_x": 240000.0,
+    "min_y": 490000.0,
+    "max_x": 240360.0,
+    "max_y": 490360.0,
+    "crs": "EPSG:5187"
+  },
+  "licences": [
+    {
+      "layer": "dem",
+      "source": "wildfireguardian_data.fixtures.synthetic.tilted_plane",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "slope_deg",
+      "source": "wildfireguardian_data.fixtures.synthetic.tilted_plane",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "aspect_deg",
+      "source": "wildfireguardian_data.fixtures.synthetic.tilted_plane",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "roads",
+      "source": "wildfireguardian_data.fixtures.synthetic.integration_fixture_roads",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "fuels",
+      "source": "wildfireguardian_data.fixtures.synthetic.integration_fixture_fuels",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "villages",
+      "source": "wildfireguardian_data.fixtures.synthetic.integration_fixture_villages",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    },
+    {
+      "layer": "facilities",
+      "source": "wildfireguardian_data.fixtures.synthetic.integration_fixture_facilities",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "publisher": "wildfireguardian-data (this repository)"
+    }
+  ],
+  "layers": [
+    {
+      "name": "dem",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/dem.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "m",
+      "shape": [
+        14,
+        14
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float64",
+      "valid_cells": 196,
+      "missing_cells": 0,
+      "checksum_sha256": "5b450897717a9c68608273c3a7f9ce5a538173e2bcbd9603ad7d537e11ce1641",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "slope_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/slope_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        14,
+        14
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 144,
+      "missing_cells": 52,
+      "checksum_sha256": "84d2550781accda44c5651f3b244c70e4f68142aad830bd781cd2c1f9fd10ff8",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "aspect_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/aspect_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        14,
+        14
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 144,
+      "missing_cells": 52,
+      "checksum_sha256": "6ff5b97337afd7673d566a9b6765f12d0c634d0ea20aa5d2978b87560aa4e9b4",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "roads",
+      "component": "roads",
+      "type": "vector",
+      "format": "geojson",
+      "path": "roads/roads.geojson",
+      "extra_files": [],
+      "feature_kind": "UNKNOWN",
+      "features": 3,
+      "geom_types": [
+        "LineString"
+      ],
+      "checksum_sha256": "c841d55a5517691d7da2a93da65419dd3a08de84658b668030aee198a9632308",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "fuels",
+      "component": "fuels",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "fuels/fuels.tif",
+      "extra_files": [],
+      "kind": "categorical",
+      "value_unit": "class",
+      "shape": [
+        14,
+        14
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "int16",
+      "valid_cells": 192,
+      "missing_cells": 4,
+      "checksum_sha256": "d84abed0c22f5e9f8ebdc2b8dc3dee4b1cb1712602ad73831fd1c39d7a3e34cf",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "villages",
+      "component": "population",
+      "type": "vector",
+      "format": "geojson",
+      "path": "population/villages.geojson",
+      "extra_files": [],
+      "feature_kind": "UNKNOWN",
+      "features": 1,
+      "geom_types": [
+        "Polygon"
+      ],
+      "checksum_sha256": "002ecbe635a13e865176ed2f879110a2032a4527462eeda5cb835fe48ff0cd74",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "facilities",
+      "component": "facilities",
+      "type": "vector",
+      "format": "geojson",
+      "path": "facilities/facilities.geojson",
+      "extra_files": [],
+      "feature_kind": "UNKNOWN",
+      "features": 2,
+      "geom_types": [
+        "Point"
+      ],
+      "checksum_sha256": "3c8333aa270acf54f8d895a1b6555048d23dba16404401bcb3d861e99d47b459",
+      "checksum_algorithm": "sha256"
+    }
+  ],
+  "extras": {
+    "roads_qa": "roads/roads_qa.json",
+    "roads_graph_summary": "roads/roads_graph_summary.json",
+    "terrain_statistics": "terrain/terrain_statistics.json",
+    "fuel_scheme": "fuels/fuel_scheme.json",
+    "villages_aggregate": "population/villages_aggregate.json",
+    "facilities_records": "facilities/facilities_records.json",
+    "validation_report": "validation/report.json"
+  },
+  "extras_checksums_sha256": {
+    "facilities_records": "e01317661be0067f56de96066c2272f66400c3168e3c453c3c82d42e789f47d6",
+    "fuel_scheme": "aa75c9092a854eb106050f51a780a11618087c7331ec1f848e6466accfad2e44",
+    "roads_graph_summary": "f92cef3999a781549642c6c2736c899ca5b0647425dd822a5a9dba91d434f309",
+    "roads_qa": "534255feed4d5c24c4e44805be03ecda43854f322d30c8e99f5278e85077d045",
+    "terrain_statistics": "ea231f82e369f7afc0d5ceeedb9f50c5d19ef46ce63d92668d91f0cdbda2af4a",
+    "villages_aggregate": "e45ba6cb9b14a46d0af9311fb659b4ce18b858abcd90d00d07fba5b0bd0d91f0"
+  },
+  "provenance_checksums_sha256": {
+    "aspect_deg": "df64842be17acba60a123c9221f4b541c822830e856e3ad869f8098dc1c24216",
+    "dem": "6f126cbd279c1ab0ad0c270a9f7d063ee293474f35b45e2f3846e37c62045592",
+    "facilities": "583fbae67b5c360397ef0e6b44f254a31b767e3d88dbf49e99f12aeb278c1dfc",
+    "fuels": "15dc684b9e73b08ed895cdd792246a6ffe8efbb56f7d48161c0e25363d0eb03d",
+    "roads": "58fed7cd1154f3795b67a8d7ad9e7f2c5152bb241dd7d96ad2953708f013518b",
+    "slope_deg": "8b5a668a12bfb55d95515ec9d8e168705a4489e80b1b3be382c2805fb664c925",
+    "villages": "16dbea5665fdad5b6152e79358fc622ecdf303dcf52041d756db6992a3484d2f"
+  },
+  "unchecksummed": {
+    "validation_report": "written after the manifest, because validation runs against the written bundle (docs/DECISIONS.md D-0014); it is therefore not covered by any checksum here"
+  },
+  "metadata": {
+    "description": "Tiny, deterministic, obviously synthetic study-area bundle for downstream CI. Terrain, categorical fuels, a road graph, one aggregate settlement, one responder base and one candidate destination, on a 360 m square.\n",
+    "notes": "SYNTHETIC. Every layer is DataClass.SYNTHETIC and describes no real place. This bundle is a test fixture: it is READY for every consumer profile, which is what a fixture is for, and no layer in it is planner-legal under research governance (docs/DECISIONS.md D-0023, D-0028). Expected results are stated in the header of configs/integration_fixture_synthetic.yaml and asserted in tests/test_integration_fixture.py.\n",
+    "built_at": "2026-09-20T03:40:31.660921+00:00",
+    "config": {
+      "study_area_id": "wg_integration_fixture_synthetic_v1",
+      "description": "Tiny, deterministic, obviously synthetic study-area bundle for downstream CI. Terrain, categorical fuels, a road graph, one aggregate settlement, one responder base and one candidate destination, on a 360 m square.\n",
+      "crs": "EPSG:5187",
+      "bounds": [
+        240000.0,
+        490000.0,
+        240360.0,
+        490360.0
+      ],
+      "notes": "SYNTHETIC. Every layer is DataClass.SYNTHETIC and describes no real place. This bundle is a test fixture: it is READY for every consumer profile, which is what a fixture is for, and no layer in it is planner-legal under research governance (docs/DECISIONS.md D-0023, D-0028). Expected results are stated in the header of configs/integration_fixture_synthetic.yaml and asserted in tests/test_integration_fixture.py.\n",
+      "config_path": "configs/integration_fixture_synthetic.yaml",
+      "terrain": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "integration_fixture_dem"
+        },
+        "target_resolution_m": null,
+        "derivatives": [
+          "slope",
+          "aspect"
+        ],
+        "clip_buffer_cells": 1,
+        "resampling": null,
+        "slope_unit": "deg",
+        "vertical_datum": null
+      },
+      "roads": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "integration_fixture_roads"
+        },
+        "snap_tolerance_m": 1.0,
+        "boundary_tolerance_m": 30.0,
+        "settlement_snap_m": 100.0,
+        "clip_mode": "intersects",
+        "node_crossings": false,
+        "exit_property": null
+      },
+      "fuels": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "integration_fixture_fuels"
+        },
+        "scheme": "synthetic_demo_v1",
+        "class_property": null
+      },
+      "population": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "integration_fixture_villages"
+        },
+        "aggregation_level": "synthetic_village",
+        "id_property": "settlement_id",
+        "name_property": "name",
+        "total_property": "population_total",
+        "age_strata": [
+          [
+            "pop_0_14",
+            0,
+            15
+          ],
+          [
+            "pop_15_64",
+            15,
+            65
+          ],
+          [
+            "pop_65_plus",
+            65,
+            null
+          ]
+        ]
+      },
+      "facilities": {
+        "source": {
+          "kind": "synthetic_fixture",
+          "fixture": "integration_fixture_facilities"
+        },
+        "kind_property": "kind",
+        "kind_map": {
+          "responder_base": "responder_base",
+          "shelter": "shelter"
+        },
+        "unmapped": "error"
+      }
+    },
+    "allow_network": false,
+    "build_notes": [],
+    "pipeline_order": [
+      "load",
+      "reproject_to_analysis_crs",
+      "clip_with_derivative_buffer",
+      "derive_slope_aspect",
+      "assess_road_topology",
+      "assemble"
+    ]
+  },
+  "caveats": [
+    "StudyAreaBundle is internal and unstable; no downstream repository should depend on this layout yet (docs/DECISIONS.md D-0001)",
+    "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)"
+  ],
+  "manifest_checksum_sha256": "99d44ce170679155588bfe1c097806a165c904f292d0890db39350991da8ac79"
+}

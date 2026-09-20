@@ -1,0 +1,113 @@
+{
+  "checksum": "6ff5b97337afd7673d566a9b6765f12d0c634d0ea20aa5d2978b87560aa4e9b4",
+  "checksum_algorithm": "sha256",
+  "data_class": "synthetic",
+  "layer_name": "aspect_deg",
+  "nodata_representation": "nan",
+  "notes": "SYNTHETIC. planar surface; Horn slope should equal 5.710593 deg and aspect 270.000000 deg in the interior | aspect clockwise from grid north, downslope-facing; NaN where flat",
+  "original_crs": "EPSG:5187",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "dem"
+  ],
+  "random_seed": null,
+  "resolution_unit": "metre",
+  "schema_version": "1.1.0",
+  "sources": [
+    {
+      "acquisition_date": "not_applicable",
+      "licence": "same as this repository",
+      "licence_url": "UNKNOWN",
+      "name": "wildfireguardian_data.fixtures.synthetic.tilted_plane",
+      "notes": "SYNTHETIC test input. describes no real place. any resemblance to Korean terrain is limited to the coordinate range used.",
+      "publisher": "wildfireguardian-data (this repository)",
+      "source_date": "not_applicable",
+      "url_or_identifier": "in-repository synthetic generator"
+    }
+  ],
+  "spatial_resolution": [
+    30.0,
+    30.0
+  ],
+  "surface_model": "dtm",
+  "temporal_class": "static",
+  "temporal_reference": "not_applicable",
+  "transformations": [
+    {
+      "notes": "closed-form construction; deterministic",
+      "operation": "synthesise_tilted_plane",
+      "parameters": {
+        "base_elevation_m": 100.0,
+        "cell_size_m": 30.0,
+        "dz_dx": 0.1,
+        "dz_dy": 0.0,
+        "expected_aspect_deg": 270.0,
+        "expected_slope_deg": 5.710593137499643,
+        "shape": [
+          16,
+          16
+        ]
+      },
+      "timestamp": "2026-09-20T03:40:31.645752+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "bounds snapped outward to whole source cells; grid origin and cell size unchanged, so the clip stays aligned with its parent",
+      "operation": "clip_raster",
+      "parameters": {
+        "buffer_cells": 1,
+        "crs": "EPSG:5187",
+        "requested_bounds": [
+          240000.0,
+          490000.0,
+          240360.0,
+          490360.0
+        ],
+        "requested_window_truncated": false,
+        "shape_after": [
+          14,
+          14
+        ],
+        "shape_before": [
+          16,
+          16
+        ],
+        "snapped_to_source_grid": true,
+        "window_cols": [
+          1,
+          15
+        ],
+        "window_rows": [
+          1,
+          15
+        ]
+      },
+      "timestamp": "2026-09-20T03:40:31.646170+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "aspect is measured from GRID north; meridian convergence to true north is not corrected (docs/ASSUMPTIONS.md A-TER-5). flat cells are NaN, not 0 (docs/DECISIONS.md D-0006).",
+      "operation": "aspect",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "estimator": "horn_1981_3x3",
+        "faces": "downslope",
+        "flat_cells": 0,
+        "flat_slope_tolerance": 0.0,
+        "flat_value": "nan",
+        "output_missing_cells": 52,
+        "reference_direction": "grid_north_clockwise",
+        "unit": "deg"
+      },
+      "timestamp": "2026-09-20T03:40:31.646667+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "valid_from": "not_applicable",
+  "valid_to": "not_applicable",
+  "value_unit": "deg_azimuth_grid_north",
+  "vertical_datum": "not_applicable (synthetic)"
+}
