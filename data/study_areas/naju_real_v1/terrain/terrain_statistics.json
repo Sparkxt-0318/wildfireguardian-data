@@ -1,0 +1,71 @@
+{
+  "elevation": {
+    "layer": "dem",
+    "unit": "m",
+    "crs": "EPSG:5186",
+    "cells_total": 19182,
+    "cells_valid": 19182,
+    "cells_missing": 0,
+    "missing_fraction": 0.0,
+    "min": 3.0,
+    "max": 54.91343688964844,
+    "mean": 12.734925577307678,
+    "std": 7.627650872734248,
+    "percentiles": {
+      "p5": 3.5,
+      "p25": 7.893188238143921,
+      "p50": 10.219097137451172,
+      "p75": 15.857605934143066,
+      "p95": 29.354733657836924
+    }
+  },
+  "relief": 51.91343688964844,
+  "relief_unit": "m",
+  "cell_size": [
+    30.0,
+    30.0
+  ],
+  "cell_size_unit": "metre",
+  "grid_shape": [
+    139,
+    138
+  ],
+  "crs": "EPSG:5186",
+  "valid_area_m2": 17263800.0,
+  "slope": {
+    "layer": "slope_deg",
+    "unit": "deg",
+    "crs": "EPSG:5186",
+    "cells_total": 19182,
+    "cells_valid": 18632,
+    "cells_missing": 550,
+    "missing_fraction": 0.028672714002710875,
+    "min": 0.0,
+    "max": 19.340599060058594,
+    "mean": 2.395108304996662,
+    "std": 2.373566863295616,
+    "percentiles": {
+      "p5": 0.09855611808598043,
+      "p25": 0.6807420998811722,
+      "p50": 1.6782233119010925,
+      "p75": 3.351117253303528,
+      "p95": 7.017454051971436
+    },
+    "note": "derivative layers lose the array edge and every cell beside missing data, so cells_missing here exceeds the DEM's (docs/DECISIONS.md D-0005)"
+  },
+  "aspect": {
+    "layer": "aspect_deg",
+    "unit": "deg_azimuth_grid_north",
+    "circular_mean": {
+      "mean_deg": 288.26725383926794,
+      "resultant_length": 0.06372293939520364,
+      "count_used": 18013,
+      "count_ignored": 1169,
+      "interpretation": "no dominant direction (resultant_length < 0.1); mean_deg is not meaningful"
+    },
+    "cells_total": 19182,
+    "cells_valid": 18013,
+    "cells_missing": 1169,
+    "note": "NaN here means either an incomplete neighbourhood or exactly flat ground; the two are not distinguished in the array. arithmetic means of azimuths are wrong and are not offered (docs/FAILURE_MODES.md F-TER-4)."
+  }
+}

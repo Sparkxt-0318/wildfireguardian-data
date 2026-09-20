@@ -44,3 +44,9 @@ data/study_areas/*
 # (Phase 2 item 29). Kilobytes, deterministic, and obviously synthetic.
 !data/study_areas/wg_integration_fixture_synthetic_v1/
 !data/study_areas/wg_integration_fixture_synthetic_v1/**
+# The second real geography (Phase 2 item 21). Committed so the claim that
+# this repository's schema is not Uljin-specific is checkable rather than
+# asserted. Carries ESA/Copernicus, ESA WorldCover CC-BY 4.0, and OSM ODbL
+# obligations -- see its manifest's licences block.
+!data/study_areas/naju_real_v1/
+!data/study_areas/naju_real_v1/**

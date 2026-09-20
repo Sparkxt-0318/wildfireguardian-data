@@ -1,0 +1,3628 @@
+{
+  "schema_version": "1.1.0",
+  "safety_disclaimer": "These are topological properties of the road data as digitised. They are NOT statements about whether a road is passable, whether a vehicle of any size can use it, whether an egress is usable during a fire, or whether any community is safe or trapped. Exit nodes inferred from a study-area boundary are artifacts of the clip, not verified real-world exits.",
+  "source_layer": "roads",
+  "crs": "EPSG:5186",
+  "graph": {
+    "nodes": 1072,
+    "edges": 1324,
+    "total_length_m": 183941.6104052835,
+    "length_unit": "m",
+    "length_note": "planar 2-D length in the layer's projected CRS; not slope-corrected, not geodesic, not a travel distance (docs/ASSUMPTIONS.md A-RD-5)",
+    "directed": false,
+    "snap_tolerance_m": 1.0,
+    "max_intra_cluster_distance_m": 0.7041564286322815
+  },
+  "connectivity": {
+    "component_count": 7,
+    "components": [
+      {
+        "component_id": 0,
+        "node_count": 1049,
+        "edge_count": 1306,
+        "total_length_m": 178990.44086026435,
+        "exit_nodes": [
+          13,
+          20,
+          36,
+          53,
+          76,
+          82,
+          83,
+          85,
+          106,
+          112,
+          116,
+          118,
+          119,
+          122,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          137,
+          146,
+          157,
+          158,
+          159,
+          164,
+          178,
+          182,
+          228,
+          234,
+          235,
+          246,
+          249,
+          270,
+          271,
+          308,
+          310,
+          350,
+          356,
+          357,
+          361,
+          370,
+          373,
+          374,
+          378,
+          379,
+          521,
+          532,
+          564,
+          566,
+          569,
+          570,
+          584,
+          588,
+          589,
+          590,
+          591,
+          628,
+          634,
+          660,
+          661,
+          665,
+          666,
+          669,
+          670,
+          671,
+          672,
+          679,
+          682,
+          685,
+          689,
+          690,
+          718,
+          738,
+          739,
+          740,
+          768,
+          770,
+          815,
+          816,
+          906,
+          910,
+          917,
+          920,
+          991,
+          992,
+          993,
+          995,
+          997,
+          998,
+          1006,
+          1007,
+          1009,
+          1063,
+          1067
+        ],
+        "settlement_nodes": []
+      },
+      {
+        "component_id": 1,
+        "node_count": 11,
+        "edge_count": 10,
+        "total_length_m": 3461.862578682999,
+        "exit_nodes": [
+          256,
+          258,
+          259,
+          720
+        ],
+        "settlement_nodes": []
+      },
+      {
+        "component_id": 2,
+        "node_count": 4,
+        "edge_count": 4,
+        "total_length_m": 239.16815652650766,
+        "exit_nodes": [],
+        "settlement_nodes": []
+      },
+      {
+        "component_id": 3,
+        "node_count": 2,
+        "edge_count": 1,
+        "total_length_m": 104.33064148910623,
+        "exit_nodes": [
+          637,
+          638
+        ],
+        "settlement_nodes": []
+      },
+      {
+        "component_id": 4,
+        "node_count": 2,
+        "edge_count": 1,
+        "total_length_m": 287.1013925086119,
+        "exit_nodes": [
+          705
+        ],
+        "settlement_nodes": []
+      },
+      {
+        "component_id": 5,
+        "node_count": 2,
+        "edge_count": 1,
+        "total_length_m": 242.9932239325923,
+        "exit_nodes": [],
+        "settlement_nodes": []
+      },
+      {
+        "component_id": 6,
+        "node_count": 2,
+        "edge_count": 1,
+        "total_length_m": 615.713551879316,
+        "exit_nodes": [
+          1066
+        ],
+        "settlement_nodes": []
+      }
+    ],
+    "node_degree_histogram": {
+      "1": 297,
+      "2": 76,
+      "3": 603,
+      "4": 91,
+      "5": 4,
+      "6": 1
+    },
+    "degree_note": "multigraph degree: a parallel edge counts twice for its two nodes, and a self-loop adds 2 to its node's degree",
+    "dead_end_nodes": [
+      15,
+      35,
+      38,
+      55,
+      75,
+      84,
+      86,
+      101,
+      105,
+      113,
+      114,
+      141,
+      163,
+      167,
+      170,
+      173,
+      174,
+      176,
+      179,
+      183,
+      185,
+      226,
+      227,
+      236,
+      239,
+      244,
+      247,
+      253,
+      255,
+      269,
+      274,
+      288,
+      289,
+      304,
+      305,
+      311,
+      340,
+      346,
+      351,
+      358,
+      359,
+      371,
+      372,
+      381,
+      382,
+      384,
+      388,
+      396,
+      401,
+      407,
+      409,
+      410,
+      418,
+      424,
+      431,
+      432,
+      444,
+      446,
+      448,
+      450,
+      452,
+      454,
+      456,
+      457,
+      475,
+      481,
+      482,
+      487,
+      490,
+      493,
+      495,
+      500,
+      505,
+      506,
+      507,
+      523,
+      525,
+      528,
+      534,
+      536,
+      539,
+      541,
+      547,
+      548,
+      550,
+      552,
+      553,
+      555,
+      557,
+      561,
+      565,
+      571,
+      586,
+      587,
+      612,
+      613,
+      620,
+      621,
+      623,
+      624,
+      627,
+      633,
+      642,
+      650,
+      651,
+      652,
+      656,
+      659,
+      662,
+      663,
+      664,
+      678,
+      680,
+      681,
+      683,
+      684,
+      688,
+      698,
+      700,
+      701,
+      702,
+      704,
+      706,
+      708,
+      709,
+      712,
+      715,
+      725,
+      727,
+      730,
+      733,
+      734,
+      735,
+      741,
+      742,
+      743,
+      749,
+      750,
+      751,
+      755,
+      756,
+      757,
+      762,
+      764,
+      765,
+      766,
+      767,
+      769,
+      771,
+      772,
+      773,
+      780,
+      781,
+      784,
+      786,
+      787,
+      788,
+      791,
+      793,
+      795,
+      799,
+      801,
+      818,
+      820,
+      822,
+      824,
+      825,
+      827,
+      828,
+      829,
+      831,
+      833,
+      835,
+      842,
+      843,
+      851,
+      852,
+      853,
+      855,
+      856,
+      857,
+      868,
+      874,
+      875,
+      881,
+      883,
+      884,
+      888,
+      891,
+      892,
+      893,
+      895,
+      901,
+      902,
+      903,
+      904,
+      905,
+      907,
+      911,
+      914,
+      915,
+      916,
+      921,
+      922,
+      923,
+      924,
+      925,
+      926,
+      935,
+      936,
+      937,
+      938,
+      939,
+      941,
+      943,
+      944,
+      947,
+      949,
+      951,
+      952,
+      953,
+      954,
+      957,
+      958,
+      959,
+      960,
+      961,
+      962,
+      963,
+      965,
+      966,
+      967,
+      968,
+      969,
+      974,
+      976,
+      977,
+      979,
+      981,
+      982,
+      983,
+      984,
+      985,
+      986,
+      987,
+      988,
+      990,
+      994,
+      996,
+      999,
+      1008,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1017,
+      1041,
+      1046,
+      1047,
+      1048,
+      1055,
+      1057,
+      1058,
+      1060,
+      1061,
+      1064,
+      1065,
+      1068,
+      1069,
+      1070,
+      1071
+    ],
+    "dead_end_count": 272,
+    "isolated_segments": [
+      {
+        "edge": [
+          986,
+          987
+        ],
+        "component_id": 5,
+        "length_m": 242.9932239325923,
+        "feature_index": 531,
+        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
+      }
+    ],
+    "self_loop_edges": [
+      [
+        744,
+        744
+      ],
+      [
+        810,
+        810
+      ]
+    ],
+    "parallel_edge_pairs": [
+      {
+        "edge": [
+          1004,
+          1005
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          800,
+          802
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          844,
+          845
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          1042,
+          1043
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          1038,
+          1039
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          578,
+          579
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          521,
+          522
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          1025,
+          1026
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          1052,
+          1053
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          782,
+          783
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          758,
+          759
+        ],
+        "multiplicity": 2
+      },
+      {
+        "edge": [
+          1015,
+          1016
+        ],
+        "multiplicity": 2
+      }
+    ],
+    "duplicate_geometry": [],
+    "largest_component": {
+      "component_id": 0,
+      "node_count": 1049,
+      "edge_count": 1306,
+      "total_length_m": 178990.44086026435,
+      "edge_fraction": 0.9864,
+      "length_fraction": 0.9731,
+      "note": "a largest-component fraction well below 1 means the network is fragmented as digitised. before reading that as sparsity, rule out the pipeline: see reports/ULJIN_ROAD_AUDIT.md, where endpoint-only connection produced 22 components from a network that has 2"
+    }
+  },
+  "attributes": {
+    "highway": {
+      "edges_with_value": 1324,
+      "edges_total": 1324,
+      "fraction_present": 1.0,
+      "values": {
+        "service": 499,
+        "track": 293,
+        "residential": 196,
+        "tertiary": 112,
+        "unclassified": 105,
+        "secondary": 58,
+        "primary": 33,
+        "secondary_link": 21,
+        "tertiary_link": 4,
+        "primary_link": 3
+      }
+    },
+    "oneway": {
+      "edges_with_value": 150,
+      "edges_total": 1324,
+      "fraction_present": 0.1133,
+      "values": {
+        "yes": 118,
+        "no": 32
+      }
+    },
+    "lanes": {
+      "edges_with_value": 129,
+      "edges_total": 1324,
+      "fraction_present": 0.0974,
+      "values": {
+        "2": 64,
+        "1": 34,
+        "3": 25,
+        "4": 6
+      }
+    },
+    "surface": {
+      "edges_with_value": 553,
+      "edges_total": 1324,
+      "fraction_present": 0.4177,
+      "values": {
+        "asphalt": 303,
+        "concrete": 246,
+        "unpaved": 4
+      }
+    },
+    "smoothness": {
+      "edges_with_value": 0,
+      "edges_total": 1324,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "tracktype": {
+      "edges_with_value": 290,
+      "edges_total": 1324,
+      "fraction_present": 0.219,
+      "values": {
+        "grade1": 289,
+        "grade3": 1
+      }
+    },
+    "maxspeed": {
+      "edges_with_value": 28,
+      "edges_total": 1324,
+      "fraction_present": 0.0211,
+      "values": {
+        "70": 28
+      }
+    },
+    "access": {
+      "edges_with_value": 0,
+      "edges_total": 1324,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "width": {
+      "edges_with_value": 7,
+      "edges_total": 1324,
+      "fraction_present": 0.0053,
+      "values": {
+        "6": 5,
+        "3": 2
+      }
+    },
+    "bridge": {
+      "edges_with_value": 17,
+      "edges_total": 1324,
+      "fraction_present": 0.0128,
+      "values": {
+        "yes": 17
+      }
+    },
+    "tunnel": {
+      "edges_with_value": 6,
+      "edges_total": 1324,
+      "fraction_present": 0.0045,
+      "values": {
+        "yes": 6
+      }
+    },
+    "layer": {
+      "edges_with_value": 27,
+      "edges_total": 1324,
+      "fraction_present": 0.0204,
+      "values": {
+        "1": 17,
+        "-1": 10
+      }
+    },
+    "service": {
+      "edges_with_value": 62,
+      "edges_total": 1324,
+      "fraction_present": 0.0468,
+      "values": {
+        "parking_aisle": 37,
+        "alley": 24,
+        "drive-through": 1
+      }
+    },
+    "_note": "availability only. no attribute is defaulted by road class: a fabricated 'lanes' or 'surface' would be indistinguishable from a sourced one in the field a travel-time model multiplies by (D-0022)."
+  },
+  "grade_separation": {
+    "bridge_edges": [
+      {
+        "edge": [
+          18,
+          635
+        ],
+        "length_m": 102.62817966818412,
+        "layer": "1",
+        "highway": "secondary_link",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          21,
+          88
+        ],
+        "length_m": 183.53841228974173,
+        "layer": "1",
+        "highway": "secondary_link",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          56,
+          88
+        ],
+        "length_m": 555.7716369918847,
+        "layer": "1",
+        "highway": "secondary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          74,
+          341
+        ],
+        "length_m": 720.4165257810796,
+        "layer": "1",
+        "highway": "secondary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          81,
+          89
+        ],
+        "length_m": 44.79805505846448,
+        "layer": "1",
+        "highway": "tertiary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          87,
+          88
+        ],
+        "length_m": 164.5597464693282,
+        "layer": "1",
+        "highway": "secondary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          103,
+          583
+        ],
+        "length_m": 570.0587164377516,
+        "layer": "1",
+        "highway": "tertiary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          147,
+          438
+        ],
+        "length_m": 39.79086142839603,
+        "layer": "1",
+        "highway": "tertiary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          199,
+          1062
+        ],
+        "length_m": 11.332204306184021,
+        "layer": "1",
+        "highway": "unclassified",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          206,
+          433
+        ],
+        "length_m": 77.92156222478529,
+        "layer": "1",
+        "highway": "residential",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          248,
+          254
+        ],
+        "length_m": 110.75755023139745,
+        "layer": "1",
+        "highway": "tertiary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          308,
+          1063
+        ],
+        "length_m": 25.392787581914252,
+        "layer": "1",
+        "highway": "tertiary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          314,
+          315
+        ],
+        "length_m": 29.868336215095894,
+        "layer": "1",
+        "highway": "primary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          317,
+          318
+        ],
+        "length_m": 124.46548671097352,
+        "layer": "1",
+        "highway": "primary",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          412,
+          413
+        ],
+        "length_m": 96.04427704379516,
+        "layer": "1",
+        "highway": "unclassified",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          717,
+          719
+        ],
+        "length_m": 9.3592069075868,
+        "layer": "1",
+        "highway": "track",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          726,
+          737
+        ],
+        "length_m": 34.40059733021091,
+        "layer": "1",
+        "highway": "track",
+        "bridge": "yes"
+      }
+    ],
+    "tunnel_edges": [
+      {
+        "edge": [
+          192,
+          723
+        ],
+        "length_m": 32.89759784616991,
+        "layer": "-1",
+        "highway": "track",
+        "tunnel": "yes"
+      },
+      {
+        "edge": [
+          329,
+          330
+        ],
+        "length_m": 32.87622765072241,
+        "layer": "-1",
+        "highway": "unclassified",
+        "tunnel": "yes"
+      },
+      {
+        "edge": [
+          335,
+          336
+        ],
+        "length_m": 22.073974779570115,
+        "layer": "-1",
+        "highway": "residential",
+        "tunnel": "yes"
+      },
+      {
+        "edge": [
+          342,
+          343
+        ],
+        "length_m": 52.683229861497914,
+        "layer": "-1",
+        "highway": "tertiary",
+        "tunnel": "yes"
+      },
+      {
+        "edge": [
+          347,
+          348
+        ],
+        "length_m": 56.3782983243844,
+        "layer": "-1",
+        "highway": "track",
+        "tunnel": "yes"
+      },
+      {
+        "edge": [
+          721,
+          724
+        ],
+        "length_m": 30.855004032930367,
+        "layer": "-1",
+        "highway": "track",
+        "tunnel": "yes"
+      }
+    ],
+    "bridge_count": 17,
+    "tunnel_count": 6,
+    "note": "source-tagged grade separation. a tagged bridge that crosses nothing in this layer may cross a stream or railway not included here; an UNtagged crossing is either unmapped grade separation or a missing junction, which the crossings_without_node diagnostic reports without deciding which."
+  },
+  "density": {
+    "available": true,
+    "study_area_km2": 16.04,
+    "km_per_km2_overall": 11.468,
+    "km_per_km2_by_quadrant": {
+      "north_west": 9.212,
+      "north_east": 5.866,
+      "south_west": 7.335,
+      "south_east": 11.024
+    },
+    "empty_quadrants": [],
+    "max_over_min_ratio": 1.88,
+    "note": "a low- or zero-density quadrant is either genuinely roadless (steep forest, water) or unmapped. this diagnostic cannot distinguish them, and completeness stays UNKNOWN (docs/FAILURE_MODES.md F-RD-3)."
+  },
+  "build_diagnostics": {
+    "snap_tolerance_m": 1.0,
+    "max_intra_cluster_distance_m": 0.7041564286322815,
+    "shared_vertices_found": 771,
+    "shared_vertex_splits": 722,
+    "node_crossings_added": 0,
+    "exploded_multilinestrings": 0,
+    "dropped_zero_length": 0,
+    "note": "how the graph was built. dropped_zero_length and shared_vertex_splits are the numbers to check first when a component count looks wrong (docs/DECISIONS.md D-0020)"
+  },
+  "egress": {
+    "exits": {
+      "count": 105,
+      "from_source_tags": [],
+      "from_boundary_crossing": [
+        13,
+        20,
+        36,
+        53,
+        76,
+        82,
+        85,
+        106,
+        112,
+        116,
+        118,
+        119,
+        126,
+        127,
+        128,
+        129,
+        131,
+        137,
+        146,
+        157,
+        158,
+        159,
+        164,
+        178,
+        182,
+        228,
+        234,
+        246,
+        249,
+        256,
+        258,
+        259,
+        271,
+        308,
+        310,
+        350,
+        356,
+        361,
+        373,
+        378,
+        379,
+        521,
+        532,
+        564,
+        566,
+        569,
+        570,
+        584,
+        588,
+        589,
+        590,
+        591,
+        628,
+        634,
+        637,
+        638,
+        660,
+        665,
+        669,
+        670,
+        705,
+        720,
+        739,
+        768,
+        815,
+        910,
+        920,
+        993,
+        995,
+        998,
+        1006,
+        1007,
+        1009,
+        1066,
+        1067
+      ],
+      "from_boundary": [
+        83,
+        122,
+        130,
+        132,
+        133,
+        235,
+        270,
+        357,
+        370,
+        374,
+        661,
+        666,
+        671,
+        672,
+        679,
+        682,
+        685,
+        689,
+        690,
+        718,
+        738,
+        740,
+        770,
+        816,
+        906,
+        917,
+        991,
+        992,
+        997,
+        1063
+      ],
+      "boundary_crossing_edge_count": 89,
+      "boundary_crossing_edges": [
+        [
+          13,
+          14
+        ],
+        [
+          20,
+          38
+        ],
+        [
+          35,
+          36
+        ],
+        [
+          53,
+          54
+        ],
+        [
+          53,
+          556
+        ],
+        [
+          54,
+          564
+        ],
+        [
+          75,
+          76
+        ],
+        [
+          82,
+          83
+        ],
+        [
+          82,
+          590
+        ],
+        [
+          83,
+          85
+        ],
+        [
+          85,
+          86
+        ],
+        [
+          105,
+          106
+        ],
+        [
+          112,
+          113
+        ],
+        [
+          112,
+          718
+        ],
+        [
+          115,
+          116
+        ],
+        [
+          116,
+          120
+        ],
+        [
+          118,
+          121
+        ],
+        [
+          119,
+          120
+        ],
+        [
+          119,
+          716
+        ],
+        [
+          126,
+          240
+        ],
+        [
+          127,
+          303
+        ],
+        [
+          128,
+          791
+        ],
+        [
+          129,
+          302
+        ],
+        [
+          131,
+          302
+        ],
+        [
+          137,
+          244
+        ],
+        [
+          146,
+          162
+        ],
+        [
+          157,
+          749
+        ],
+        [
+          158,
+          690
+        ],
+        [
+          159,
+          160
+        ],
+        [
+          159,
+          689
+        ],
+        [
+          160,
+          182
+        ],
+        [
+          161,
+          178
+        ],
+        [
+          163,
+          164
+        ],
+        [
+          164,
+          344
+        ],
+        [
+          178,
+          688
+        ],
+        [
+          227,
+          228
+        ],
+        [
+          234,
+          236
+        ],
+        [
+          246,
+          247
+        ],
+        [
+          249,
+          250
+        ],
+        [
+          249,
+          382
+        ],
+        [
+          250,
+          378
+        ],
+        [
+          255,
+          256
+        ],
+        [
+          258,
+          304
+        ],
+        [
+          259,
+          372
+        ],
+        [
+          270,
+          271
+        ],
+        [
+          270,
+          566
+        ],
+        [
+          306,
+          310
+        ],
+        [
+          307,
+          308
+        ],
+        [
+          307,
+          310
+        ],
+        [
+          308,
+          1063
+        ],
+        [
+          344,
+          350
+        ],
+        [
+          345,
+          665
+        ],
+        [
+          356,
+          357
+        ],
+        [
+          357,
+          1067
+        ],
+        [
+          360,
+          361
+        ],
+        [
+          373,
+          374
+        ],
+        [
+          375,
+          379
+        ],
+        [
+          376,
+          378
+        ],
+        [
+          521,
+          522
+        ],
+        [
+          532,
+          541
+        ],
+        [
+          566,
+          567
+        ],
+        [
+          567,
+          569
+        ],
+        [
+          568,
+          570
+        ],
+        [
+          584,
+          585
+        ],
+        [
+          588,
+          634
+        ],
+        [
+          589,
+          590
+        ],
+        [
+          590,
+          591
+        ],
+        [
+          627,
+          628
+        ],
+        [
+          637,
+          638
+        ],
+        [
+          660,
+          1017
+        ],
+        [
+          665,
+          668
+        ],
+        [
+          668,
+          670
+        ],
+        [
+          669,
+          672
+        ],
+        [
+          705,
+          706
+        ],
+        [
+          720,
+          1070
+        ],
+        [
+          739,
+          740
+        ],
+        [
+          768,
+          769
+        ],
+        [
+          815,
+          816
+        ],
+        [
+          816,
+          1009
+        ],
+        [
+          910,
+          911
+        ],
+        [
+          910,
+          917
+        ],
+        [
+          920,
+          921
+        ],
+        [
+          920,
+          922
+        ],
+        [
+          991,
+          995
+        ],
+        [
+          992,
+          993
+        ],
+        [
+          997,
+          998
+        ],
+        [
+          997,
+          1006
+        ],
+        [
+          997,
+          1007
+        ],
+        [
+          1065,
+          1066
+        ]
+      ],
+      "boundary_tolerance_m": 30.0,
+      "clip_boundary_warning": true,
+      "note": "boundary-derived exits exist because the network was clipped; a clip both creates exits (cut ends) and destroys them (a real second egress outside the extent). widen the study area to test whether an egress count is stable."
+    },
+    "settlements": {
+      "count": 0,
+      "node_by_settlement": {},
+      "matched_distance_m": {},
+      "unmatched_settlements": [],
+      "snap_distance_m": 250.0,
+      "crs_checked": false,
+      "note": "an unmatched settlement is a finding, not a blank: either the road network is incomplete near it, or the settlement centroid is wrong, or the snap distance is too small. it is never treated as having no road access."
+    },
+    "single_egress_candidates": [],
+    "no_egress_components": [],
+    "candidate_note": "'candidate' is load-bearing: this is a topological count of exits in this graph, not a claim that a community can or cannot get out (docs/DECISIONS.md D-0008)"
+  },
+  "fragility": {
+    "articulation_points": [
+      6,
+      10,
+      14,
+      20,
+      36,
+      42,
+      45,
+      50,
+      52,
+      53,
+      54,
+      65,
+      68,
+      76,
+      79,
+      80,
+      83,
+      85,
+      90,
+      92,
+      93,
+      94,
+      99,
+      102,
+      103,
+      106,
+      107,
+      109,
+      110,
+      111,
+      112,
+      115,
+      118,
+      121,
+      124,
+      125,
+      128,
+      130,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      143,
+      145,
+      150,
+      154,
+      157,
+      158,
+      159,
+      162,
+      164,
+      166,
+      169,
+      172,
+      175,
+      177,
+      178,
+      184,
+      209,
+      211,
+      212,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      223,
+      224,
+      225,
+      228,
+      234,
+      240,
+      242,
+      246,
+      249,
+      252,
+      256,
+      257,
+      258,
+      259,
+      261,
+      264,
+      268,
+      270,
+      271,
+      279,
+      286,
+      287,
+      290,
+      291,
+      292,
+      298,
+      299,
+      306,
+      307,
+      308,
+      337,
+      338,
+      339,
+      352,
+      355,
+      357,
+      360,
+      361,
+      367,
+      369,
+      379,
+      383,
+      386,
+      395,
+      406,
+      408,
+      411,
+      415,
+      417,
+      419,
+      420,
+      421,
+      429,
+      430,
+      434,
+      436,
+      443,
+      447,
+      449,
+      451,
+      453,
+      455,
+      468,
+      469,
+      470,
+      473,
+      474,
+      476,
+      477,
+      478,
+      479,
+      480,
+      488,
+      489,
+      494,
+      508,
+      509,
+      531,
+      532,
+      535,
+      542,
+      543,
+      544,
+      545,
+      551,
+      554,
+      556,
+      562,
+      567,
+      568,
+      572,
+      573,
+      583,
+      585,
+      590,
+      596,
+      602,
+      604,
+      607,
+      610,
+      618,
+      619,
+      622,
+      628,
+      629,
+      631,
+      632,
+      639,
+      641,
+      643,
+      644,
+      647,
+      648,
+      649,
+      653,
+      654,
+      655,
+      657,
+      658,
+      660,
+      669,
+      670,
+      675,
+      676,
+      677,
+      682,
+      696,
+      703,
+      714,
+      716,
+      717,
+      719,
+      720,
+      728,
+      731,
+      732,
+      739,
+      752,
+      753,
+      754,
+      758,
+      760,
+      761,
+      763,
+      768,
+      774,
+      779,
+      782,
+      783,
+      785,
+      792,
+      794,
+      796,
+      797,
+      798,
+      803,
+      804,
+      805,
+      806,
+      807,
+      812,
+      813,
+      814,
+      815,
+      816,
+      817,
+      819,
+      821,
+      823,
+      826,
+      830,
+      832,
+      834,
+      840,
+      849,
+      850,
+      854,
+      864,
+      867,
+      870,
+      872,
+      873,
+      885,
+      887,
+      889,
+      890,
+      894,
+      908,
+      909,
+      910,
+      912,
+      913,
+      918,
+      919,
+      920,
+      930,
+      931,
+      932,
+      933,
+      934,
+      940,
+      942,
+      945,
+      946,
+      948,
+      950,
+      955,
+      956,
+      964,
+      975,
+      978,
+      980,
+      989,
+      991,
+      992,
+      993,
+      995,
+      998,
+      1003,
+      1004,
+      1009,
+      1035,
+      1038,
+      1039,
+      1040,
+      1042,
+      1043,
+      1044,
+      1045,
+      1056,
+      1059,
+      1067
+    ],
+    "bridge_edges": [
+      [
+        6,
+        506
+      ],
+      [
+        10,
+        525
+      ],
+      [
+        14,
+        15
+      ],
+      [
+        20,
+        38
+      ],
+      [
+        35,
+        36
+      ],
+      [
+        42,
+        487
+      ],
+      [
+        45,
+        500
+      ],
+      [
+        50,
+        548
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        53,
+        557
+      ],
+      [
+        54,
+        55
+      ],
+      [
+        54,
+        564
+      ],
+      [
+        65,
+        904
+      ],
+      [
+        68,
+        901
+      ],
+      [
+        75,
+        76
+      ],
+      [
+        79,
+        80
+      ],
+      [
+        80,
+        109
+      ],
+      [
+        83,
+        84
+      ],
+      [
+        85,
+        86
+      ],
+      [
+        90,
+        103
+      ],
+      [
+        92,
+        663
+      ],
+      [
+        93,
+        744
+      ],
+      [
+        94,
+        141
+      ],
+      [
+        99,
+        743
+      ],
+      [
+        101,
+        102
+      ],
+      [
+        102,
+        664
+      ],
+      [
+        103,
+        583
+      ],
+      [
+        105,
+        106
+      ],
+      [
+        106,
+        107
+      ],
+      [
+        106,
+        709
+      ],
+      [
+        109,
+        110
+      ],
+      [
+        109,
+        583
+      ],
+      [
+        111,
+        112
+      ],
+      [
+        112,
+        113
+      ],
+      [
+        112,
+        718
+      ],
+      [
+        114,
+        115
+      ],
+      [
+        118,
+        717
+      ],
+      [
+        121,
+        122
+      ],
+      [
+        121,
+        587
+      ],
+      [
+        124,
+        125
+      ],
+      [
+        128,
+        791
+      ],
+      [
+        130,
+        771
+      ],
+      [
+        132,
+        768
+      ],
+      [
+        133,
+        618
+      ],
+      [
+        134,
+        228
+      ],
+      [
+        135,
+        763
+      ],
+      [
+        136,
+        766
+      ],
+      [
+        137,
+        244
+      ],
+      [
+        143,
+        183
+      ],
+      [
+        145,
+        177
+      ],
+      [
+        150,
+        684
+      ],
+      [
+        154,
+        681
+      ],
+      [
+        157,
+        749
+      ],
+      [
+        158,
+        690
+      ],
+      [
+        159,
+        689
+      ],
+      [
+        162,
+        179
+      ],
+      [
+        163,
+        164
+      ],
+      [
+        166,
+        167
+      ],
+      [
+        169,
+        170
+      ],
+      [
+        172,
+        173
+      ],
+      [
+        174,
+        175
+      ],
+      [
+        175,
+        176
+      ],
+      [
+        175,
+        177
+      ],
+      [
+        177,
+        725
+      ],
+      [
+        178,
+        688
+      ],
+      [
+        184,
+        185
+      ],
+      [
+        209,
+        857
+      ],
+      [
+        211,
+        849
+      ],
+      [
+        212,
+        984
+      ],
+      [
+        215,
+        985
+      ],
+      [
+        216,
+        983
+      ],
+      [
+        217,
+        989
+      ],
+      [
+        218,
+        1064
+      ],
+      [
+        219,
+        902
+      ],
+      [
+        220,
+        903
+      ],
+      [
+        221,
+        539
+      ],
+      [
+        223,
+        905
+      ],
+      [
+        224,
+        700
+      ],
+      [
+        225,
+        226
+      ],
+      [
+        227,
+        228
+      ],
+      [
+        228,
+        767
+      ],
+      [
+        234,
+        235
+      ],
+      [
+        234,
+        236
+      ],
+      [
+        239,
+        240
+      ],
+      [
+        242,
+        629
+      ],
+      [
+        246,
+        247
+      ],
+      [
+        249,
+        382
+      ],
+      [
+        252,
+        253
+      ],
+      [
+        252,
+        346
+      ],
+      [
+        255,
+        256
+      ],
+      [
+        256,
+        720
+      ],
+      [
+        257,
+        258
+      ],
+      [
+        257,
+        720
+      ],
+      [
+        258,
+        259
+      ],
+      [
+        258,
+        304
+      ],
+      [
+        259,
+        371
+      ],
+      [
+        259,
+        372
+      ],
+      [
+        261,
+        528
+      ],
+      [
+        264,
+        446
+      ],
+      [
+        268,
+        274
+      ],
+      [
+        269,
+        270
+      ],
+      [
+        270,
+        571
+      ],
+      [
+        271,
+        703
+      ],
+      [
+        279,
+        807
+      ],
+      [
+        286,
+        977
+      ],
+      [
+        287,
+        288
+      ],
+      [
+        289,
+        290
+      ],
+      [
+        290,
+        291
+      ],
+      [
+        290,
+        750
+      ],
+      [
+        290,
+        751
+      ],
+      [
+        291,
+        292
+      ],
+      [
+        291,
+        457
+      ],
+      [
+        298,
+        523
+      ],
+      [
+        299,
+        451
+      ],
+      [
+        305,
+        306
+      ],
+      [
+        306,
+        311
+      ],
+      [
+        307,
+        565
+      ],
+      [
+        308,
+        1063
+      ],
+      [
+        337,
+        401
+      ],
+      [
+        338,
+        339
+      ],
+      [
+        339,
+        340
+      ],
+      [
+        339,
+        639
+      ],
+      [
+        351,
+        352
+      ],
+      [
+        355,
+        719
+      ],
+      [
+        356,
+        357
+      ],
+      [
+        357,
+        358
+      ],
+      [
+        357,
+        1067
+      ],
+      [
+        359,
+        360
+      ],
+      [
+        361,
+        701
+      ],
+      [
+        367,
+        786
+      ],
+      [
+        369,
+        772
+      ],
+      [
+        379,
+        381
+      ],
+      [
+        383,
+        384
+      ],
+      [
+        386,
+        388
+      ],
+      [
+        395,
+        396
+      ],
+      [
+        406,
+        407
+      ],
+      [
+        408,
+        409
+      ],
+      [
+        410,
+        411
+      ],
+      [
+        415,
+        708
+      ],
+      [
+        417,
+        1069
+      ],
+      [
+        418,
+        419
+      ],
+      [
+        419,
+        420
+      ],
+      [
+        419,
+        639
+      ],
+      [
+        421,
+        424
+      ],
+      [
+        429,
+        430
+      ],
+      [
+        429,
+        431
+      ],
+      [
+        429,
+        432
+      ],
+      [
+        434,
+        742
+      ],
+      [
+        436,
+        702
+      ],
+      [
+        443,
+        444
+      ],
+      [
+        447,
+        448
+      ],
+      [
+        449,
+        450
+      ],
+      [
+        451,
+        452
+      ],
+      [
+        451,
+        505
+      ],
+      [
+        453,
+        454
+      ],
+      [
+        455,
+        456
+      ],
+      [
+        468,
+        547
+      ],
+      [
+        469,
+        493
+      ],
+      [
+        470,
+        482
+      ],
+      [
+        473,
+        612
+      ],
+      [
+        474,
+        475
+      ],
+      [
+        476,
+        945
+      ],
+      [
+        477,
+        478
+      ],
+      [
+        477,
+        962
+      ],
+      [
+        478,
+        479
+      ],
+      [
+        478,
+        964
+      ],
+      [
+        479,
+        480
+      ],
+      [
+        479,
+        488
+      ],
+      [
+        480,
+        481
+      ],
+      [
+        480,
+        961
+      ],
+      [
+        488,
+        489
+      ],
+      [
+        488,
+        967
+      ],
+      [
+        489,
+        490
+      ],
+      [
+        489,
+        960
+      ],
+      [
+        494,
+        495
+      ],
+      [
+        507,
+        508
+      ],
+      [
+        509,
+        550
+      ],
+      [
+        531,
+        536
+      ],
+      [
+        532,
+        541
+      ],
+      [
+        534,
+        535
+      ],
+      [
+        542,
+        952
+      ],
+      [
+        543,
+        650
+      ],
+      [
+        544,
+        651
+      ],
+      [
+        544,
+        652
+      ],
+      [
+        545,
+        712
+      ],
+      [
+        551,
+        552
+      ],
+      [
+        551,
+        553
+      ],
+      [
+        551,
+        554
+      ],
+      [
+        555,
+        556
+      ],
+      [
+        561,
+        562
+      ],
+      [
+        567,
+        569
+      ],
+      [
+        568,
+        570
+      ],
+      [
+        572,
+        573
+      ],
+      [
+        584,
+        585
+      ],
+      [
+        585,
+        586
+      ],
+      [
+        585,
+        716
+      ],
+      [
+        589,
+        590
+      ],
+      [
+        596,
+        856
+      ],
+      [
+        602,
+        758
+      ],
+      [
+        604,
+        982
+      ],
+      [
+        607,
+        752
+      ],
+      [
+        610,
+        613
+      ],
+      [
+        618,
+        619
+      ],
+      [
+        618,
+        622
+      ],
+      [
+        619,
+        620
+      ],
+      [
+        619,
+        624
+      ],
+      [
+        621,
+        622
+      ],
+      [
+        622,
+        623
+      ],
+      [
+        627,
+        628
+      ],
+      [
+        628,
+        629
+      ],
+      [
+        628,
+        906
+      ],
+      [
+        629,
+        907
+      ],
+      [
+        631,
+        632
+      ],
+      [
+        632,
+        633
+      ],
+      [
+        632,
+        785
+      ],
+      [
+        637,
+        638
+      ],
+      [
+        639,
+        1067
+      ],
+      [
+        641,
+        757
+      ],
+      [
+        642,
+        643
+      ],
+      [
+        643,
+        644
+      ],
+      [
+        647,
+        1056
+      ],
+      [
+        648,
+        940
+      ],
+      [
+        649,
+        953
+      ],
+      [
+        653,
+        654
+      ],
+      [
+        654,
+        655
+      ],
+      [
+        654,
+        657
+      ],
+      [
+        655,
+        656
+      ],
+      [
+        655,
+        1059
+      ],
+      [
+        657,
+        658
+      ],
+      [
+        657,
+        662
+      ],
+      [
+        658,
+        659
+      ],
+      [
+        658,
+        660
+      ],
+      [
+        660,
+        661
+      ],
+      [
+        660,
+        1017
+      ],
+      [
+        669,
+        672
+      ],
+      [
+        670,
+        671
+      ],
+      [
+        675,
+        680
+      ],
+      [
+        676,
+        678
+      ],
+      [
+        677,
+        679
+      ],
+      [
+        682,
+        683
+      ],
+      [
+        682,
+        685
+      ],
+      [
+        696,
+        698
+      ],
+      [
+        703,
+        704
+      ],
+      [
+        703,
+        741
+      ],
+      [
+        705,
+        706
+      ],
+      [
+        714,
+        715
+      ],
+      [
+        717,
+        719
+      ],
+      [
+        720,
+        1070
+      ],
+      [
+        720,
+        1071
+      ],
+      [
+        727,
+        728
+      ],
+      [
+        728,
+        735
+      ],
+      [
+        730,
+        731
+      ],
+      [
+        732,
+        733
+      ],
+      [
+        732,
+        734
+      ],
+      [
+        739,
+        740
+      ],
+      [
+        752,
+        753
+      ],
+      [
+        752,
+        756
+      ],
+      [
+        753,
+        754
+      ],
+      [
+        753,
+        968
+      ],
+      [
+        754,
+        755
+      ],
+      [
+        754,
+        969
+      ],
+      [
+        760,
+        762
+      ],
+      [
+        761,
+        787
+      ],
+      [
+        761,
+        788
+      ],
+      [
+        763,
+        764
+      ],
+      [
+        763,
+        765
+      ],
+      [
+        768,
+        769
+      ],
+      [
+        768,
+        770
+      ],
+      [
+        773,
+        774
+      ],
+      [
+        779,
+        780
+      ],
+      [
+        781,
+        782
+      ],
+      [
+        783,
+        784
+      ],
+      [
+        792,
+        793
+      ],
+      [
+        794,
+        795
+      ],
+      [
+        796,
+        797
+      ],
+      [
+        797,
+        798
+      ],
+      [
+        797,
+        801
+      ],
+      [
+        798,
+        799
+      ],
+      [
+        798,
+        826
+      ],
+      [
+        803,
+        819
+      ],
+      [
+        804,
+        830
+      ],
+      [
+        805,
+        918
+      ],
+      [
+        806,
+        1058
+      ],
+      [
+        812,
+        813
+      ],
+      [
+        813,
+        814
+      ],
+      [
+        813,
+        1014
+      ],
+      [
+        814,
+        815
+      ],
+      [
+        814,
+        1013
+      ],
+      [
+        815,
+        816
+      ],
+      [
+        815,
+        1008
+      ],
+      [
+        816,
+        817
+      ],
+      [
+        816,
+        1009
+      ],
+      [
+        817,
+        818
+      ],
+      [
+        817,
+        991
+      ],
+      [
+        819,
+        820
+      ],
+      [
+        819,
+        821
+      ],
+      [
+        821,
+        822
+      ],
+      [
+        821,
+        823
+      ],
+      [
+        823,
+        824
+      ],
+      [
+        823,
+        825
+      ],
+      [
+        826,
+        827
+      ],
+      [
+        826,
+        828
+      ],
+      [
+        829,
+        830
+      ],
+      [
+        830,
+        831
+      ],
+      [
+        832,
+        833
+      ],
+      [
+        834,
+        835
+      ],
+      [
+        840,
+        842
+      ],
+      [
+        840,
+        843
+      ],
+      [
+        849,
+        850
+      ],
+      [
+        849,
+        853
+      ],
+      [
+        850,
+        851
+      ],
+      [
+        850,
+        852
+      ],
+      [
+        854,
+        855
+      ],
+      [
+        864,
+        895
+      ],
+      [
+        867,
+        868
+      ],
+      [
+        870,
+        881
+      ],
+      [
+        872,
+        873
+      ],
+      [
+        872,
+        875
+      ],
+      [
+        873,
+        874
+      ],
+      [
+        873,
+        883
+      ],
+      [
+        884,
+        885
+      ],
+      [
+        887,
+        888
+      ],
+      [
+        889,
+        890
+      ],
+      [
+        890,
+        891
+      ],
+      [
+        890,
+        892
+      ],
+      [
+        893,
+        894
+      ],
+      [
+        908,
+        909
+      ],
+      [
+        909,
+        910
+      ],
+      [
+        909,
+        916
+      ],
+      [
+        910,
+        911
+      ],
+      [
+        910,
+        917
+      ],
+      [
+        912,
+        913
+      ],
+      [
+        913,
+        914
+      ],
+      [
+        913,
+        915
+      ],
+      [
+        918,
+        919
+      ],
+      [
+        918,
+        925
+      ],
+      [
+        919,
+        920
+      ],
+      [
+        919,
+        923
+      ],
+      [
+        919,
+        924
+      ],
+      [
+        919,
+        926
+      ],
+      [
+        920,
+        921
+      ],
+      [
+        920,
+        922
+      ],
+      [
+        930,
+        939
+      ],
+      [
+        931,
+        936
+      ],
+      [
+        932,
+        937
+      ],
+      [
+        933,
+        938
+      ],
+      [
+        934,
+        935
+      ],
+      [
+        940,
+        941
+      ],
+      [
+        940,
+        942
+      ],
+      [
+        942,
+        943
+      ],
+      [
+        942,
+        944
+      ],
+      [
+        945,
+        946
+      ],
+      [
+        945,
+        954
+      ],
+      [
+        945,
+        955
+      ],
+      [
+        946,
+        948
+      ],
+      [
+        946,
+        950
+      ],
+      [
+        947,
+        948
+      ],
+      [
+        948,
+        949
+      ],
+      [
+        950,
+        951
+      ],
+      [
+        950,
+        963
+      ],
+      [
+        955,
+        956
+      ],
+      [
+        955,
+        959
+      ],
+      [
+        956,
+        957
+      ],
+      [
+        956,
+        958
+      ],
+      [
+        964,
+        965
+      ],
+      [
+        964,
+        966
+      ],
+      [
+        974,
+        975
+      ],
+      [
+        975,
+        976
+      ],
+      [
+        978,
+        979
+      ],
+      [
+        980,
+        981
+      ],
+      [
+        986,
+        987
+      ],
+      [
+        988,
+        989
+      ],
+      [
+        989,
+        990
+      ],
+      [
+        992,
+        993
+      ],
+      [
+        993,
+        994
+      ],
+      [
+        993,
+        1012
+      ],
+      [
+        995,
+        996
+      ],
+      [
+        998,
+        999
+      ],
+      [
+        1003,
+        1004
+      ],
+      [
+        1009,
+        1010
+      ],
+      [
+        1009,
+        1011
+      ],
+      [
+        1035,
+        1038
+      ],
+      [
+        1039,
+        1040
+      ],
+      [
+        1040,
+        1041
+      ],
+      [
+        1040,
+        1042
+      ],
+      [
+        1043,
+        1045
+      ],
+      [
+        1044,
+        1045
+      ],
+      [
+        1044,
+        1047
+      ],
+      [
+        1044,
+        1048
+      ],
+      [
+        1045,
+        1046
+      ],
+      [
+        1055,
+        1056
+      ],
+      [
+        1056,
+        1057
+      ],
+      [
+        1059,
+        1060
+      ],
+      [
+        1059,
+        1061
+      ],
+      [
+        1065,
+        1066
+      ],
+      [
+        1067,
+        1068
+      ]
+    ],
+    "critical_links": [],
+    "bridge_note": "graph-theoretic bridges (edge cuts), not structural bridges over water; multiplicity-aware (docs/GLOSSARY.md)"
+  },
+  "crossings_without_node": {
+    "count": 10,
+    "samples": [
+      {
+        "edges": [
+          [
+            17,
+            19
+          ],
+          [
+            87,
+            88
+          ]
+        ],
+        "x": 175473.9627704957,
+        "y": 271090.93053177866,
+        "bridge_tags": [
+          null,
+          "yes"
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          null,
+          "1"
+        ]
+      },
+      {
+        "edges": [
+          [
+            17,
+            19
+          ],
+          [
+            74,
+            341
+          ]
+        ],
+        "x": 175473.51846195298,
+        "y": 271102.2446388937,
+        "bridge_tags": [
+          null,
+          "yes"
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          null,
+          "1"
+        ]
+      },
+      {
+        "edges": [
+          [
+            22,
+            699
+          ],
+          [
+            192,
+            723
+          ]
+        ],
+        "x": 176588.97840007077,
+        "y": 273365.10136847565,
+        "bridge_tags": [
+          null,
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          "yes"
+        ],
+        "layer_tags": [
+          null,
+          "-1"
+        ]
+      },
+      {
+        "edges": [
+          [
+            22,
+            334
+          ],
+          [
+            721,
+            724
+          ]
+        ],
+        "x": 176803.51195100934,
+        "y": 273524.26588835916,
+        "bridge_tags": [
+          null,
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          "yes"
+        ],
+        "layer_tags": [
+          null,
+          "-1"
+        ]
+      },
+      {
+        "edges": [
+          [
+            56,
+            88
+          ],
+          [
+            107,
+            108
+          ]
+        ],
+        "x": 176131.65540370924,
+        "y": 271086.03159801016,
+        "bridge_tags": [
+          "yes",
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          "1",
+          null
+        ]
+      },
+      {
+        "edges": [
+          [
+            74,
+            341
+          ],
+          [
+            107,
+            108
+          ]
+        ],
+        "x": 176131.32121810596,
+        "y": 271097.954054616,
+        "bridge_tags": [
+          "yes",
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          "1",
+          null
+        ]
+      },
+      {
+        "edges": [
+          [
+            205,
+            411
+          ],
+          [
+            317,
+            318
+          ]
+        ],
+        "x": 176383.0379143211,
+        "y": 273238.90363737196,
+        "bridge_tags": [
+          null,
+          "yes"
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          null,
+          "1"
+        ]
+      },
+      {
+        "edges": [
+          [
+            317,
+            318
+          ],
+          [
+            404,
+            405
+          ]
+        ],
+        "x": 176469.79578826803,
+        "y": 273292.68679444224,
+        "bridge_tags": [
+          "yes",
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          "1",
+          null
+        ]
+      },
+      {
+        "edges": [
+          [
+            329,
+            330
+          ],
+          [
+            334,
+            747
+          ]
+        ],
+        "x": 176993.81560088665,
+        "y": 273800.66729158675,
+        "bridge_tags": [
+          null,
+          null
+        ],
+        "tunnel_tags": [
+          "yes",
+          null
+        ],
+        "layer_tags": [
+          "-1",
+          null
+        ]
+      },
+      {
+        "edges": [
+          [
+            334,
+            747
+          ],
+          [
+            335,
+            336
+          ]
+        ],
+        "x": 177047.29622811818,
+        "y": 273868.6468369744,
+        "bridge_tags": [
+          null,
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          "yes"
+        ],
+        "layer_tags": [
+          null,
+          "-1"
+        ]
+      }
+    ],
+    "node_tolerance_m": 0.5,
+    "note": "crossing points that are not graph nodes. lines crossing WITHOUT a shared vertex are not connected (docs/DECISIONS.md D-0007), which is how OSM represents a bridge or tunnel -- check the bridge/tunnel/layer tags in the samples. a crossing at a shared vertex IS noded (D-0020) and does not appear here. this diagnostic does not distinguish grade separation from a missing junction node."
+  },
+  "notes": [
+    "counts describe the network as digitised, after endpoint snapping at 1.0 m"
+  ]
+}

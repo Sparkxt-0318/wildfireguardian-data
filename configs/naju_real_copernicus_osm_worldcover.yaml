@@ -1,0 +1,91 @@
+# A SECOND real-data study area, in a deliberately different geography
+# (Phase 2 item 21). Requires network access.
+#
+# Why a second area exists: to find out whether this repository's schema,
+# grid handling, CRS handling and QA are Uljin-specific. A pipeline validated
+# on exactly one place has been validated against its own assumptions.
+#
+# The selection criterion was FIXED BEFORE any output was looked at:
+#
+#   1. a DIFFERENT Korean belt CRS -- EPSG:5186 (Central Belt 2010, central
+#      meridian 127 E) rather than Uljin's EPSG:5187 (East Belt, 129 E) -- so
+#      the CRS layer is exercised rather than re-run;
+#   2. LOW RELIEF rather than a steep valley, exercising terrain derivatives at
+#      the opposite end of the slope range, including flat-ground aspect;
+#   3. the same 4 km box, so differences are the geography and not the extent.
+#
+# Four candidate boxes in the 5186 belt were screened on RELIEF ONLY. This one
+# had the lowest (73 m range, 16 m mean, against Uljin's mountain valley).
+# Road topology was deliberately NOT looked at during selection: item 21 says
+# not to optimise the second area for an interesting result, so whatever the
+# QA reports here is a finding about the pipeline, not a choice.
+#
+# The place was IDENTIFIED FROM OSM'S OWN TAGS for this box, not from memory:
+# addr:province 전라남도, addr:city 나주시, with 리-level units 오강리, 원곡리,
+# 학산리 and 장동리, plus 영산강 (the Yeongsan River) and 호남선 (the Honam
+# railway line). Naju-si, Jeollanam-do, on the Yeongsan river plain.
+#
+# Attribution obligations travel with this bundle:
+#   terrain   - (C) ESA / Copernicus Programme, Copernicus DEM GLO-30
+#   landcover - (C) ESA WorldCover 2021 v200, CC-BY 4.0
+#   roads     - (C) OpenStreetMap contributors, ODbL 1.0 (share-alike applies
+#               to derived databases)
+#
+# What this bundle does NOT contain: aggregate population and facilities.
+# Every authoritative Korean source for those is PROXY_FAILURE or
+# CREDENTIAL_REQUIRED from this environment -- see
+# reports/SOURCE_ACCESS_STATUS.md. They are ABSENT, not estimated.
+study_area_id: naju_real_v1
+description: >
+  Real 4 x 4 km study area on the Yeongsan river plain in Naju-si,
+  Jeollanam-do, western Korea: Copernicus DEM GLO-30 terrain, ESA WorldCover
+  2021 land cover, and OpenStreetMap roads. Selected for low relief and for a
+  different Korean belt CRS from the Uljin bundle, to test whether this
+  repository's handling of either is place-specific.
+notes: >
+  The terrain is a DIGITAL SURFACE MODEL, so slope over vegetation is canopy
+  slope (docs/FAILURE_MODES.md F-TER-3); on near-level ground that matters
+  proportionally more than in Uljin, because a canopy step is a larger fraction
+  of the true relief. Land cover is ESA WorldCover and is NOT a fire-behaviour
+  fuel model; no crosswalk to one is shipped (docs/DECISIONS.md D-0024).
+  WorldCover's 2021 vintage and its documented tendency to misclassify
+  shadowed ground as water are recorded on the scheme. OSM rural completeness
+  is UNKNOWN here as in Uljin, so egress counts inherit that limitation.
+
+# KGD2002 / Central Belt 2010, covering 126-128 E. Note the authority axis
+# order for this CRS is (Northing, Easting) and this package stores
+# (Easting, Northing) -- validation reports that as CRS-004.
+crs: EPSG:5186
+# (min_x, min_y, max_x, max_y) = (easting, northing), snapped to a 30 m grid.
+bounds: [175200.0, 270660.0, 179190.0, 274680.0]
+
+terrain:
+  source:
+    kind: copernicus_dem_glo30
+    options:
+      buffer_deg: 0.01
+  # 30 m, same as the Uljin bundle, and a resampling choice here too: GLO-30's
+  # nominal 30 m is at the equator, so at 35.05 N the source cells are about
+  # 30 m north-south and 25 m east-west.
+  target_resolution_m: 30.0
+  resampling: bilinear
+  derivatives: [slope, aspect]
+  clip_buffer_cells: 2
+  vertical_datum: EGM2008 geoid (per Copernicus DEM product specification)
+
+fuels:
+  source:
+    kind: esa_worldcover
+    options:
+      buffer_deg: 0.005
+  # Fixed by the source: these are ESA's published land-cover classes, and
+  # reading them through any other legend would relabel every cell.
+  scheme: esa_worldcover_v200
+
+roads:
+  source:
+    kind: osm_api
+  snap_tolerance_m: 1.0
+  boundary_tolerance_m: 30.0
+  clip_mode: intersects
+  node_crossings: false
