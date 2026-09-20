@@ -1,12 +1,12 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "safety_disclaimer": "These are topological properties of the road data as digitised. They are NOT statements about whether a road is passable, whether a vehicle of any size can use it, whether an egress is usable during a fire, or whether any community is safe or trapped. Exit nodes inferred from a study-area boundary are artifacts of the clip, not verified real-world exits.",
   "source_layer": "roads",
   "crs": "EPSG:5187",
   "graph": {
-    "nodes": 53,
-    "edges": 31,
-    "total_length_m": 28784.16963766137,
+    "nodes": 55,
+    "edges": 68,
+    "total_length_m": 28784.169637661373,
     "length_unit": "m",
     "length_note": "planar 2-D length in the layer's projected CRS; not slope-corrected, not geodesic, not a travel distance (docs/ASSUMPTIONS.md A-RD-5)",
     "directed": false,
@@ -14,14 +14,16 @@
     "max_intra_cluster_distance_m": 0.0
   },
   "connectivity": {
-    "component_count": 22,
+    "component_count": 2,
     "components": [
       {
         "component_id": 0,
-        "node_count": 5,
-        "edge_count": 4,
-        "total_length_m": 7574.75520566066,
-        "exit_nodes": [],
+        "node_count": 50,
+        "edge_count": 64,
+        "total_length_m": 21690.979768853136,
+        "exit_nodes": [
+          1
+        ],
         "settlement_nodes": []
       },
       {
@@ -30,403 +32,230 @@
         "edge_count": 4,
         "total_length_m": 7093.189868808238,
         "exit_nodes": [
-          5
+          6,
+          7,
+          8
         ],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 2,
-        "node_count": 3,
-        "edge_count": 2,
-        "total_length_m": 2483.1183364676854,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 3,
-        "node_count": 3,
-        "edge_count": 2,
-        "total_length_m": 66.96049628593553,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 4,
-        "node_count": 3,
-        "edge_count": 2,
-        "total_length_m": 499.28690111989835,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 5,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 7757.286738409139,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 6,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 101.82603148443718,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 7,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 145.40610856251962,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 8,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 213.98953220284042,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 9,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 159.66595382416946,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 10,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 181.04581263958661,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 11,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 284.2963645620434,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 12,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 67.14479851382929,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 13,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 114.4786051282124,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 14,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 87.06604424127079,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 15,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 272.47342896849847,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 16,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 119.41959638930078,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 17,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 423.7095558143915,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 18,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 73.30377165202941,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 19,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 95.7557207229496,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 20,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 877.4484732304924,
-        "exit_nodes": [],
-        "settlement_nodes": []
-      },
-      {
-        "component_id": 21,
-        "node_count": 2,
-        "edge_count": 1,
-        "total_length_m": 92.54229297323351,
-        "exit_nodes": [],
         "settlement_nodes": []
       }
     ],
     "node_degree_histogram": {
-      "1": 44,
-      "2": 9
+      "1": 14,
+      "2": 6,
+      "3": 30,
+      "4": 5
     },
     "degree_note": "multigraph degree: a parallel edge counts twice for its two nodes, and a self-loop adds 2 to its node's degree",
     "dead_end_nodes": [
       0,
-      6,
-      7,
-      8,
       9,
       10,
       11,
       12,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23,
-      24,
-      25,
-      26,
-      27,
-      28,
       29,
-      31,
-      32,
-      33,
-      34,
-      35,
-      36,
       37,
-      39,
-      40,
-      41,
-      42,
-      43,
-      44,
+      38,
       45,
       46,
-      47,
       48,
-      49,
       50,
-      51,
-      52
+      54
     ],
-    "dead_end_count": 43,
-    "isolated_segments": [
+    "dead_end_count": 13,
+    "isolated_segments": [],
+    "self_loop_edges": [],
+    "parallel_edge_pairs": [
       {
         "edge": [
-          8,
-          7
+          52,
+          53
         ],
-        "component_id": 5,
-        "length_m": 7757.286738409139,
-        "feature_index": 5,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          9,
-          10
-        ],
-        "component_id": 6,
-        "length_m": 101.82603148443718,
-        "feature_index": 6,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          11,
-          12
-        ],
-        "component_id": 7,
-        "length_m": 145.40610856251962,
-        "feature_index": 7,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          18,
-          19
-        ],
-        "component_id": 8,
-        "length_m": 213.98953220284042,
-        "feature_index": 11,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          20,
-          21
-        ],
-        "component_id": 9,
-        "length_m": 159.66595382416946,
-        "feature_index": 13,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          22,
-          23
-        ],
-        "component_id": 10,
-        "length_m": 181.04581263958661,
-        "feature_index": 14,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          24,
-          25
-        ],
-        "component_id": 11,
-        "length_m": 284.2963645620434,
-        "feature_index": 15,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          26,
-          27
-        ],
-        "component_id": 12,
-        "length_m": 67.14479851382929,
-        "feature_index": 16,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          28,
-          29
-        ],
-        "component_id": 13,
-        "length_m": 114.4786051282124,
-        "feature_index": 17,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          32,
-          33
-        ],
-        "component_id": 14,
-        "length_m": 87.06604424127079,
-        "feature_index": 19,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          35,
-          36
-        ],
-        "component_id": 15,
-        "length_m": 272.47342896849847,
-        "feature_index": 21,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          40,
-          39
-        ],
-        "component_id": 16,
-        "length_m": 119.41959638930078,
-        "feature_index": 23,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          42,
-          43
-        ],
-        "component_id": 17,
-        "length_m": 423.7095558143915,
-        "feature_index": 25,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          44,
-          45
-        ],
-        "component_id": 18,
-        "length_m": 73.30377165202941,
-        "feature_index": 26,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          46,
-          47
-        ],
-        "component_id": 19,
-        "length_m": 95.7557207229496,
-        "feature_index": 27,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          48,
-          49
-        ],
-        "component_id": 20,
-        "length_m": 877.4484732304924,
-        "feature_index": 28,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
-      },
-      {
-        "edge": [
-          50,
-          51
-        ],
-        "component_id": 21,
-        "length_m": 92.54229297323351,
-        "feature_index": 29,
-        "note": "a single edge alone in its component with no exit: as digitised it connects to nothing"
+        "multiplicity": 2
       }
     ],
-    "self_loop_edges": [],
-    "parallel_edge_pairs": []
+    "duplicate_geometry": [],
+    "largest_component": {
+      "component_id": 0,
+      "node_count": 50,
+      "edge_count": 64,
+      "total_length_m": 21690.979768853136,
+      "edge_fraction": 0.9412,
+      "length_fraction": 0.7536,
+      "note": "a largest-component fraction well below 1 means the network is fragmented as digitised. before reading that as sparsity, rule out the pipeline: see reports/ULJIN_ROAD_AUDIT.md, where endpoint-only connection produced 22 components from a network that has 2"
+    }
+  },
+  "attributes": {
+    "highway": {
+      "edges_with_value": 68,
+      "edges_total": 68,
+      "fraction_present": 1.0,
+      "values": {
+        "service": 32,
+        "unclassified": 19,
+        "track": 15,
+        "residential": 2
+      }
+    },
+    "oneway": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "lanes": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "surface": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "smoothness": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "tracktype": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "maxspeed": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "access": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "width": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "bridge": {
+      "edges_with_value": 2,
+      "edges_total": 68,
+      "fraction_present": 0.0294,
+      "values": {
+        "yes": 2
+      }
+    },
+    "tunnel": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "layer": {
+      "edges_with_value": 2,
+      "edges_total": 68,
+      "fraction_present": 0.0294,
+      "values": {
+        "1": 2
+      }
+    },
+    "service": {
+      "edges_with_value": 0,
+      "edges_total": 68,
+      "fraction_present": 0.0,
+      "values": {}
+    },
+    "_note": "availability only. no attribute is defaulted by road class: a fabricated 'lanes' or 'surface' would be indistinguishable from a sourced one in the field a travel-time model multiplies by (D-0022)."
+  },
+  "grade_separation": {
+    "bridge_edges": [
+      {
+        "edge": [
+          4,
+          13
+        ],
+        "length_m": 72.04349451077736,
+        "layer": "1",
+        "highway": "unclassified",
+        "bridge": "yes"
+      },
+      {
+        "edge": [
+          5,
+          6
+        ],
+        "length_m": 14.630569224632286,
+        "layer": "1",
+        "highway": "track",
+        "bridge": "yes"
+      }
+    ],
+    "tunnel_edges": [],
+    "bridge_count": 2,
+    "tunnel_count": 0,
+    "note": "source-tagged grade separation. a tagged bridge that crosses nothing in this layer may cross a stream or railway not included here; an UNtagged crossing is either unmapped grade separation or a missing junction, which the crossings_without_node diagnostic reports without deciding which."
+  },
+  "density": {
+    "available": true,
+    "study_area_km2": 16.0,
+    "km_per_km2_overall": 1.799,
+    "km_per_km2_by_quadrant": {
+      "north_west": 0.751,
+      "north_east": 1.737,
+      "south_west": 0.119,
+      "south_east": 1.323
+    },
+    "empty_quadrants": [],
+    "max_over_min_ratio": 14.6,
+    "note": "a low- or zero-density quadrant is either genuinely roadless (steep forest, water) or unmapped. this diagnostic cannot distinguish them, and completeness stays UNKNOWN (docs/FAILURE_MODES.md F-RD-3)."
+  },
+  "build_diagnostics": {
+    "snap_tolerance_m": 1.0,
+    "max_intra_cluster_distance_m": 0.0,
+    "shared_vertices_found": 41,
+    "shared_vertex_splits": 37,
+    "node_crossings_added": 0,
+    "exploded_multilinestrings": 0,
+    "dropped_zero_length": 0,
+    "note": "how the graph was built. dropped_zero_length and shared_vertex_splits are the numbers to check first when a component count looks wrong (docs/DECISIONS.md D-0020)"
   },
   "egress": {
     "exits": {
-      "count": 1,
+      "count": 4,
       "from_source_tags": [],
+      "from_boundary_crossing": [
+        1,
+        6,
+        7
+      ],
       "from_boundary": [
-        5
+        8
+      ],
+      "boundary_crossing_edge_count": 4,
+      "boundary_crossing_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          10
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          8
+        ]
       ],
       "boundary_tolerance_m": 30.0,
       "clip_boundary_warning": true,
@@ -451,11 +280,20 @@
       2,
       3,
       4,
+      5,
+      6,
+      7,
       13,
       14,
       15,
-      30,
-      38
+      20,
+      26,
+      27,
+      28,
+      35,
+      36,
+      43,
+      49
     ],
     "bridge_edges": [
       [
@@ -464,7 +302,11 @@
       ],
       [
         1,
-        13
+        2
+      ],
+      [
+        1,
+        10
       ],
       [
         2,
@@ -472,153 +314,85 @@
       ],
       [
         2,
+        11
+      ],
+      [
+        3,
         4
       ],
       [
         3,
-        6
+        12
       ],
       [
         4,
-        5
+        13
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        5,
+        7
+      ],
+      [
+        6,
+        9
       ],
       [
         7,
         8
       ],
       [
-        9,
-        10
-      ],
-      [
-        11,
-        12
-      ],
-      [
         13,
         14
       ],
       [
-        14,
-        52
-      ],
-      [
         15,
-        16
-      ],
-      [
-        15,
-        17
-      ],
-      [
-        18,
-        19
+        38
       ],
       [
         20,
-        21
-      ],
-      [
-        22,
-        23
-      ],
-      [
-        24,
-        25
+        46
       ],
       [
         26,
         27
       ],
       [
+        27,
+        54
+      ],
+      [
         28,
         29
       ],
       [
-        30,
-        31
-      ],
-      [
-        30,
-        34
-      ],
-      [
-        32,
-        33
-      ],
-      [
         35,
-        36
+        48
       ],
       [
-        37,
-        38
+        36,
+        37
       ],
       [
-        38,
-        41
-      ],
-      [
-        39,
-        40
-      ],
-      [
-        42,
-        43
-      ],
-      [
-        44,
+        43,
         45
       ],
       [
-        46,
-        47
-      ],
-      [
-        48,
-        49
-      ],
-      [
-        50,
-        51
+        49,
+        50
       ]
     ],
     "critical_links": [],
     "bridge_note": "graph-theoretic bridges (edge cuts), not structural bridges over water; multiplicity-aware (docs/GLOSSARY.md)"
   },
   "crossings_without_node": {
-    "count": 2,
-    "samples": [
-      {
-        "edges": [
-          [
-            13,
-            14
-          ],
-          [
-            18,
-            19
-          ]
-        ],
-        "x": 230919.04564664615,
-        "y": 480811.52519575524
-      },
-      {
-        "edges": [
-          [
-            38,
-            41
-          ],
-          [
-            42,
-            43
-          ]
-        ],
-        "x": 230637.4632266285,
-        "y": 480292.4811723105
-      }
-    ],
-    "note": "lines crossing with no shared node are NOT connected in this graph (docs/DECISIONS.md D-0007). a grade-separated crossing makes that correct; a missing junction node makes it an under-connection. this diagnostic does not distinguish them."
+    "count": 0,
+    "samples": [],
+    "node_tolerance_m": 0.5,
+    "note": "crossing points that are not graph nodes. lines crossing WITHOUT a shared vertex are not connected (docs/DECISIONS.md D-0007), which is how OSM represents a bridge or tunnel -- check the bridge/tunnel/layer tags in the samples. a crossing at a shared vertex IS noded (D-0020) and does not appear here. this diagnostic does not distinguish grade separation from a missing junction node."
   },
   "notes": [
     "counts describe the network as digitised, after endpoint snapping at 1.0 m"

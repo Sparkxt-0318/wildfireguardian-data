@@ -1,0 +1,160 @@
+{
+  "osm_extract": {
+    "available": true,
+    "ways_total": 42,
+    "highway_classes_present": {
+      "unclassified": 3,
+      "track": 12,
+      "service": 15,
+      "residential": 1
+    },
+    "ways_matching_filter": 31,
+    "ways_without_highway_tag": 11,
+    "classes_present_but_excluded": {},
+    "shared_osm_nodes": 41,
+    "shared_endpoint_only": 6,
+    "shared_involving_interior": 35,
+    "ways_with_interior_vertices": 26,
+    "max_vertices_in_a_way": 544,
+    "attributes": {
+      "bridge": {
+        "yes": 2
+      },
+      "tunnel": {},
+      "layer": {
+        "1": 2
+      },
+      "oneway": {},
+      "lanes": {},
+      "surface": {},
+      "maxspeed": {},
+      "access": {},
+      "width": {},
+      "service": {},
+      "tracktype": {}
+    }
+  },
+  "endpoint_only": {
+    "nodes": 53,
+    "edges": 31,
+    "total_length_km": 28.784,
+    "components": 22,
+    "component_edge_counts": [
+      4,
+      4,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "single_edge_components": 17,
+    "largest_component_edge_fraction": 0.129,
+    "largest_component_length_fraction": 0.2695,
+    "dead_ends": 42,
+    "isolated_segments": 16,
+    "self_loops": 0,
+    "parallel_edge_pairs": 0,
+    "crossings_without_node": 2,
+    "crossing_samples": [
+      {
+        "edges": [
+          [
+            13,
+            14
+          ],
+          [
+            18,
+            19
+          ]
+        ],
+        "x": 230919.04564664615,
+        "y": 480811.52519575524,
+        "bridge_tags": [
+          null,
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          null,
+          null
+        ]
+      },
+      {
+        "edges": [
+          [
+            38,
+            41
+          ],
+          [
+            42,
+            43
+          ]
+        ],
+        "x": 230637.4632266285,
+        "y": 480292.4811723105,
+        "bridge_tags": [
+          null,
+          null
+        ],
+        "tunnel_tags": [
+          null,
+          null
+        ],
+        "layer_tags": [
+          null,
+          null
+        ]
+      }
+    ],
+    "exit_nodes": 5,
+    "exits_from_boundary_crossing": 4,
+    "exits_from_node_proximity": 1,
+    "boundary_crossing_edges": 4,
+    "shared_vertex_splits": 0,
+    "shared_vertices_found": 0
+  },
+  "shared_vertex": {
+    "nodes": 55,
+    "edges": 68,
+    "total_length_km": 28.784,
+    "components": 2,
+    "component_edge_counts": [
+      64,
+      4
+    ],
+    "single_edge_components": 0,
+    "largest_component_edge_fraction": 0.9412,
+    "largest_component_length_fraction": 0.7536,
+    "dead_ends": 13,
+    "isolated_segments": 0,
+    "self_loops": 0,
+    "parallel_edge_pairs": 1,
+    "crossings_without_node": 0,
+    "crossing_samples": [],
+    "exit_nodes": 4,
+    "exits_from_boundary_crossing": 3,
+    "exits_from_node_proximity": 1,
+    "boundary_crossing_edges": 4,
+    "shared_vertex_splits": 37,
+    "shared_vertices_found": 41
+  }
+}

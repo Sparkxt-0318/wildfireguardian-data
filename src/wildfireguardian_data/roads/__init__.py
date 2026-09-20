@@ -11,17 +11,22 @@ from .io import read_road_geojson, read_road_vector
 from .qa import (
     DEFAULT_BOUNDARY_TOLERANCE_M,
     DEFAULT_SETTLEMENT_SNAP_M,
+    ROAD_ATTRIBUTES_OF_INTEREST,
     SAFETY_DISCLAIMER,
     ExitNodeSet,
     RoadNetworkQA,
     SettlementNodeSet,
     articulation_points,
     assess_road_network,
+    attribute_availability,
     bridge_edges,
     critical_links,
     crossings_without_node,
+    duplicate_geometry_edges,
+    grade_separation_edges,
     identify_exit_nodes,
     identify_settlement_nodes,
+    network_density,
 )
 
 __all__ = [
@@ -43,4 +48,9 @@ __all__ = [
     "SAFETY_DISCLAIMER",
     "DEFAULT_BOUNDARY_TOLERANCE_M",
     "DEFAULT_SETTLEMENT_SNAP_M",
+    "attribute_availability",
+    "duplicate_geometry_edges",
+    "grade_separation_edges",
+    "network_density",
+    "ROAD_ATTRIBUTES_OF_INTEREST",
 ]

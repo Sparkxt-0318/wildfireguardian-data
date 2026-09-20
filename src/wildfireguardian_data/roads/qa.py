@@ -40,6 +40,7 @@ from shapely.strtree import STRtree
 from ..bounds import Bounds
 from ..crs import crs_to_string, require_same_crs
 from ..errors import GraphError
+from .graph import _SHARED_VERTEX_DECIMALS as _SHARED_VERTEX_ROUNDING
 from .graph import RoadGraph
 
 __all__ = [
@@ -56,6 +57,11 @@ __all__ = [
     "critical_links",
     "crossings_without_node",
     "assess_road_network",
+    "attribute_availability",
+    "duplicate_geometry_edges",
+    "grade_separation_edges",
+    "network_density",
+    "ROAD_ATTRIBUTES_OF_INTEREST",
 ]
 
 #: Emitted inside every QA report. Not decoration: this report will be read by
@@ -89,23 +95,31 @@ class ExitNodeSet:
     """
 
     from_source_tags: frozenset[int] = frozenset()
+    #: Nodes made exits because an edge's geometry crosses the study-area
+    #: boundary. A fact about the data, stronger than node proximity.
+    from_boundary_crossing: frozenset[int] = frozenset()
     from_boundary: frozenset[int] = frozenset()
     boundary_tolerance_m: float | None = None
+    #: The edges found crossing the boundary, for inspection.
+    boundary_crossing_edges: tuple[tuple[int, int], ...] = ()
 
     @property
     def all_exits(self) -> frozenset[int]:
-        return self.from_source_tags | self.from_boundary
+        return self.from_source_tags | self.from_boundary_crossing | self.from_boundary
 
     @property
     def clip_boundary_warning(self) -> bool:
-        """Whether any exit was inferred from the boundary rather than tagged."""
-        return bool(self.from_boundary)
+        """Whether any exit came from the boundary rather than from a source tag."""
+        return bool(self.from_boundary or self.from_boundary_crossing)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "count": len(self.all_exits),
             "from_source_tags": sorted(self.from_source_tags),
+            "from_boundary_crossing": sorted(self.from_boundary_crossing),
             "from_boundary": sorted(self.from_boundary),
+            "boundary_crossing_edge_count": len(self.boundary_crossing_edges),
+            "boundary_crossing_edges": [list(e) for e in self.boundary_crossing_edges],
             "boundary_tolerance_m": self.boundary_tolerance_m,
             "clip_boundary_warning": self.clip_boundary_warning,
             "note": (
@@ -153,6 +167,35 @@ class SettlementNodeSet:
         }
 
 
+def _departure_nodes(
+    road_graph: RoadGraph,
+    u: int,
+    v: int,
+    *,
+    study_bounds: Bounds | None,
+) -> set[int]:
+    """Which endpoints of a leaving edge are the points one departs *from*.
+
+    An edge that leaves the study area gives its component egress, but marking
+    **both** endpoints as exits over-counts: a single tagged through-road would
+    contribute two exit nodes and a genuinely single-egress component would stop
+    being reported as one. Marking neither under-counts just as badly.
+
+    The rule: the endpoints that lie **inside** the study area are the departure
+    points. If neither does -- the edge passes through, entering and leaving --
+    both are returned, because from either end one can travel along it and
+    leave. With no bounds to test against, both are returned.
+    """
+    if study_bounds is None:
+        return {u, v}
+    inside = {
+        node
+        for node in (u, v)
+        if study_bounds.contains_point(*road_graph.node_xy(node))
+    }
+    return inside or {u, v}
+
+
 def identify_exit_nodes(
     road_graph: RoadGraph,
     *,
@@ -160,41 +203,71 @@ def identify_exit_nodes(
     boundary_tolerance_m: float = DEFAULT_BOUNDARY_TOLERANCE_M,
     exit_property: str | None = None,
     exit_property_values: Sequence[Any] = (True, "true", "yes", 1, "exit"),
+    detect_boundary_crossings: bool = True,
 ) -> ExitNodeSet:
-    """Find exit nodes, from source tags and/or proximity to the study boundary.
+    """Find exit nodes: source-tagged, boundary-crossing, or boundary-adjacent.
 
-    Parameters
-    ----------
-    exit_property:
-        An edge property name whose truthy value marks an edge as leaving the
-        study area; both of that edge's nodes are then exits.
-    study_bounds:
-        When given, nodes within ``boundary_tolerance_m`` of the boundary
-        **ring** (not the interior) are exits (A-RD-4).
+    Three separately recorded ways a node can be an exit, because they are
+    different kinds of claim (A-RD-4):
+
+    ``from_source_tags``
+        An edge property marks the edge as leaving the area. A statement about
+        the world, from the source.
+    ``from_boundary_crossing``
+        An edge's **geometry crosses the study-area boundary**. Also a fact
+        about the data, and the one an earlier version missed entirely: with
+        ``clip_mode="intersects"`` whole features are kept, so a road leaving
+        the area has no *node* near the boundary and node-proximity alone found
+        almost none of them. On the Uljin bundle that under-reported egress as 1
+        exit where 8 roads actually leave the extent.
+    ``from_boundary``
+        A node lies within ``boundary_tolerance_m`` of the boundary ring. The
+        weakest of the three, and an artifact of where the study area was cut.
+
+    In every case the exit node is the *departure* point -- see
+    :func:`_departure_nodes` -- so one leaving road contributes one exit, not
+    two.
     """
     tagged: set[int] = set()
     if exit_property is not None:
-        accepted = {str(v).lower() for v in exit_property_values}
+        accepted = {str(value).lower() for value in exit_property_values}
         for u, v, data in road_graph.graph.edges(data=True):
             value = (data.get("properties") or {}).get(exit_property)
             if value is not None and str(value).lower() in accepted:
-                tagged.add(u)
-                tagged.add(v)
+                tagged |= _departure_nodes(road_graph, u, v, study_bounds=study_bounds)
 
+    crossing: set[int] = set()
     boundary: set[int] = set()
+    crossing_edges: list[list[int]] = []
     if study_bounds is not None:
         require_same_crs(
             [road_graph.crs, study_bounds.crs], context="identifying boundary exit nodes"
         )
         ring = shapely_box(*study_bounds.as_tuple()).exterior
+
+        if detect_boundary_crossings:
+            for u, v, data in road_graph.graph.edges(data=True):
+                geometry = data.get("geometry")
+                # `crosses`, not `intersects`: an edge that merely *touches* the
+                # ring at its own endpoint has not left the study area, and that
+                # endpoint is already covered by the node-proximity rule below.
+                # Only an edge with geometry on both sides of the boundary is a
+                # crossing.
+                if geometry is None or not geometry.crosses(ring):
+                    continue
+                crossing |= _departure_nodes(road_graph, u, v, study_bounds=study_bounds)
+                crossing_edges.append([min(u, v), max(u, v)])
+
         for node, point in road_graph.node_points.items():
             if ring.distance(point) <= boundary_tolerance_m:
                 boundary.add(node)
 
     return ExitNodeSet(
         from_source_tags=frozenset(tagged),
-        from_boundary=frozenset(boundary - tagged),
+        from_boundary_crossing=frozenset(crossing - tagged),
+        from_boundary=frozenset(boundary - tagged - crossing),
         boundary_tolerance_m=boundary_tolerance_m if study_bounds is not None else None,
+        boundary_crossing_edges=tuple(sorted({tuple(e) for e in crossing_edges})),
     )
 
 
@@ -351,24 +424,53 @@ def critical_links(
 
 
 def crossings_without_node(
-    road_graph: RoadGraph, *, max_samples: int = 20
+    road_graph: RoadGraph, *, max_samples: int = 20, node_tolerance_m: float = 0.5
 ) -> dict[str, Any]:
-    """Count line pairs that cross without sharing a node (D-0007 diagnostic).
+    """Count places where two edges cross at a point that is **not** a graph node.
 
-    A high count means either genuine grade separation (bridges, tunnels -- in
-    which case the default non-noding behaviour is right) or a network digitised
-    without junction nodes (in which case connectivity is under-reported). The
-    diagnostic does not decide which; it hands the analyst the number and a few
-    locations.
+    The D-0007 diagnostic: a crossing with no node there means the two lines
+    pass over each other as far as the data is concerned. In OpenStreetMap that
+    is exactly how a bridge or tunnel is encoded, so a non-zero count is
+    expected and correct for a network with grade separation; a *large* count
+    instead suggests a network digitised without junction nodes, whose
+    connectivity is then under-reported. The diagnostic does not decide which.
+
+    The test is on the **crossing point**, not on whether the two edges happen
+    to share a node somewhere else. That distinction is load-bearing: a bridge
+    whose far end rejoins the same road further along *does* share a node with
+    it, and an earlier version skipped exactly those pairs -- so the clearest
+    real cases of grade separation were the ones it missed.
+
+    ``node_tolerance_m`` is how close a crossing point must be to a graph node
+    to count as noded. It is half a metre by default: junction coordinates
+    survive reprojection to well under that, and anything larger would start
+    absorbing genuinely un-noded crossings.
     """
     edges = list(road_graph.graph.edges(keys=True, data=True))
     geometries = [data.get("geometry") for _, _, _, data in edges]
     usable = [(i, g) for i, g in enumerate(geometries) if isinstance(g, LineString)]
     if not usable:
-        return {"count": 0, "samples": [], "note": "no edge geometry available"}
+        return {
+            "count": 0,
+            "samples": [],
+            "node_tolerance_m": node_tolerance_m,
+            "note": "no edge geometry available",
+        }
 
     tree = STRtree([g for _, g in usable])
-    index_map = [i for i, _ in usable]
+    node_tree = (
+        STRtree(list(road_graph.node_points.values())) if road_graph.node_points else None
+    )
+    node_list = list(road_graph.node_points.values())
+
+    def is_at_a_node(point: Point) -> bool:
+        if node_tree is None:
+            return False
+        nearest = node_tree.nearest(point)
+        if nearest is None:
+            return False
+        return bool(point.distance(node_list[int(nearest)]) <= node_tolerance_m)
+
     seen: set[tuple[int, int]] = set()
     samples: list[dict[str, Any]] = []
     count = 0
@@ -381,35 +483,237 @@ def crossings_without_node(
             if pair in seen:
                 continue
             seen.add(pair)
-            other_index = index_map[other_position]
-            u1, v1, _, _ = edges[edge_index]
-            u2, v2, _, _ = edges[other_index]
-            if {u1, v1} & {u2, v2}:
-                continue  # already share a node
             other_geometry = usable[other_position][1]
             if not geometry.crosses(other_geometry):
                 continue
-            count += 1
-            if len(samples) < max_samples:
-                point = geometry.intersection(other_geometry)
-                representative = (
-                    point.representative_point() if not point.is_empty else None
-                )
+            intersection = geometry.intersection(other_geometry)
+            candidates = (
+                list(intersection.geoms) if hasattr(intersection, "geoms") else [intersection]
+            )
+            points = [c for c in candidates if isinstance(c, Point)]
+            un_noded = [p for p in points if not is_at_a_node(p)]
+            if not un_noded:
+                continue
+            count += len(un_noded)
+            u1, v1, _, _ = edges[edge_index]
+            u2, v2, _, _ = edges[usable[other_position][0]]
+            for point in un_noded:
+                if len(samples) >= max_samples:
+                    break
+                properties_a = (edges[edge_index][3].get("properties") or {})
+                properties_b = (edges[usable[other_position][0]][3].get("properties") or {})
                 samples.append(
                     {
                         "edges": [[u1, v1], [u2, v2]],
-                        "x": float(representative.x) if representative else None,
-                        "y": float(representative.y) if representative else None,
+                        "x": float(point.x),
+                        "y": float(point.y),
+                        # Grade-separation tags, if the source carries them.
+                        # Their presence is the reader's evidence that the
+                        # crossing is real rather than a missing junction.
+                        "bridge_tags": [
+                            properties_a.get("bridge"),
+                            properties_b.get("bridge"),
+                        ],
+                        "tunnel_tags": [
+                            properties_a.get("tunnel"),
+                            properties_b.get("tunnel"),
+                        ],
+                        "layer_tags": [
+                            properties_a.get("layer"),
+                            properties_b.get("layer"),
+                        ],
                     }
                 )
     return {
         "count": count,
         "samples": samples,
+        "node_tolerance_m": node_tolerance_m,
         "note": (
-            "lines crossing with no shared node are NOT connected in this graph "
-            "(docs/DECISIONS.md D-0007). a grade-separated crossing makes that "
-            "correct; a missing junction node makes it an under-connection. this "
-            "diagnostic does not distinguish them."
+            "crossing points that are not graph nodes. lines crossing WITHOUT a "
+            "shared vertex are not connected (docs/DECISIONS.md D-0007), which "
+            "is how OSM represents a bridge or tunnel -- check the bridge/tunnel/"
+            "layer tags in the samples. a crossing at a shared vertex IS noded "
+            "(D-0020) and does not appear here. this diagnostic does not "
+            "distinguish grade separation from a missing junction node."
+        ),
+    }
+
+
+#: Attributes a downstream routing or travel-time model typically wants. Their
+#: *availability* is reported; none is ever defaulted by road class (D-0022).
+ROAD_ATTRIBUTES_OF_INTEREST: tuple[str, ...] = (
+    "highway",
+    "oneway",
+    "lanes",
+    "surface",
+    "smoothness",
+    "tracktype",
+    "maxspeed",
+    "access",
+    "width",
+    "bridge",
+    "tunnel",
+    "layer",
+    "service",
+)
+
+
+def attribute_availability(road_graph: RoadGraph) -> dict[str, Any]:
+    """Per-attribute presence counts across edges, with the value distribution.
+
+    Reported so a consumer can see what it is *not* getting. An attribute absent
+    from every edge is the normal case in rural Korean OSM, and a consumer that
+    needs it must supply its own default in its own declared parameter layer --
+    this repository will not invent one (D-0022).
+    """
+    edges = list(road_graph.graph.edges(data=True))
+    total = len(edges)
+    out: dict[str, Any] = {}
+    for attribute in ROAD_ATTRIBUTES_OF_INTEREST:
+        values: dict[str, int] = {}
+        present = 0
+        for _, _, data in edges:
+            value = (data.get("properties") or {}).get(attribute)
+            if value is None:
+                continue
+            present += 1
+            key = str(value)
+            values[key] = values.get(key, 0) + 1
+        out[attribute] = {
+            "edges_with_value": present,
+            "edges_total": total,
+            "fraction_present": round(present / total, 4) if total else None,
+            "values": dict(sorted(values.items(), key=lambda kv: -kv[1])[:12]),
+        }
+    out["_note"] = (
+        "availability only. no attribute is defaulted by road class: a "
+        "fabricated 'lanes' or 'surface' would be indistinguishable from a "
+        "sourced one in the field a travel-time model multiplies by (D-0022)."
+    )
+    return out
+
+
+def duplicate_geometry_edges(road_graph: RoadGraph) -> list[dict[str, Any]]:
+    """Edges whose geometry duplicates another edge's, exactly or reversed.
+
+    Distinct from parallel edges, which merely share endpoints: two genuinely
+    different roads between the same junctions are two ways out and must be kept
+    (F-RD-5). A *duplicated geometry* is instead a digitising artifact -- the
+    same road entered twice -- which inflates length and hides fragility by
+    making a real bridge look like a parallel pair.
+    """
+    seen: dict[tuple, list[tuple[int, int]]] = {}
+    for u, v, data in road_graph.graph.edges(data=True):
+        geometry = data.get("geometry")
+        if geometry is None:
+            continue
+        coordinates = [
+            (round(x, _SHARED_VERTEX_ROUNDING), round(y, _SHARED_VERTEX_ROUNDING))
+            for x, y in geometry.coords
+        ]
+        # Canonical form: whichever direction sorts first, so the same road
+        # digitised in the opposite direction still matches.
+        key = tuple(min(coordinates, coordinates[::-1]))
+        seen.setdefault(key, []).append((min(u, v), max(u, v)))
+    return [
+        {
+            "edges": [list(e) for e in edges],
+            "multiplicity": len(edges),
+            "note": "identical geometry, possibly digitised twice",
+        }
+        for edges in seen.values()
+        if len(edges) > 1
+    ]
+
+
+def grade_separation_edges(road_graph: RoadGraph) -> dict[str, Any]:
+    """Edges the source tags as bridges or tunnels, and their noding state.
+
+    A bridge or tunnel *should* cross something without sharing a node. This
+    reports the tagged edges so a reader can check that the un-noded crossings
+    found elsewhere are the tagged ones -- and, more usefully, notice when they
+    are **not**, which means either an untagged grade separation or a missing
+    junction.
+    """
+    bridges: list[dict[str, Any]] = []
+    tunnels: list[dict[str, Any]] = []
+    for u, v, data in road_graph.graph.edges(data=True):
+        properties = data.get("properties") or {}
+        entry = {
+            "edge": [min(u, v), max(u, v)],
+            "length_m": float(data.get("length_m", 0.0)),
+            "layer": properties.get("layer"),
+            "highway": properties.get("highway"),
+        }
+        if properties.get("bridge") not in (None, "no"):
+            bridges.append({**entry, "bridge": properties.get("bridge")})
+        if properties.get("tunnel") not in (None, "no"):
+            tunnels.append({**entry, "tunnel": properties.get("tunnel")})
+    return {
+        "bridge_edges": bridges,
+        "tunnel_edges": tunnels,
+        "bridge_count": len(bridges),
+        "tunnel_count": len(tunnels),
+        "note": (
+            "source-tagged grade separation. a tagged bridge that crosses "
+            "nothing in this layer may cross a stream or railway not included "
+            "here; an UNtagged crossing is either unmapped grade separation or "
+            "a missing junction, which the crossings_without_node diagnostic "
+            "reports without deciding which."
+        ),
+    }
+
+
+def network_density(road_graph: RoadGraph, study_bounds: Bounds | None) -> dict[str, Any]:
+    """Road length per square kilometre, overall and by quadrant.
+
+    A crude gap detector: a quadrant with an order-of-magnitude lower density
+    than its neighbours is either genuinely roadless (steep forest, water) or
+    unmapped, and this cannot tell which. It is reported so the question gets
+    asked rather than assumed away (F-RD-3).
+    """
+    if study_bounds is None:
+        return {"available": False, "note": "no study bounds supplied"}
+    area_km2 = (study_bounds.width * study_bounds.height) / 1e6
+    if area_km2 <= 0:
+        return {"available": False, "note": "degenerate study bounds"}
+
+    mid_x, mid_y = study_bounds.center
+    quadrants = {
+        "north_west": (study_bounds.min_x, mid_y, mid_x, study_bounds.max_y),
+        "north_east": (mid_x, mid_y, study_bounds.max_x, study_bounds.max_y),
+        "south_west": (study_bounds.min_x, study_bounds.min_y, mid_x, mid_y),
+        "south_east": (mid_x, study_bounds.min_y, study_bounds.max_x, mid_y),
+    }
+    lengths = dict.fromkeys(quadrants, 0.0)
+    for _, _, data in road_graph.graph.edges(data=True):
+        geometry = data.get("geometry")
+        if geometry is None:
+            continue
+        for name, box in quadrants.items():
+            clipped = geometry.intersection(shapely_box(*box))
+            if not clipped.is_empty:
+                lengths[name] += float(clipped.length)
+
+    quadrant_area = area_km2 / 4.0
+    densities = {
+        name: round(length / 1000.0 / quadrant_area, 3) for name, length in lengths.items()
+    }
+    nonzero = [d for d in densities.values() if d > 0]
+    return {
+        "available": True,
+        "study_area_km2": round(area_km2, 3),
+        "km_per_km2_overall": round(road_graph.total_length_m / 1000.0 / area_km2, 3),
+        "km_per_km2_by_quadrant": densities,
+        "empty_quadrants": sorted(n for n, d in densities.items() if d == 0.0),
+        "max_over_min_ratio": (
+            round(max(nonzero) / min(nonzero), 2) if len(nonzero) > 1 else None
+        ),
+        "note": (
+            "a low- or zero-density quadrant is either genuinely roadless "
+            "(steep forest, water) or unmapped. this diagnostic cannot "
+            "distinguish them, and completeness stays UNKNOWN "
+            "(docs/FAILURE_MODES.md F-RD-3)."
         ),
     }
 
@@ -440,11 +744,21 @@ class RoadNetworkQA:
     crossing_diagnostic: dict[str, Any]
     self_loop_edges: tuple[tuple[int, int], ...]
     parallel_edge_pairs: tuple[dict[str, Any], ...]
+    #: Share of the network in its largest component, by edges and by length.
+    largest_component: dict[str, Any] = field(default_factory=dict)
+    attribute_availability_report: dict[str, Any] = field(default_factory=dict)
+    duplicate_geometry: tuple[dict[str, Any], ...] = ()
+    grade_separation: dict[str, Any] = field(default_factory=dict)
+    density: dict[str, Any] = field(default_factory=dict)
+    build_diagnostics: dict[str, Any] = field(default_factory=dict)
     notes: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "schema_version": "1.0.0",
+            # 1.1.0 added largest_component, attribute_availability,
+            # duplicate_geometry, grade_separation, density, build_diagnostics,
+            # and the exit categories from D-0021.
+            "schema_version": "1.1.0",
             "safety_disclaimer": SAFETY_DISCLAIMER,
             "source_layer": self.source_layer,
             "crs": self.crs,
@@ -477,7 +791,13 @@ class RoadNetworkQA:
                 "isolated_segments": list(self.isolated_segment_edges),
                 "self_loop_edges": [list(e) for e in self.self_loop_edges],
                 "parallel_edge_pairs": list(self.parallel_edge_pairs),
+                "duplicate_geometry": list(self.duplicate_geometry),
+                "largest_component": dict(self.largest_component),
             },
+            "attributes": self.attribute_availability_report,
+            "grade_separation": self.grade_separation,
+            "density": self.density,
+            "build_diagnostics": self.build_diagnostics,
             "egress": {
                 "exits": self.exits.to_dict(),
                 "settlements": self.settlements.to_dict(),
@@ -655,6 +975,32 @@ def assess_road_network(
             f"road node within {settlement_set.snap_distance_m} m"
         )
 
+    largest = max(components, key=lambda c: c["edge_count"]) if components else {}
+    total_length = road_graph.total_length_m
+    largest_component = (
+        {
+            "component_id": largest["component_id"],
+            "node_count": largest["node_count"],
+            "edge_count": largest["edge_count"],
+            "total_length_m": largest["total_length_m"],
+            "edge_fraction": round(largest["edge_count"] / road_graph.edge_count, 4)
+            if road_graph.edge_count
+            else None,
+            "length_fraction": round(largest["total_length_m"] / total_length, 4)
+            if total_length
+            else None,
+            "note": (
+                "a largest-component fraction well below 1 means the network is "
+                "fragmented as digitised. before reading that as sparsity, rule "
+                "out the pipeline: see reports/ULJIN_ROAD_AUDIT.md, where "
+                "endpoint-only connection produced 22 components from a network "
+                "that has 2"
+            ),
+        }
+        if largest
+        else {}
+    )
+
     return RoadNetworkQA(
         source_layer=road_graph.source_layer,
         crs=crs_to_string(road_graph.crs),
@@ -682,5 +1028,24 @@ def assess_road_network(
         crossing_diagnostic=crossings_without_node(road_graph),
         self_loop_edges=self_loops,
         parallel_edge_pairs=tuple(parallel),
+        largest_component=largest_component,
+        attribute_availability_report=attribute_availability(road_graph),
+        duplicate_geometry=tuple(duplicate_geometry_edges(road_graph)),
+        grade_separation=grade_separation_edges(road_graph),
+        density=network_density(road_graph, study_bounds),
+        build_diagnostics={
+            "snap_tolerance_m": road_graph.snap_tolerance_m,
+            "max_intra_cluster_distance_m": road_graph.max_intra_cluster_distance_m,
+            "shared_vertices_found": road_graph.shared_vertices_found,
+            "shared_vertex_splits": road_graph.shared_vertex_splits,
+            "node_crossings_added": road_graph.node_crossings_added,
+            "exploded_multilinestrings": road_graph.exploded_multilinestrings,
+            "dropped_zero_length": road_graph.dropped_zero_length,
+            "note": (
+                "how the graph was built. dropped_zero_length and "
+                "shared_vertex_splits are the numbers to check first when a "
+                "component count looks wrong (docs/DECISIONS.md D-0020)"
+            ),
+        },
         notes=tuple(notes),
     )

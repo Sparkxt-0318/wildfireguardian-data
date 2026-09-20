@@ -5,7 +5,7 @@
   "strict": false,
   "counts": {
     "ERROR": 0,
-    "WARNING": 3,
+    "WARNING": 1,
     "INFO": 6
   },
   "context": {
@@ -67,19 +67,10 @@
     {
       "code": "RD-001",
       "severity": "WARNING",
-      "message": "road network has 22 connected components; as digitised, parts of it do not connect to each other. this is often a missing junction node rather than a real disconnection (docs/DECISIONS.md D-0007)",
+      "message": "road network has 2 connected components; as digitised, parts of it do not connect to each other. this is often a missing junction node rather than a real disconnection (docs/DECISIONS.md D-0007)",
       "layer": "roads",
       "detail": {
-        "component_count": 22
-      }
-    },
-    {
-      "code": "RD-002",
-      "severity": "WARNING",
-      "message": "17 isolated segment(s): single edges alone in their component with no exit",
-      "layer": "roads",
-      "detail": {
-        "count": 17
+        "component_count": 2
       }
     },
     {
@@ -89,17 +80,8 @@
       "layer": "roads",
       "detail": {
         "boundary_exits": [
-          5
+          8
         ]
-      }
-    },
-    {
-      "code": "RD-006",
-      "severity": "WARNING",
-      "message": "2 line pair(s) cross without a shared node. either genuine grade separation, or missing junction nodes that under-connect the network (docs/DECISIONS.md D-0007)",
-      "layer": "roads",
-      "detail": {
-        "count": 2
       }
     }
   ]

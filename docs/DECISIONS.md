@@ -419,3 +419,90 @@ round trip.
 were rebuilt. The validation report itself cannot be checksummed, because it is
 written after validation (D-0014); that is stated in the manifest's
 `unchecksummed` block rather than left implicit.
+
+---
+
+## D-0020 | 2026-09-20 | accepted | Lines are connected where they share a vertex, not only at endpoints
+
+**Decision.** `roads.build_road_graph(node_shared_vertices=True)` — now the
+default — splits lines at vertices that two different lines genuinely share, so
+a side road meeting the middle of a through road becomes a junction.
+
+**Rejected.** (a) Endpoint-only connection, the Phase 1 behaviour; (b) full
+intersection noding, which D-0007 rejects and still rejects.
+
+**Why.** Found by the Phase 2 road audit
+(`reports/ULJIN_ROAD_AUDIT.md`). OpenStreetMap — and most road GIS — encodes a
+junction as a **shared node**, which is usually an **interior** vertex of a way.
+In the Uljin extract, 35 of 41 shared OSM node IDs involved an interior vertex,
+so endpoint-only connection recovered 6 of 41 real junctions and turned the rest
+into fragment boundaries: 22 components, 17 of them single edges, largest
+holding 12.9 % of edges. With shared-vertex noding the same 31 source ways form
+2 components, 94.1 % of edges in the largest, and **total length is unchanged at
+28.784 km** — no geometry added, removed or moved.
+
+**Why this does not reopen D-0007.** The two rules test different things, and
+OSM distinguishes them precisely. A *shared vertex* is the source placing one
+coordinate in two lines' coordinate lists — an explicit assertion that they
+meet. A *geometric crossing with no shared vertex* is how a bridge or tunnel is
+represented. So this recovers stated junctions while still refusing to fabricate
+unstated ones, and the un-noded-crossing diagnostic still reports the latter.
+
+**Consequence.** Edge counts rise (31 → 68 for Uljin) because a way carrying
+several junctions becomes several edges; that is what makes degree, bridge and
+articulation-point analysis meaningful. Comparison is by rounded coordinate
+(9 decimal places) — float-noise tolerance, not a snapping distance. Setting
+`node_shared_vertices=False` reproduces Phase 1 behaviour for comparison.
+
+---
+
+## D-0021 | 2026-09-20 | accepted | An exit is a departure node, and a boundary crossing is an exit
+
+**Decision.** `roads.identify_exit_nodes` records three separately-labelled
+kinds of exit — `from_source_tags`, `from_boundary_crossing` (an edge's geometry
+crosses the study-area boundary ring), and `from_boundary` (node proximity) —
+and in each case marks the **departure** node: the endpoint(s) lying inside the
+study area.
+
+**Rejected.** (a) Node proximity alone, the Phase 1 behaviour; (b) marking both
+endpoints of a leaving edge.
+
+**Why.** Two errors in opposite directions, both found by the road audit. With
+`clip_mode="intersects"` whole features are kept, so a road leaving the area has
+no *node* near the boundary: proximity alone found **1** exit on the Uljin
+bundle where **4** roads actually cross the boundary — a large under-count of
+egress, the quantity this project most cares about. Conversely, marking both
+endpoints of a tagged edge over-counts, and a single tagged through-road would
+contribute two exits and stop a genuinely single-egress component being reported
+as one.
+
+**Consequence.** `ExitNodeSet` gained fields, so the road-QA JSON gained keys
+(report `schema_version` 1.0.0 → 1.1.0). `crosses` rather than `intersects` is
+the crossing predicate: an edge merely *touching* the ring at its own endpoint
+has not left the area, and that endpoint is already covered by proximity.
+
+---
+
+## D-0022 | 2026-09-20 | accepted | Road attributes are carried when present and absent when not
+
+**Decision.** `roads` carries `highway`, `oneway`, `lanes`, `surface`, `bridge`,
+`tunnel`, `layer`, `maxspeed`, `access`, `width` and every other source tag as
+**opaque properties**, and `roads.qa` reports per-attribute availability. No
+attribute is defaulted by road class.
+
+**Rejected.** Filling missing attributes with per-class defaults (for example
+`lanes=2` for `unclassified`, `surface=paved` for `residential`), which is what
+a routing consumer will eventually want.
+
+**Why.** Those defaults are a *modelling* choice, and their right values depend
+on the analysis. Writing them into the data layer would make a fabricated value
+indistinguishable from a sourced one in exactly the field a travel-time model
+multiplies by. The Uljin extract makes the stakes concrete: `oneway`, `lanes`,
+`surface`, `maxspeed`, `access` and `width` are absent from **every** kept way,
+so a defaulting pipeline would have produced a fully-attributed road layer of
+which none of the attributes came from the source.
+
+**Consequence.** A downstream routing model must supply its own defaults, and
+should do so in a separate, declared parameter layer so its assumptions stay
+visible. `roads.qa.attribute_availability` gives it the per-attribute counts to
+decide with.

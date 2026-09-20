@@ -133,15 +133,15 @@
     "validation_report": "validation/report.json"
   },
   "extras_checksums_sha256": {
-    "roads_graph_summary": "e723e71dab846f1caeaa7bc7c72e846bd3443f6f6612dc9f3441c4cb68d517e5",
-    "roads_qa": "8e1942f4d1b4cbe63647d7a60e016eab95f316205cddb4a89eb34da483045fe9",
+    "roads_graph_summary": "8ee29b84feef7c56564e4e6142c12d9a90c59cbd41960bcd222ddd317b565668",
+    "roads_qa": "15fcb64cb4651710009cf570ae9cce80399a278230be5669b60c127498459173",
     "terrain_statistics": "be6657c09e02ecdd6fe545bae417ad3b6289b1976bd3e37dd1276ee5f2f4f0ef"
   },
   "provenance_checksums_sha256": {
-    "aspect_deg": "e83a6cac8bfd5f1c5a5535abad1351e5cc3de9c4434a8eb72bfc4204e9128ec0",
-    "dem": "0ccd28c480aaef776a7be10e95c70c1a27dff0595583f512d1a2f70255a2e1ec",
-    "roads": "6199b00f6ada1200053568d754f5a1a39f6ee634833c77d4b444dcbc29ef73ec",
-    "slope_deg": "38270aeece4e225e2a55dc75ced4292b7c8a224c97e38bd9d421c11a33752b6e"
+    "aspect_deg": "90cc1b3fb13b67df93298c31e4d47db4a5d3ce7b81f7e6521a2cbbf32dbc378b",
+    "dem": "d966786da0d5f33d952d6bb9618932a4103371d41a2c58da1924cb02064e3594",
+    "roads": "6f7d8c8db17c6c064f353e2eb2eab34a451668ad9f611963438f17d765f6e127",
+    "slope_deg": "7457bdea0dba10292b80af0e9adaa15d4bbb07d9b56c789c80d56aabc52402ce"
   },
   "unchecksummed": {
     "validation_report": "written after the manifest, because validation runs against the written bundle (docs/DECISIONS.md D-0014); it is therefore not covered by any checksum here"
@@ -149,7 +149,7 @@
   "metadata": {
     "description": "Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do, on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022 Uljin-Samcheok fire burned this region) and because both sources have verified coverage here.\n",
     "notes": "The terrain is a DIGITAL SURFACE MODEL: GLO-30 includes canopy and buildings, so slope over forest here is canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). OSM rural completeness is UNKNOWN, so the road network is a lower bound on what exists on the ground, and the egress counts derived from it inherit that limitation.\n",
-    "built_at": "2026-09-19T18:49:45.864321+00:00",
+    "built_at": "2026-09-20T02:45:31.210736+00:00",
     "config": {
       "study_area_id": "uljin_real_v1",
       "description": "Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do, on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022 Uljin-Samcheok fire burned this region) and because both sources have verified coverage here.\n",
@@ -209,5 +209,5 @@
     "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)",
     "this bundle carries data licence obligations that travel with it, including attribution and, for any ODbL source, share-alike on derived databases: Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED): free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required | OpenStreetMap (api.openstreetmap.org /api/0.6/map): Open Database License (ODbL) 1.0"
   ],
-  "manifest_checksum_sha256": "d39c664b451a4048221ecbc44ecd383c11b438c9caa96002e5c73cf9b2e8a16e"
+  "manifest_checksum_sha256": "21ec20c319814b7893315e69525167118cca413306c08fe26b32efaa5a1e1680"
 }
