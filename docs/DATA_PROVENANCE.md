@@ -109,13 +109,24 @@ agent on a normal network should re-try every one of them.
 | `overpass-api.de` and two mirrors | 000 (tunnel closed) | environment, not service. Overpass would lift the OSM bbox size limit |
 | `download.geofabrik.de` | 000 (tunnel closed) | environment, not service. Would give a whole-country OSM extract |
 
+> **Superseded for access status.** The table above is the Phase 1 probe.
+> `reports/SOURCE_ACCESS_STATUS.md` re-probed every host on 2026-09-20 and
+> classifies each under the Phase 2 taxonomy; read that first. It also corrects
+> one Phase 1 reading: `map.ngii.go.kr`'s HTTP 400 was taken as evidence that
+> the endpoint was wrong, and today the host is proxy-blocked, so we have no
+> evidence about the endpoint at all.
+
 ### Consequences of those failures, stated plainly
 
-- **No real Korean vegetation or fuel data was obtained.** The repository
-  therefore ships *no* Korean fuel dataset and *no* crosswalk, only a generic
-  ingestion architecture and an explicitly synthetic demo scheme
-  (`ASSUMPTIONS.md` A-FU-1). The `uljin_real_v1` bundle has **no fuels layer** —
-  absent, not filled in.
+- **No *Korean* vegetation or fuel dataset was obtained.** A global one now is:
+  ESA WorldCover 10 m 2021 v200, CC-BY 4.0, carried as **land cover** with ESA's
+  own legend (`DECISIONS.md` D-0024). It is not a fuel model and no crosswalk to
+  one is shipped (`ASSUMPTIONS.md` A-FU-1).
+  The best Korean candidate, 임상도 (forest type map, 1:5,000, EPSG:5179, with
+  species/age/diameter/density), was **found and fully documented** but is
+  `REGISTRATION_REQUIRED` and carries an unresolved licence contradiction — see
+  `reports/KOREAN_FUELS_CANDIDATES.md`. It is not ingested, so nothing derived
+  from it is committed.
 - **No real aggregate population was obtained.** `uljin_real_v1` has **no
   population layer**.
 - **No real facility data was obtained.** `uljin_real_v1` has **no facilities

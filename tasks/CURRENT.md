@@ -1,10 +1,36 @@
 # CURRENT
 
-**Status: Phase 1 complete. Nothing is in flight.** This file lists what should
-be done next, in priority order.
+**Status: Phase 2 in flight.** Read `AGENTS.md` before starting any of it. Each
+item states what "done" looks like, because "improve the road data" is not a
+task.
 
-Read `AGENTS.md` before starting any of it. Each item states what "done" looks
-like, because "improve the road data" is not a task.
+### Phase 2 — done so far
+
+- **Road fragmentation audit complete, and the cause was ours.** `uljin_real_v1`
+  was 22 components; the cause was endpoint-only noding, not OSM quality. 35 of
+  41 shared OSM nodes were *interior* vertices of a way. Shared-vertex noding
+  (D-0020) collapses it to 2 components with identical total length
+  (28.784 km), and an independent OSMnx pipeline over the same ground agrees to
+  ~12% on edge count. `reports/ULJIN_ROAD_AUDIT.md`.
+- **Road QA extended**, exit semantics corrected to departure nodes and boundary
+  crossings (D-0021), road attributes carried-when-present (D-0022).
+- **Governance data classes aligned**, including the `RETROSPECTIVE` two-axis
+  conflict (D-0023).
+- **ESA WorldCover wired in as land cover** (D-0024), so the real bundle can
+  carry vegetation. Not a fuel model; no crosswalk shipped.
+- **Source access re-probed and classified** under the Phase 2 taxonomy:
+  `reports/SOURCE_ACCESS_STATUS.md`. No `POTENTIALLY_EXPOSED_CREDENTIAL`, and
+  that check is now conclusive (full history present).
+- **임상도 found and documented** — the authoritative Korean forest stand map,
+  `reports/KOREAN_FUELS_CANDIDATES.md`.
+
+### Phase 2 — in flight
+
+Canonical bundle manifest and `bundle_schema_version`; `wg-data provenance` and
+`wg-data compatibility`; `wg-data import-*`; per-layer `valid_from`/`valid_to`
+and a co-registration contract record; the downstream CI fixture; a second
+Korean geography; `reports/LEGACY_DATA_PIPELINE_COMPARISON.md` and
+`reports/PHASE2_INTEGRATION_READINESS.md`; then the `v0.2.0` freeze.
 
 ---
 
@@ -38,17 +64,29 @@ compared over forested and non-forested cells with the difference reported; or,
 if no DTM is obtainable, a written estimate of the bias with its method, added
 to `FAILURE_MODES.md` F-TER-3.
 
-## 3. Add real Korean vegetation data, or leave the fuels layer absent
+## 3. Ingest 임상도, the Korean forest stand map
 
-**Why.** No Korean vegetation data was obtained, so the repository ships only a
-generic architecture and an explicitly synthetic demo scheme. That is the
-correct current state — the wrong move is inventing a crosswalk (A-FU-1).
+**Status: unblocked, and the highest-value action left.** Superseded in part —
+ESA WorldCover now provides *global* land cover for the real bundle (D-0024),
+so the fuels slot is no longer empty. But WorldCover has no species, age or
+density, and class 10 `tree_cover` is a Korean pine plantation and a riparian
+broadleaf stand alike. Those are different fuels.
 
-**Done when.** Either a sourced `FuelClassScheme` exists, citing a real
-published classification, with a real layer ingested through
-`fuels.read_fuel_geotiff`; or `docs/DATA_PROVENANCE.md` records a further
-documented attempt and failure. **Do not** add a Korean fuel scheme from
-memory.
+**What to do.** 임상도 (1:5,000, EPSG:5179, 51 species groups, diameter/age/
+crown-density classes) is fully documented in
+`reports/KOREAN_FUELS_CANDIDATES.md` and is `REGISTRATION_REQUIRED` — a free
+account on `www.bigdata-forest.kr`, not a technical barrier. **Resolve its
+licence contradiction first**: the product page states CC-BY *and* "all rights
+reserved", so the effective redistribution licence is `UNKNOWN` and nothing
+derived from it may be committed until that is settled, preferably by getting
+the data from 산림청 directly.
+
+**Done when.** A sourced `VegetationClassScheme` exists with the publisher's own
+code dictionaries (not reconstructed from sample values), `임상나무높이`'s unit
+is established rather than assumed, per-polygon interpretation vintage reaches
+`valid_from`/`valid_to`, and the layer is ingested via `wg-data import-fuels`.
+**Do not** add a Korean fuel scheme from memory, and do not crosswalk it to a
+fire-behaviour fuel model here (`docs/SCOPE.md`, D-0024).
 
 ## 4. Aggregate population for the real study area
 
@@ -120,7 +158,8 @@ These are decided behaviour. Do not "fix" them without a `DECISIONS.md` entry.
 
 | Limitation | Where |
 |---|---|
-| Lines crossing without a shared node are not connected | D-0007, F-RD-1 |
+| Lines are connected where they share a *vertex*, not only an endpoint | D-0020 |
+| Lines merely *crossing* with no shared vertex are still not connected | D-0007, F-RD-1 |
 | Derivative edges and nodata neighbours are `nodata` | D-0005, F-TER-1/2 |
 | Aspect is `NaN` on flat ground, never `0` | D-0006 |
 | Aspect is from grid north, not true north | A-TER-5, F-TER-5 |
