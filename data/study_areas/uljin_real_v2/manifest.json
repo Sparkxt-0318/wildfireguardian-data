@@ -1,0 +1,312 @@
+{
+  "schema_version": "1.1.0",
+  "study_area_id": "uljin_real_v2",
+  "crs": "EPSG:5187",
+  "crs_wkt": "PROJCRS[\"KGD2002 / East Belt 2010\",BASEGEOGCRS[\"KGD2002\",DATUM[\"Korean Geodetic Datum 2002\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4737]],CONVERSION[\"Korea East Belt 2010\",METHOD[\"Transverse Mercator\",ID[\"EPSG\",9807]],PARAMETER[\"Latitude of natural origin\",38,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",129,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"Scale factor at natural origin\",1,SCALEUNIT[\"unity\",1],ID[\"EPSG\",8805]],PARAMETER[\"False easting\",200000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",600000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"northing (X)\",north,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"easting (Y)\",east,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Cadastre, topographic mapping.\"],AREA[\"Republic of Korea (South Korea) - onshore between 128°E and 130°E.\"],BBOX[34.49,128,38.64,129.65]],ID[\"EPSG\",5187]]",
+  "bounds": {
+    "min_x": 227500.0,
+    "min_y": 478500.0,
+    "max_x": 231500.0,
+    "max_y": 482500.0,
+    "crs": "EPSG:5187"
+  },
+  "licences": [
+    {
+      "layer": "dem",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "slope_deg",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "aspect_deg",
+      "source": "Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED)",
+      "licence": "free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required",
+      "licence_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "publisher": "European Space Agency / Copernicus Programme; AWS mirror by Sinergise"
+    },
+    {
+      "layer": "roads",
+      "source": "OpenStreetMap (api.openstreetmap.org /api/0.6/map)",
+      "licence": "Open Database License (ODbL) 1.0",
+      "licence_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "publisher": "OpenStreetMap contributors"
+    },
+    {
+      "layer": "fuels",
+      "source": "ESA WorldCover 10 m 2021 v200 (land cover)",
+      "licence": "CC-BY 4.0 - https://creativecommons.org/licenses/by/4.0/",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "publisher": "ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium"
+    },
+    {
+      "layer": "facilities",
+      "source": "OpenStreetMap (api.openstreetmap.org /api/0.6/map)",
+      "licence": "Open Database License (ODbL) 1.0",
+      "licence_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "publisher": "OpenStreetMap contributors"
+    }
+  ],
+  "layers": [
+    {
+      "name": "dem",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/dem.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "m",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 19182,
+      "missing_cells": 0,
+      "checksum_sha256": "f7e6088464e492a453ab60606c7e252e975b6e6590b04685c6f1e6be7bbb24d3",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "slope_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/slope_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 18632,
+      "missing_cells": 550,
+      "checksum_sha256": "5b938fc0944e9f4bc2ab1010ead3e775ba90f0e562d8225c7d4aff768f158d2f",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "aspect_deg",
+      "component": "terrain",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "terrain/aspect_deg.tif",
+      "extra_files": [],
+      "kind": "continuous",
+      "value_unit": "deg",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "float32",
+      "valid_cells": 18632,
+      "missing_cells": 550,
+      "checksum_sha256": "a7cc7e80e853cb29c58d59a42705377790877f2c285fbd3bb6da2a7d7750376c",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "roads",
+      "component": "roads",
+      "type": "vector",
+      "format": "geojson",
+      "path": "roads/roads.geojson",
+      "extra_files": [],
+      "feature_kind": "road segment",
+      "features": 31,
+      "geom_types": [
+        "LineString"
+      ],
+      "checksum_sha256": "46022932560c8b16de515802f4caa7f381c94200cfb6592833b1038530180197",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "fuels",
+      "component": "fuels",
+      "type": "raster",
+      "format": "geotiff",
+      "path": "fuels/fuels.tif",
+      "extra_files": [],
+      "kind": "categorical",
+      "value_unit": "class",
+      "shape": [
+        139,
+        138
+      ],
+      "resolution": [
+        30.0,
+        30.0
+      ],
+      "dtype": "uint8",
+      "valid_cells": 19182,
+      "missing_cells": 0,
+      "checksum_sha256": "e44d7f7819fc40ceae6b70904ed9908141caaed5912a73f94e95d97712bbbc98",
+      "checksum_algorithm": "sha256"
+    },
+    {
+      "name": "facilities",
+      "component": "facilities",
+      "type": "vector",
+      "format": "geojson",
+      "path": "facilities/facilities.geojson",
+      "extra_files": [],
+      "feature_kind": "UNKNOWN",
+      "features": 3,
+      "geom_types": [
+        "Point"
+      ],
+      "checksum_sha256": "e89bd97e707525b594a221c449728d6a0232c9e56af7ad50edc409ceb427b435",
+      "checksum_algorithm": "sha256"
+    }
+  ],
+  "extras": {
+    "roads_qa": "roads/roads_qa.json",
+    "roads_graph_summary": "roads/roads_graph_summary.json",
+    "terrain_statistics": "terrain/terrain_statistics.json",
+    "fuel_scheme": "fuels/fuel_scheme.json",
+    "facilities_records": "facilities/facilities_records.json",
+    "validation_report": "validation/report.json"
+  },
+  "extras_checksums_sha256": {
+    "facilities_records": "09b927afde369614450bf1ac6f2f8e593b58b38eb07f880ef3740ada3ffa3f53",
+    "fuel_scheme": "2147550eda0773697ca0026eea76cf5d53a53218b96b0aa52e22bb5f983e0413",
+    "roads_graph_summary": "8ee29b84feef7c56564e4e6142c12d9a90c59cbd41960bcd222ddd317b565668",
+    "roads_qa": "15fcb64cb4651710009cf570ae9cce80399a278230be5669b60c127498459173",
+    "terrain_statistics": "be6657c09e02ecdd6fe545bae417ad3b6289b1976bd3e37dd1276ee5f2f4f0ef"
+  },
+  "provenance_checksums_sha256": {
+    "aspect_deg": "5c441dafe061b46f528339d0d4e86a42ba82f2a63a5a0c9e4829cc3aa5f466ec",
+    "dem": "5f5f31f62670e2c9924719a0e847b35c56ed2a202cd6220ba247aeee6d5919c0",
+    "facilities": "0bc9ee45d03a8dd9f1c0754a399a60c6a90143b3cfcc8f2bcfc1db2ebe64ff25",
+    "fuels": "732b91768c1daa37d2a35e8897f5902eac6958f41caf84946901422117e891a8",
+    "roads": "21884d37f3f8ba906cf4ff71cb7ce3ff6eaca6fede84179148bdf1ac659770b1",
+    "slope_deg": "dd51657370026560798e77aed126c13b264ba11fb5d1f95aa68f4c901e19a06c"
+  },
+  "unchecksummed": {
+    "validation_report": "written after the manifest, because validation runs against the written bundle (docs/DECISIONS.md D-0014); it is therefore not covered by any checksum here"
+  },
+  "metadata": {
+    "description": "Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do, on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022 Uljin-Samcheok fire burned this region) and because both sources have verified coverage here.\n",
+    "notes": "The terrain is a DIGITAL SURFACE MODEL: GLO-30 includes canopy and buildings, so slope over forest here is canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). OSM rural completeness is UNKNOWN, so the road network is a lower bound on what exists on the ground, and the egress counts derived from it inherit that limitation.\n",
+    "built_at": "2026-09-20T04:03:07.305161+00:00",
+    "config": {
+      "study_area_id": "uljin_real_v2",
+      "description": "Real 4 x 4 km study area in the rural hills of Uljin-gun, Gyeongsangbuk-do, on the eastern Korean coast: Copernicus DEM GLO-30 terrain and OpenStreetMap roads. Chosen because Uljin is genuine Korean wildfire country (the March 2022 Uljin-Samcheok fire burned this region) and because both sources have verified coverage here.\n",
+      "crs": "EPSG:5187",
+      "bounds": [
+        227500.0,
+        478500.0,
+        231500.0,
+        482500.0
+      ],
+      "notes": "The terrain is a DIGITAL SURFACE MODEL: GLO-30 includes canopy and buildings, so slope over forest here is canopy slope, not ground slope (docs/FAILURE_MODES.md F-TER-3). OSM rural completeness is UNKNOWN, so the road network is a lower bound on what exists on the ground, and the egress counts derived from it inherit that limitation.\n",
+      "absent_layer_reasons": {
+        "population": "ABSENT. No aggregate population was obtained. KOSIS (kosis.kr) and SGIS (sgis.kostat.go.kr) are the authoritative sources and both are PROXY_FAILURE from this environment; OpenStreetMap carries no population tag anywhere in this box, and place=village gives a location without a count. Nothing was estimated. See reports/SOURCE_ACCESS_STATUS.md.\n"
+      },
+      "config_path": "configs/uljin_real_complete.yaml",
+      "terrain": {
+        "source": {
+          "kind": "copernicus_dem_glo30",
+          "options": {
+            "buffer_deg": 0.01
+          }
+        },
+        "target_resolution_m": 30.0,
+        "derivatives": [
+          "slope",
+          "aspect"
+        ],
+        "clip_buffer_cells": 2,
+        "resampling": "bilinear",
+        "slope_unit": "deg",
+        "vertical_datum": "EGM2008 geoid (per Copernicus DEM product specification)"
+      },
+      "roads": {
+        "source": {
+          "kind": "osm_api"
+        },
+        "snap_tolerance_m": 1.0,
+        "boundary_tolerance_m": 30.0,
+        "settlement_snap_m": 250.0,
+        "clip_mode": "intersects",
+        "node_crossings": false,
+        "exit_property": null
+      },
+      "fuels": {
+        "source": {
+          "kind": "esa_worldcover",
+          "options": {
+            "buffer_deg": 0.005
+          }
+        },
+        "scheme": "esa_worldcover_v200",
+        "class_property": null
+      },
+      "facilities": {
+        "source": {
+          "kind": "osm_facilities_api"
+        },
+        "kind_property": "osm_matched_tag",
+        "kind_map": {
+          "amenity=shelter": "other",
+          "amenity=townhall": "other",
+          "amenity=school": "other",
+          "amenity=community_centre": "other",
+          "amenity=fire_station": "fire_station",
+          "emergency=fire_station": "fire_station",
+          "amenity=police": "responder_base",
+          "amenity=hospital": "other",
+          "amenity=clinic": "other",
+          "amenity=place_of_worship": "other",
+          "emergency=assembly_point": "other",
+          "building=civic": "other",
+          "building=public": "other",
+          "building=school": "other",
+          "building=community_centre": "other"
+        },
+        "unmapped": "error"
+      }
+    },
+    "allow_network": true,
+    "absent_layer_reasons": {
+      "population": "ABSENT. No aggregate population was obtained. KOSIS (kosis.kr) and SGIS (sgis.kostat.go.kr) are the authoritative sources and both are PROXY_FAILURE from this environment; OpenStreetMap carries no population tag anywhere in this box, and place=village gives a location without a count. Nothing was estimated. See reports/SOURCE_ACCESS_STATUS.md.\n"
+    },
+    "build_notes": [
+      "terrain reprojected from EPSG:4326 to EPSG:5187 at 30x30 m",
+      "fuels warped directly onto the DEM grid, so the two rasters are co-registered cell-for-cell"
+    ],
+    "pipeline_order": [
+      "load",
+      "reproject_to_analysis_crs",
+      "clip_with_derivative_buffer",
+      "derive_slope_aspect",
+      "assess_road_topology",
+      "assemble"
+    ]
+  },
+  "caveats": [
+    "StudyAreaBundle is internal and unstable; no downstream repository should depend on this layout yet (docs/DECISIONS.md D-0001)",
+    "no layer, field, or metric in this bundle asserts that any road, shelter, refuge, or area is safe or passable (docs/SCOPE.md)",
+    "this bundle carries data licence obligations that travel with it, including attribution and, for any ODbL source, share-alike on derived databases: Copernicus DEM GLO-30 Public (source dataset COP-DEM_GLO-30-DGED): free for the general public under the Copernicus DEM licence terms. the AWS registry states GLO-30 Public and GLO-90 'are available on a free basis for the general public under the terms and conditions of the Licence'. the licence document ITSELF WAS NOT RETRIEVED from this environment, so the detailed terms are UNVERIFIED HERE; check them before redistributing. attribution to ESA / Copernicus is required | OpenStreetMap (api.openstreetmap.org /api/0.6/map): Open Database License (ODbL) 1.0"
+  ],
+  "manifest_checksum_sha256": "71ff5538a7187b79544d56c24cb13285be8087bc5a90dca94b6fd94150678ae0"
+}

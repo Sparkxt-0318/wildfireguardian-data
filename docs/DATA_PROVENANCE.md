@@ -141,6 +141,7 @@ agent on a normal network should re-try every one of them.
 |---|---|---|---|
 | `data/study_areas/uljin_valley_synthetic_v1` | synthetic fixtures only | yes | fully reproducible with no network; what CI builds |
 | `data/study_areas/uljin_real_v1` | Copernicus DEM GLO-30 + OpenStreetMap | yes | carries ESA/Copernicus attribution and ODbL obligations; terrain and roads only |
+| `data/study_areas/uljin_real_v2` | Copernicus DEM GLO-30 + ESA WorldCover 2021 v200 + OpenStreetMap (roads and facilities) | yes | **the complete real bundle** (Phase 2 item 20): four of five layers. Population ABSENT with a documented reason. Supersedes `uljin_real_v1`, whose terrain and roads are built from identical options; v1 stays because the road audit and second-geography reports quote its numbers |
 | `data/study_areas/naju_real_v1` | Copernicus DEM GLO-30 + ESA WorldCover 2021 v200 + OpenStreetMap | yes | the second geography (Phase 2 item 21): Yeongsan river plain, Naju-si, Jeollanam-do, EPSG:5186. Terrain, land cover and roads; population and facilities ABSENT. Carries ESA/Copernicus, CC-BY 4.0 and ODbL obligations. See `reports/SECOND_GEOGRAPHY.md` |
 | `data/study_areas/wg_integration_fixture_synthetic_v1` | synthetic fixtures only | yes | the downstream CI fixture (Phase 2 item 29). 83 KB, all five layers, closed-form expected results. No licence obligations: nothing in it came from anywhere |
 

@@ -226,6 +226,15 @@ def _load_vector(
             name=name,
             cache_path=cache_dir / f"{config.study_area_id}_{name}_osm.xml",
         )
+    if spec.kind == "osm_facilities_api":
+        from ..sources import fetch_osm_facilities
+
+        return fetch_osm_facilities(
+            _bounds_to_wgs84(config.bounds),
+            allow_network=allow_network,
+            name=name,
+            cache_path=cache_dir / f"{config.study_area_id}_{name}_osm.xml",
+        )
     raise ConfigError(f"source kind {spec.kind!r} cannot provide vector layer {name!r}")
 
 
@@ -522,6 +531,8 @@ def build_study_area(
             "built_at": utc_now_iso(),
             "config": config.to_dict(),
             "allow_network": allow_network,
+            # Read by the contract manifest so an ABSENT layer can say WHY.
+            "absent_layer_reasons": dict(config.absent_layer_reasons),
             "build_notes": build_notes,
             "pipeline_order": [
                 "load",

@@ -60,6 +60,7 @@ _SOURCE_KINDS = {
     "geojson",
     "copernicus_dem_glo30",
     "osm_api",
+    "osm_facilities_api",
     "esa_worldcover",
 }
 
@@ -123,7 +124,12 @@ class SourceSpec:
 
     @property
     def requires_network(self) -> bool:
-        return self.kind in {"copernicus_dem_glo30", "osm_api", "esa_worldcover"}
+        return self.kind in {
+            "copernicus_dem_glo30",
+            "osm_api",
+            "osm_facilities_api",
+            "esa_worldcover",
+        }
 
     @property
     def is_local_file(self) -> bool:
@@ -370,6 +376,11 @@ class StudyAreaConfig:
     population: PopulationConfig | None = None
     facilities: FacilitiesConfig | None = None
     notes: str = ""
+    #: Why a layer this config does not build is missing, per slot. Reaches the
+    #: contract manifest's ``layers.<slot>.reason`` (D-0027). An absent layer
+    #: with no reason reports ``UNKNOWN``, which is itself a finding -- a gap
+    #: nobody documented -- so this is how a *documented* gap says so.
+    absent_layer_reasons: dict[str, str] = field(default_factory=dict)
     config_path: str | None = None
 
     def __post_init__(self) -> None:
@@ -411,6 +422,7 @@ class StudyAreaConfig:
             "crs": crs_to_string(self.crs),
             "bounds": list(self.bounds.as_tuple()),
             "notes": self.notes,
+            "absent_layer_reasons": dict(self.absent_layer_reasons),
             "config_path": self.config_path,
         }
         for key in ("terrain", "roads", "fuels", "population", "facilities"):
@@ -439,6 +451,7 @@ class StudyAreaConfig:
             "crs",
             "bounds",
             "notes",
+            "absent_layer_reasons",
             "terrain",
             "roads",
             "fuels",
@@ -461,6 +474,7 @@ class StudyAreaConfig:
             bounds=bounds,
             description=payload.get("description", ""),
             notes=payload.get("notes", ""),
+            absent_layer_reasons=dict(payload.get("absent_layer_reasons", {})),
             terrain=TerrainConfig.from_dict(payload["terrain"])
             if "terrain" in payload
             else None,

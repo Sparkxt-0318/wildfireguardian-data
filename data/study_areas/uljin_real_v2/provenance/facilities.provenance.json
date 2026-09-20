@@ -1,0 +1,107 @@
+{
+  "checksum": "e89bd97e707525b594a221c449728d6a0232c9e56af7ad50edc409ceb427b435",
+  "checksum_algorithm": "sha256",
+  "data_class": "derived",
+  "layer_name": "facilities",
+  "nodata_representation": "not_applicable",
+  "notes": "ODbL 1.0; attribution to OpenStreetMap contributors required. FACILITY EXISTENCE ONLY. OSM completeness for Korean rural facilities is UNKNOWN, so an absent fire station means 'not mapped in this box', never 'there is none'. an OSM tag is a mapper's label, not a verified capability: see docs/FAILURE_MODES.md F-FAC-3 for two cases in the Uljin study area where the tag would mislead badly.",
+  "original_crs": "EPSG:4326",
+  "output_crs": "EPSG:5187",
+  "parents": [
+    "facilities"
+  ],
+  "random_seed": null,
+  "resolution_unit": "not_applicable",
+  "schema_version": "1.1.0",
+  "sources": [
+    {
+      "acquisition_date": "2026-09-20T04:03:07.298452+00:00",
+      "licence": "Open Database License (ODbL) 1.0",
+      "licence_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "name": "OpenStreetMap (api.openstreetmap.org /api/0.6/map)",
+      "notes": "ODbL is share-alike on derived databases: a study-area bundle containing this road layer carries ODbL obligations, and attribution to OpenStreetMap contributors is required (https://www.openstreetmap.org/copyright). rural Korean coverage is uneven and completeness is UNKNOWN, so any egress count derived from this layer is a statement about the data, not about the ground (docs/FAILURE_MODES.md F-RD-3).",
+      "publisher": "OpenStreetMap contributors",
+      "source_date": "2026-09-20T04:03:07.298439+00:00",
+      "url_or_identifier": "https://api.openstreetmap.org/api/0.6/map?bbox=129.308564,36.904743,129.353612,36.940911"
+    }
+  ],
+  "spatial_resolution": null,
+  "surface_model": "not_applicable",
+  "temporal_class": "observation_time",
+  "temporal_reference": "2026-09-20T04:03:07.295836+00:00",
+  "transformations": [
+    {
+      "notes": "existence and location only. no role, suitability, capacity or operational status is assigned or implied (docs/ASSUMPTIONS.md A-FAC-1/2/3)",
+      "operation": "fetch_osm_facilities",
+      "parameters": {
+        "features_kept": 3,
+        "matched_tags": {
+          "amenity": [
+            "clinic",
+            "community_centre",
+            "fire_station",
+            "hospital",
+            "place_of_worship",
+            "police",
+            "school",
+            "shelter",
+            "townhall"
+          ],
+          "building": [
+            "civic",
+            "community_centre",
+            "public",
+            "school"
+          ],
+          "emergency": [
+            "assembly_point",
+            "fire_station"
+          ]
+        },
+        "url": "https://api.openstreetmap.org/api/0.6/map?bbox=129.308564,36.904743,129.353612,36.940911",
+        "way_point_rule": "shapely representative_point",
+        "ways_without_geometry": 0
+      },
+      "timestamp": "2026-09-20T04:03:07.298484+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "vector reprojection is exact per-vertex; segment interiors are not densified, so long segments keep their straight-line geometry in the target CRS",
+      "operation": "reproject_vector",
+      "parameters": {
+        "always_xy": true,
+        "dst_crs": "EPSG:5187",
+        "features": 3,
+        "src_crs": "EPSG:4326"
+      },
+      "timestamp": "2026-09-20T04:03:07.304659+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    },
+    {
+      "notes": "whole features kept by 'intersects' test; geometry unmodified",
+      "operation": "clip_vector",
+      "parameters": {
+        "crs": "EPSG:5187",
+        "features_in": 3,
+        "features_out": 3,
+        "features_truncated": 0,
+        "mode": "intersects",
+        "requested_bounds": [
+          227500.0,
+          478500.0,
+          231500.0,
+          482500.0
+        ]
+      },
+      "timestamp": "2026-09-20T04:03:07.304943+00:00",
+      "tool": "wildfireguardian_data",
+      "tool_version": "UNKNOWN"
+    }
+  ],
+  "valid_from": "2026-09-20T04:03:07.295836+00:00",
+  "valid_to": "UNKNOWN",
+  "value_unit": "not_applicable",
+  "vertical_datum": "not_applicable"
+}

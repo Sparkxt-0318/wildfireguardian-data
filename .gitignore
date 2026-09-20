@@ -50,3 +50,7 @@ data/study_areas/*
 # obligations -- see its manifest's licences block.
 !data/study_areas/naju_real_v1/
 !data/study_areas/naju_real_v1/**
+# The complete real bundle (Phase 2 item 20): four of five layers from real
+# sources, population ABSENT with a documented reason.
+!data/study_areas/uljin_real_v2/
+!data/study_areas/uljin_real_v2/**

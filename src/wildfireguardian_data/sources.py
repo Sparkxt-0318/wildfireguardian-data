@@ -32,7 +32,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point, Polygon
 
 from .bounds import Bounds
 from .crs import crs_to_string, parse_crs, require_crs
@@ -62,6 +62,8 @@ __all__ = [
     "COPERNICUS_COLLECTION_PAGE",
     "COPERNICUS_BUCKET_README",
     "OSM_API_MAP_URL",
+    "DEFAULT_OSM_FACILITY_TAGS",
+    "fetch_osm_facilities",
     "DEFAULT_OSM_HIGHWAY_VALUES",
     "copernicus_glo30_tile_name",
     "copernicus_glo30_tile_url",
@@ -433,6 +435,46 @@ def _osm_source(url: str) -> SourceRecord:
     )
 
 
+def _osm_map_payload(
+    bounds_wgs84: Bounds, *, timeout_s: float
+) -> tuple[bytes, str]:
+    """GET the OSM map API for ``bounds_wgs84``, returning ``(payload, url)``.
+
+    Shared by the road and facility fetchers. A failure is raised with the
+    reason, never converted into an empty result: an HTTP error and an empty
+    area are different findings (``AGENTS.md`` §4, Phase 2 item 2).
+    """
+    bbox = ",".join(
+        f"{value:.6f}"
+        for value in (
+            bounds_wgs84.min_x,
+            bounds_wgs84.min_y,
+            bounds_wgs84.max_x,
+            bounds_wgs84.max_y,
+        )
+    )
+    url = f"{OSM_API_MAP_URL}?bbox={bbox}"
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": (
+                "wildfireguardian-data/0.1 (research data preparation; "
+                "https://github.com/sparkxt-0318/wildfireguardian-data)"
+            )
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout_s) as response:
+            return response.read(), url
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
+        raise IngestError(
+            f"OSM API request failed for {url}: {exc}. the API rejects boxes "
+            "larger than 0.25 square degrees or with more than 50 000 nodes. "
+            "document the failure and fall back to fixtures rather than "
+            "substituting another source silently (AGENTS.md §4)."
+        ) from exc
+
+
 def fetch_osm_roads(
     bounds_wgs84: Bounds,
     *,
@@ -460,35 +502,7 @@ def fetch_osm_roads(
             f"fetch_osm_roads needs bounds in EPSG:4326; got {crs_to_string(crs)}"
         )
 
-    bbox = ",".join(
-        f"{value:.6f}"
-        for value in (
-            bounds_wgs84.min_x,
-            bounds_wgs84.min_y,
-            bounds_wgs84.max_x,
-            bounds_wgs84.max_y,
-        )
-    )
-    url = f"{OSM_API_MAP_URL}?bbox={bbox}"
-    request = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": (
-                "wildfireguardian-data/0.1 (research data preparation; "
-                "https://github.com/sparkxt-0318/wildfireguardian-data)"
-            )
-        },
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=timeout_s) as response:
-            payload = response.read()
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
-        raise IngestError(
-            f"OSM API request failed for {url}: {exc}. the API rejects boxes "
-            "larger than 0.25 square degrees or with more than 50 000 nodes. "
-            "document the failure and fall back to fixtures rather than "
-            "substituting another source silently (AGENTS.md §4)."
-        ) from exc
+    payload, url = _osm_map_payload(bounds_wgs84, timeout_s=timeout_s)
 
     if cache_path is not None:
         target = Path(cache_path)
@@ -696,6 +710,224 @@ def _worldcover_source(url: str, *, tile_tags: dict[str, str] | None = None) -> 
         ),
     )
 
+
+
+#: OSM tags this repository will read as evidence that *a place exists*, mapped
+#: to nothing. The key is the OSM tag, the value is the set of accepted values,
+#: and ``None`` means any value.
+#:
+#: **There is deliberately no role mapping here.** Deciding that an
+#: ``amenity=shelter`` is a wildfire refuge is a role judgement, and the caller
+#: makes it explicitly through ``facilities.kind_map`` (A-FAC-2). Two verified
+#: examples from the Uljin study area alone show why that is not pedantry:
+#: its one ``amenity=shelter`` is ``shelter_type=gazebo`` (구산리청암정, a
+#: traditional pavilion), and its one ``amenity=school`` is named
+#: "구 노음초등학교 구고분교 터" -- 터 meaning *site of*, so the school no longer
+#: stands. See ``docs/FAILURE_MODES.md`` F-FAC-3.
+DEFAULT_OSM_FACILITY_TAGS: dict[str, frozenset[str] | None] = {
+    "amenity": frozenset(
+        {
+            "shelter",
+            "townhall",
+            "school",
+            "community_centre",
+            "fire_station",
+            "police",
+            "hospital",
+            "clinic",
+            "place_of_worship",
+        }
+    ),
+    "emergency": frozenset({"fire_station", "assembly_point"}),
+    "building": frozenset({"civic", "public", "school", "community_centre"}),
+}
+
+
+def _osm_facility_match(
+    tags: dict[str, Any], wanted: dict[str, frozenset[str] | None]
+) -> str | None:
+    """The first ``key=value`` this element matches, or ``None``.
+
+    Returned as text rather than a boolean so the matched tag reaches
+    provenance: a consumer must be able to see *why* an element was kept.
+    """
+    for key, values in wanted.items():
+        value = tags.get(key)
+        if value is None:
+            continue
+        if values is None or value in values:
+            return f"{key}={value}"
+    return None
+
+
+def fetch_osm_facilities(
+    bounds_wgs84: Bounds,
+    *,
+    allow_network: bool = False,
+    name: str = "facilities_osm",
+    facility_tags: dict[str, frozenset[str] | None] | None = None,
+    timeout_s: float = 120.0,
+    cache_path: str | Path | None = None,
+) -> VectorLayer:
+    """Fetch facility-like OSM elements as **existence only**.
+
+    Returns a layer in **EPSG:4326**, one feature per matched node or way,
+    carrying every OSM tag opaquely plus ``osm_id``, ``osm_type`` and
+    ``osm_matched_tag``. Ways become their representative point, so the layer is
+    uniformly points.
+
+    **What this function does not do**, and will not:
+
+    * it assigns **no role**. ``amenity=shelter`` is recorded as
+      ``amenity=shelter``, not as a refuge. The caller maps roles explicitly
+      (A-FAC-2), and `wg-data` refuses a facilities config with no ``kind_map``;
+    * it sets ``operational_status`` and ``capacity_persons`` to nothing.
+      Neither is in OSM, and neither is estimated from a footprint (A-FAC-3);
+    * it makes no statement that any of these places is safe, usable, or a
+      viable refuge (``AGENTS.md`` §5).
+
+    An empty result is **reported, not returned as an empty layer**: "no
+    facilities were found in this box" and "this box has no facilities" are
+    different claims, and only the first is true (``AGENTS.md`` §3).
+    """
+    _require_network(allow_network, "OpenStreetMap facility data")
+    crs = require_crs(bounds_wgs84.crs, context="fetching OSM facilities")
+    if not crs.equals(parse_crs("EPSG:4326")):
+        raise IngestError(
+            f"fetch_osm_facilities needs bounds in EPSG:4326; got "
+            f"{crs_to_string(crs)}"
+        )
+
+    wanted = dict(facility_tags if facility_tags is not None else DEFAULT_OSM_FACILITY_TAGS)
+    payload, url = _osm_map_payload(bounds_wgs84, timeout_s=timeout_s)
+    if cache_path is not None:
+        target = Path(cache_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(payload)
+
+    try:
+        root = ElementTree.fromstring(payload)
+    except ElementTree.ParseError as exc:
+        raise IngestError(f"OSM API returned unparseable XML for {url}: {exc}") from exc
+
+    node_xy: dict[str, tuple[float, float]] = {}
+    for element in root.findall("node"):
+        node_id = element.get("id")
+        lat, lon = element.get("lat"), element.get("lon")
+        if node_id is not None and lat is not None and lon is not None:
+            node_xy[node_id] = (float(lon), float(lat))
+
+    retrieved_at = utc_now_iso()
+    features: list[Feature] = []
+    ways_without_geometry = 0
+
+    for element in list(root.findall("node")) + list(root.findall("way")):
+        tags = {
+            tag.get("k"): tag.get("v")
+            for tag in element.findall("tag")
+            if tag.get("k") is not None
+        }
+        matched = _osm_facility_match(tags, wanted)
+        if matched is None:
+            continue
+
+        if element.tag == "node":
+            osm_id = element.get("id")
+            if osm_id is None or osm_id not in node_xy:
+                continue
+            point = Point(*node_xy[osm_id])
+        else:
+            refs = [nd.get("ref") for nd in element.findall("nd")]
+            coords = [node_xy[ref] for ref in refs if ref is not None and ref in node_xy]
+            if len(coords) < 2:
+                # A way truncated by the bbox. Counted, never reconstructed.
+                ways_without_geometry += 1
+                continue
+            geometry = LineString(coords)
+            if coords[0] == coords[-1] and len(coords) >= 4:
+                geometry = Polygon(coords)
+            # A representative point, not a centroid: a centroid of a concave
+            # footprint can fall outside it, which would place the facility
+            # somewhere it is not.
+            point = geometry.representative_point()
+
+        properties: dict[str, Any] = {
+            # OSM's own identity is the stable identifier. Not invented, and
+            # not derived from the name: names change and are not unique, while
+            # "node/123" resolves to one element for anyone who looks it up.
+            "facility_id": f"osm:{element.tag}/{element.get('id')}",
+            "osm_id": element.get("id"),
+            "osm_type": element.tag,
+            "osm_version": element.get("version"),
+            "osm_timestamp": element.get("timestamp"),
+            # Why this element was kept, so the decision is auditable.
+            "osm_matched_tag": matched,
+            # Present and empty, not absent: OSM carries neither, and a
+            # consumer must see that they are unknown rather than infer that
+            # nobody looked (A-FAC-1/3).
+            "operational_status": UNKNOWN,
+            "capacity_persons": None,
+        }
+        properties.update(tags)
+        features.append(Feature(point, properties))
+
+    if not features:
+        raise IngestError(
+            f"OSM returned no elements matching {sorted(wanted)} for "
+            f"{bounds_wgs84}. reported rather than returned as an empty layer: "
+            "'no facilities were found' and 'this area has no facilities' are "
+            "different claims, and only the first is supported."
+        )
+
+    provenance = ProvenanceRecord(
+        layer_name=name,
+        data_class=DataClass.OBSERVED,
+        temporal_class=TemporalProvenance.OBSERVATION_TIME,
+        temporal_reference=retrieved_at,
+        sources=(_osm_source(url),),
+        transformations=(
+            Transformation(
+                operation="fetch_osm_facilities",
+                parameters={
+                    "url": url,
+                    "matched_tags": {
+                        key: sorted(values) if values else None
+                        for key, values in wanted.items()
+                    },
+                    "features_kept": len(features),
+                    "ways_without_geometry": ways_without_geometry,
+                    "way_point_rule": "shapely representative_point",
+                },
+                notes=(
+                    "existence and location only. no role, suitability, "
+                    "capacity or operational status is assigned or implied "
+                    "(docs/ASSUMPTIONS.md A-FAC-1/2/3)"
+                ),
+            ),
+        ),
+        original_crs="EPSG:4326",
+        output_crs="EPSG:4326",
+        value_unit=NOT_APPLICABLE,
+        nodata_representation=NOT_APPLICABLE,
+        resolution_unit=NOT_APPLICABLE,
+        vertical_datum=NOT_APPLICABLE,
+        surface_model=NOT_APPLICABLE,
+        valid_from=retrieved_at,
+        valid_to=UNKNOWN,
+        checksum=UNKNOWN,
+        notes=(
+            "ODbL 1.0; attribution to OpenStreetMap contributors required. "
+            "FACILITY EXISTENCE ONLY. OSM completeness for Korean rural "
+            "facilities is UNKNOWN, so an absent fire station means 'not "
+            "mapped in this box', never 'there is none'. an OSM tag is a "
+            "mapper's label, not a verified capability: see "
+            "docs/FAILURE_MODES.md F-FAC-3 for two cases in the Uljin study "
+            "area where the tag would mislead badly."
+        ),
+    )
+    return VectorLayer(
+        name=name, features=tuple(features), crs="EPSG:4326", provenance=provenance
+    )
 
 def fetch_esa_worldcover(
     bounds_wgs84: Bounds,

@@ -1,0 +1,15 @@
+{
+  "source_layer": "roads",
+  "crs": "EPSG:5187",
+  "nodes": 55,
+  "edges": 68,
+  "total_length_m": 28784.169637661373,
+  "snap_tolerance_m": 1.0,
+  "max_intra_cluster_distance_m": 0.0,
+  "exploded_multilinestrings": 0,
+  "dropped_zero_length": 0,
+  "node_crossings_added": 0,
+  "shared_vertex_splits": 37,
+  "shared_vertices_found": 41,
+  "distance_unit": "m"
+}

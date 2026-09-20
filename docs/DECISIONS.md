@@ -825,3 +825,69 @@ this one is clean apart from the documented ring.
 **It is `READY` for all three consumer profiles and no layer in it is
 planner-legal.** Both facts are asserted together, because the first without the
 second would read as a quality claim (D-0028).
+
+## D-0030 | 2026-09-20 | accepted | OSM facilities are fetched as existence only, with no role
+
+**Decision.** `fetch_osm_facilities` returns facility-like OSM elements as
+points in EPSG:4326, carrying every tag opaquely plus `facility_id`,
+`osm_matched_tag`, `operational_status: UNKNOWN` and `capacity_persons: None`.
+It assigns **no role**. `DEFAULT_OSM_FACILITY_TAGS` says which elements are
+*kept*, never what they *are*; the caller maps roles through the required
+`facilities.kind_map`.
+
+**Rejected.** A built-in tag-to-role mapping — `amenity=shelter` → `shelter`,
+`amenity=school` → `temporary_refuge_candidate` — which is what a consumer
+wants and is one dictionary away.
+
+**Why, with evidence rather than principle.** OSM has exactly three
+facility-tagged elements in the Uljin study box, and **two of three** would be
+badly misread by that dictionary:
+
+- `amenity=shelter` is 구산리청암정 with `shelter_type=gazebo` — a traditional
+  pavilion, not a refuge;
+- `amenity=school` is "구 노음초등학교 구고분교 **터**" — `터` means *site of*,
+  so the school does not stand.
+
+A built-in mapping would have produced two evacuation destinations, one a
+decorative structure and one an empty field, each indistinguishable in the
+output from a real one. Instead all three map to `other` in
+`uljin_real_v2`: **this box supports zero refuge candidates**, which is a
+finding (`docs/FAILURE_MODES.md` F-FAC-3).
+
+**`facility_id` comes from OSM's own identity** (`osm:node/123`), not from the
+name. A name is neither unique nor stable; an OSM id resolves for anyone who
+looks it up.
+
+**A way becomes its `representative_point`, not its centroid.** The centroid of
+a concave footprint can fall outside the footprint, which would place a facility
+somewhere it is not.
+
+**An empty result is raised, not returned.** "No facilities were found in this
+box" and "this box has no facilities" are different claims and only the first is
+supported. The same asymmetry is recorded as F-FAC-4: no fire station is mapped
+in the Uljin box, and that is a fact about OSM coverage, never a finding that
+Uljin-gun has no fire service.
+
+**Consequence.** Nothing prevents an operator writing
+`"amenity=shelter": shelter` in a config. The guard is that they must write it,
+in a reviewed file, with the contradicting evidence (`shelter_type=gazebo`)
+preserved beside it in the bundle — not that it is impossible.
+
+## D-0031 | 2026-09-20 | accepted | An absent layer may state why, and `UNKNOWN` means undocumented
+
+**Decision.** `StudyAreaConfig` accepts `absent_layer_reasons`, a per-slot
+string that reaches the contract manifest's `layers.<slot>.reason` (D-0027).
+
+**Why.** The contract already represented absence as a value rather than a
+missing key, but every absence read `reason: "UNKNOWN"` — so a gap somebody had
+investigated and documented was indistinguishable from one nobody had looked at.
+Those are different findings.
+
+`uljin_real_v2` now says, in the artifact a consumer actually reads, that its
+population layer is absent because KOSIS and SGIS are both `PROXY_FAILURE` from
+this environment, that OSM carries no population tag anywhere in the box, and
+that nothing was estimated.
+
+**Consequence.** `reason: "UNKNOWN"` keeps its meaning and gains a sharper one:
+the gap was **not documented**. That is itself a finding about the bundle's
+preparation, and it is now visible as one.
