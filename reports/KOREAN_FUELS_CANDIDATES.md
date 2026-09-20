@@ -117,6 +117,43 @@ Every other axis is `UNKNOWN`: nothing about this source was verified.
 
 ---
 
+## Candidate 4 — 환경부 토지피복지도 (Ministry of Environment land-cover map)
+
+A lead, not an assessment. **Every axis is `UNKNOWN`** and deliberately stays
+that way.
+
+Where the name came from: the main WildfireGuardian repository's
+`data_io/raster.py` has a `load_landcover(source="me_korea")` branch that raises
+`NotImplementedError` with the message *"ME 토지피복 ingestion is a Session 3
+task"*. So the only verified fact is that **another repository intends to use a
+Ministry of Environment land-cover product**. That is not evidence of its
+spatial resolution, vintage, classification scheme, coverage, licence or
+provenance, and this document will not supply any of those from memory
+(`AGENTS.md` §3, §4).
+
+| Axis | Value |
+|---|---|
+| **Source** | named as "ME 토지피복" / 환경부 토지피복지도. Publisher, portal and dataset identifier all `UNKNOWN` |
+| **Spatial resolution** | `UNKNOWN` |
+| **Date vintage** | `UNKNOWN` |
+| **Classification scheme** | `UNKNOWN`. Korean land-cover maps are published at more than one classification level; which one, and its code dictionary, is not established here |
+| **Units** | `UNKNOWN` |
+| **Coverage** | `UNKNOWN` |
+| **Licence** | `UNKNOWN` |
+| **Provenance** | `UNKNOWN` |
+| **Access status** | `UNKNOWN` — not probed. Likely routes are `www.nsdi.go.kr` and `egis.me.go.kr`, and NSDI is `PROXY_FAILURE` from this container |
+
+### Known limitations
+
+1. Everything above is `UNKNOWN`, which is itself the finding: this is a name,
+   not a dataset.
+2. Worth checking before 임상도 is preferred over it. A Ministry of Environment
+   land-cover map and a Korea Forest Service stand map answer different
+   questions — land cover versus forest composition — and a fuels consumer
+   probably wants both.
+
+---
+
 ## Rejected as fuel sources
 
 - **산불발생위치도 (wildfire occurrence location map)** — free on the exchange.
@@ -137,6 +174,9 @@ Every other axis is `UNKNOWN`: nothing about this source was verified.
 
 1. Register on `www.bigdata-forest.kr`, download `FRT001003` for 울진군, and
    ingest via `wg-data import-fuels` with the licence question answered first.
+1b. Probe 환경부 토지피복지도 (Candidate 4) from a normal network and fill in its
+   nine axes. It may be a better fit than either shipped option, or it may not;
+   nobody here knows.
 2. Until then, `uljin_real_v1` carries ESA WorldCover, labelled as land cover.
 3. Do **not** ship a crosswalk from either to a fire-behaviour fuel model. That
    is `wildfireguardian-fuels`, not this repository (`docs/SCOPE.md`).
