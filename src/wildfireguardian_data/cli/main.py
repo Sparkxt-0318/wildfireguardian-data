@@ -41,6 +41,7 @@ from ..errors import (
     UnitError,
     WGDataError,
 )
+from .imports import IMPORT_COMMANDS
 
 __all__ = ["main", "build_parser"]
 
@@ -166,6 +167,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="report only this consumer profile",
     )
     compat.add_argument("--json", action="store_true", help="emit JSON")
+
+    from .imports import add_import_parsers
+
+    add_import_parsers(subparsers)
 
     fixtures_parser = subparsers.add_parser(
         "make-fixtures",
@@ -555,6 +560,29 @@ def _cmd_compatibility(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_import(args: argparse.Namespace) -> int:
+    """Run one ``import-*`` command. Its own module; see ``cli/imports.py``."""
+    from .imports import run_import
+
+    summary = run_import(args.command, args)
+    if args.json:
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
+    else:
+        print(f"imported {summary['layer']} -> {summary['written']}")
+        print(f"provenance: {summary['provenance']}")
+        checksum = summary["checksum"]
+        print(f"sha256: {checksum['sha256']}")
+        print(f"  {checksum['note']}")
+        unknown = summary["unknown_provenance_fields"]
+        if unknown:
+            print(f"UNKNOWN ({len(unknown)}): {', '.join(unknown)}")
+            print(
+                "  these are honest gaps, not failures. supply them if you know "
+                "them; do not guess them (AGENTS.md section 3)"
+            )
+    return EXIT_OK
+
+
 _COMMANDS = {
     "build-study-area": _cmd_build,
     "provenance": _cmd_provenance,
@@ -565,6 +593,7 @@ _COMMANDS = {
     "list-fixtures": _cmd_list_fixtures,
     "version": _cmd_version,
 }
+_COMMANDS.update({command: _cmd_import for command in IMPORT_COMMANDS})
 
 
 def main(argv: Sequence[str] | None = None) -> int:

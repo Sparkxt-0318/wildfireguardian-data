@@ -18,9 +18,26 @@ wg-data validate-study-area BUNDLE_DIR [--strict] [--json]
 wg-data summarize-study-area BUNDLE_DIR [--json]
 wg-data provenance BUNDLE_DIR [--layer NAME] [--unknown-only] [--json]
 wg-data compatibility BUNDLE_DIR [--profile NAME] [--json]
+wg-data import-fuels      FILE --out DIR --scheme NAME <provenance...>
+wg-data import-population FILE --out DIR --aggregation-level LEVEL <provenance...>
+wg-data import-facilities FILE --out DIR --kind-map JSON <provenance...>
+wg-data import-roads      FILE --out DIR <provenance...>
 wg-data make-fixtures OUT_DIR [--only NAME]
 wg-data version
 ```
+
+The `import-*` commands ingest a file downloaded by hand, for the sources that
+cannot be fetched from code (`reports/SOURCE_ACCESS_STATUS.md`). Every
+provenance fact is a **required** argument — `--source-name`, `--source-url`,
+`--source-date`, `--licence`, `--temporal-class` — because a file on disk states
+none of them and a filename is not evidence (`AGENTS.md` §3). One of
+`--expect-sha256` or `--no-expected-checksum` is also required: the checksum
+decision is never skipped, only explicitly waived. A mismatch is exit 3 and
+writes nothing.
+
+Declare `--licence UNKNOWN` if you have not read the licence, or if the source
+states contradictory terms. An unverified licence recorded as fact is worse than
+a gap — 임상도's product page states CC-BY *and* "all rights reserved".
 
 `provenance` exits 1 only when a layer has `UNKNOWN` in one of the three fields
 without which its values cannot be interpreted (`output_crs`, `value_unit`,
