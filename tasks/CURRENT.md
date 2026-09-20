@@ -1,38 +1,56 @@
 # CURRENT
 
-**Status: Phase 2 in flight.** Read `AGENTS.md` before starting any of it. Each
-item states what "done" looks like, because "improve the road data" is not a
-task.
+**Status: Phase 2 complete; frozen at `v0.2.0`.** Read `AGENTS.md` before
+starting anything below. Each item states what "done" looks like, because
+"improve the road data" is not a task.
 
-### Phase 2 — done so far
+> **The freeze rule (Phase 2 item 34).** Do not add data-processing
+> abstractions until a real downstream need exposes a gap. The two known gaps
+> are not abstractions: one is a registration form, the other is a proxy.
 
-- **Road fragmentation audit complete, and the cause was ours.** `uljin_real_v1`
-  was 22 components; the cause was endpoint-only noding, not OSM quality. 35 of
-  41 shared OSM nodes were *interior* vertices of a way. Shared-vertex noding
-  (D-0020) collapses it to 2 components with identical total length
-  (28.784 km), and an independent OSMnx pipeline over the same ground agrees to
-  ~12% on edge count. `reports/ULJIN_ROAD_AUDIT.md`.
-- **Road QA extended**, exit semantics corrected to departure nodes and boundary
-  crossings (D-0021), road attributes carried-when-present (D-0022).
-- **Governance data classes aligned**, including the `RETROSPECTIVE` two-axis
-  conflict (D-0023).
-- **ESA WorldCover wired in as land cover** (D-0024), so the real bundle can
-  carry vegetation. Not a fuel model; no crosswalk shipped.
-- **Source access re-probed and classified** under the Phase 2 taxonomy:
-  `reports/SOURCE_ACCESS_STATUS.md`. No `POTENTIALLY_EXPOSED_CREDENTIAL`, and
-  that check is now conclusive (full history present).
-- **임상도 found and documented** — the authoritative Korean forest stand map,
-  `reports/KOREAN_FUELS_CANDIDATES.md`.
+Phase 2's outcome is in `reports/PHASE2_INTEGRATION_READINESS.md`. In short:
+five committed bundles, **0 ERROR findings in all five**, two real Korean
+geographies in different belt CRSs, a versioned contract that cannot drift from
+its own data, and 31 decision records. 446 tests pass.
 
-### Phase 2 — in flight
+### The two things actually blocking further data work
 
-Canonical bundle manifest and `bundle_schema_version`; `wg-data provenance` and
-`wg-data compatibility`; `wg-data import-*`; per-layer `valid_from`/`valid_to`
-and a co-registration contract record; the downstream CI fixture; a second
-Korean geography; `reports/LEGACY_DATA_PIPELINE_COMPARISON.md` and
-`reports/PHASE2_INTEGRATION_READINESS.md`; then the `v0.2.0` freeze.
+1. **Aggregate population — nothing, anywhere.** KOSIS and SGIS are
+   `PROXY_FAILURE` from this environment and OSM has no `population` tag in
+   either study box. `FORECAST_VALUE` is `INCOMPLETE` solely because of this,
+   and the settlement-dependent road diagnostics (single-egress candidates,
+   critical links) are **structurally unavailable** on both real bundles.
+2. **임상도 is unblocked and unretrieved.** The authoritative Korean forest
+   stand map needs a free account on `www.bigdata-forest.kr` and an answer to
+   its licence contradiction — its page states CC-BY *and* "all rights
+   reserved". A human with a browser, not a better fetcher. Fully documented in
+   `reports/KOREAN_FUELS_CANDIDATES.md`.
 
----
+### Ported-in work identified but not done
+
+`reports/LEGACY_DATA_PIPELINE_COMPARISON.md` classified two components of the
+main repository as `PORT_WITH_FIXES` and neither has been ported:
+
+- **`measure_osm_completeness.py`** — measures the thing `F-RD-3` leaves at
+  `UNKNOWN`. Better than anything here.
+- **Multi-tile mosaicking** — a real capability this repository lacks; refusing
+  a straddling request is the right default but not a complete answer.
+- A **nodata-fraction gate** (refuse a raster over 50% nodata) is also
+  classified `PORT_WITH_FIXES` and deliberately not adopted: promoting a
+  WARNING to an ERROR is a scientific change and needs its own reviewed commit.
+
+### Open questions recorded rather than answered
+
+- **Naju's 7 road components are not audited** to the depth of the Uljin
+  report. 98.7% of edges are in one component and the other six total 4.95 km
+  of 184, but nothing claims they are real rather than clip artifacts.
+- **The Copernicus DEM's temporal validity is `UNKNOWN`** on purpose, so
+  `PRV-010` fires on every terrain layer in every real bundle. How long a DSM
+  stays valid is genuinely open: its bare-earth component is static and its
+  canopy component is not.
+- **The benchmark tolerance disagreement** (`reports/BENCHMARK_CROSS_CHECK.md`):
+  1.11 × 10⁻⁷ degrees of float32 storage against a 1 × 10⁻⁹ tolerance. Not
+  changed here; the recommendation belongs to the benchmark repository.
 
 ## 1. Replace or cross-check the road source with authoritative Korean data
 

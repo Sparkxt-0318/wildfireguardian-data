@@ -56,8 +56,8 @@ all.
 # Build a study area from synthetic fixtures (no network needed)
 wg-data build-study-area configs/uljin_valley_synthetic.yaml
 
-# Build from real open data (Copernicus DEM GLO-30 + OpenStreetMap)
-wg-data build-study-area configs/uljin_real_copernicus_osm.yaml --allow-network
+# Build from real open data (Copernicus DEM + WorldCover + OpenStreetMap)
+wg-data build-study-area configs/uljin_real_complete.yaml --allow-network
 
 # Check a bundle on disk, including file checksums against provenance
 wg-data validate-study-area data/study_areas/uljin_valley_synthetic_v1
@@ -65,6 +65,18 @@ wg-data validate-study-area <bundle> --strict --json
 
 # Describe what a bundle contains, including its gaps
 wg-data summarize-study-area <bundle>
+
+# Report where every layer came from, and what is not known about it
+wg-data provenance <bundle> [--layer NAME] [--unknown-only]
+
+# Report which consumers' declared inputs this bundle satisfies.
+# READY means "the named inputs are present with interpretable provenance".
+# It is NOT a claim that the data is accurate (D-0028).
+wg-data compatibility <bundle>
+
+# Ingest a file you downloaded by hand, with provenance supplied explicitly.
+# Every provenance fact is required; the checksum decision cannot be skipped.
+wg-data import-fuels FILE --out DIR --scheme NAME <provenance...>
 
 # Write the synthetic fixtures out for inspection
 wg-data make-fixtures /tmp/fixtures
@@ -76,32 +88,56 @@ Exit codes and the `--json` contract: [`docs/INTERFACES.md`](docs/INTERFACES.md)
 ### What a summary looks like
 
 ```
-study area : uljin_real_v1
+study area : uljin_real_v2
 CRS        : EPSG:5187
 bounds     : (227500.0, 478500.0) - (231500.0, 482500.0)  [4000 x 4000 m]
+components : facilities, fuels, roads, terrain
 
 layers:
-  dem            raster 139x138 @ 30m  unit=m    missing=0/19182    [derived/static]
-  slope_deg      raster 139x138 @ 30m  unit=deg  missing=550/19182  [derived/static]
-  aspect_deg     raster 139x138 @ 30m  unit=deg  missing=550/19182  [derived/static]
-  roads          vector 31 features ['LineString']                  [derived/observation_time]
+  dem            raster 139x138 @ 30m  unit=m     missing=0/19182    [derived/static]
+  slope_deg      raster 139x138 @ 30m  unit=deg   missing=550/19182  [derived/static]
+  aspect_deg     raster 139x138 @ 30m  unit=deg   missing=550/19182  [derived/static]
+  roads          vector 31 features ['LineString']                   [derived/observation_time]
+  fuels          raster 139x138 @ 30m  unit=class missing=0/19182    [derived/annual]
+  facilities     vector 3 features ['Point']                         [derived/observation_time]
 
 terrain:
-  elevation  : 35.0 - 605.0 m (mean 285.6, relief 570.0)
+  elevation  : 35.0 - 605.0 m (mean 285.6, relief 570.0 m)
   slope      : mean 22.43 deg, max 51.11 deg (550 cells not computable)
   aspect     : circular mean 99.2 deg (resultant 0.148; 550 cells ignored)
 
 roads (topology QA only - no safety claim):
-  53 nodes, 31 edges, 28.78 km, 22 component(s)
-  dead ends 43, isolated segments 17, exit nodes 1
+  55 nodes, 68 edges, 28.78 km, 2 component(s)
+  dead ends 13, isolated segments 0, exit nodes 4
   single-egress candidates 0, no-egress components 0
-  articulation points 9, bridges 31, critical links 0, unnoded crossings 2
+  articulation points 18, bridges 22, critical links 0, unnoded crossings 0
+
+facilities (source-declared roles, unassessed):
+  other=3
+  sourced capacity 0/3, suitability assessed 0/3
+
+! no layer, field, or metric in this bundle asserts that any road, shelter,
+! refuge, or area is safe or passable (docs/SCOPE.md)
 ```
 
-The 550 cells with no slope are the array edge — a 3×3 estimator has no answer
-there, and the edge is left as `nodata` rather than extrapolated. The 22
-components are what OpenStreetMap's rural coverage actually looks like, reported
-rather than smoothed over.
+Three things in that output are worth reading carefully.
+
+The **550 cells with no slope** are the array edge. A 3×3 estimator has no
+answer there, and the edge is left `nodata` rather than extrapolated
+([D-0005](docs/DECISIONS.md)).
+
+The **2 components** are not what OSM's rural coverage looks like — they are
+what it looks like *once noded correctly*. This bundle first reported 22, and
+the cause was this repository's own graph builder connecting lines only at their
+endpoints when 35 of 41 shared OSM nodes were interior vertices of a way. The
+fix collapses 22 to 2 with identical total length. The investigation is
+[`reports/ULJIN_ROAD_AUDIT.md`](reports/ULJIN_ROAD_AUDIT.md), and it is the
+reason `RD-001` now says a component count is *often a missing junction rather
+than a real disconnection*.
+
+**`other=3`** means all three facilities carry no refuge role, and that is a
+finding rather than missing work: one is a `shelter_type=gazebo` and one is the
+*site of* a demolished school.
 
 ## What it does
 
@@ -109,7 +145,7 @@ rather than smoothed over.
 |---|---|
 | **Terrain** | DEM ingestion, explicit reprojection, grid-preserving clipping, Horn (1981) slope and aspect, nodata-aware statistics with circular aspect means |
 | **Roads** | Undirected graph QA: components, node degrees, dead ends, isolated segments, articulation points, multiplicity-aware bridges, settlement-to-exit critical links, single-egress *candidates*, unnoded-crossing diagnostics |
-| **Fuels** | A generic ingestion architecture with declared class schemes. **No Korean fuel dataset or crosswalk is invented** |
+| **Fuels** | Ingestion with declared class schemes, and ESA WorldCover 2021 wired in as **land cover**. **No fuel-model crosswalk is shipped or implied** — land cover is not a fire-behaviour fuel model (D-0024) |
 | **Population** | Aggregate settlement data — totals, half-open age strata, village geometry, settlement centroids — with a load-time privacy guard |
 | **Facilities** | Generic loaders for shelters, temporary-refuge candidates, responder bases, fire stations. Presence in a dataset is never fitness for purpose |
 | **Provenance** | Source, dates, transformations, original and output CRS, resolution, units, vertical datum, nodata representation, SHA-256 checksum, temporal class |
@@ -126,18 +162,36 @@ rejected as out of scope regardless of quality ([`docs/SCOPE.md`](docs/SCOPE.md)
 
 | Bundle | Sources | Network |
 |---|---|---|
-| `data/study_areas/uljin_valley_synthetic_v1` | synthetic fixtures only | none |
-| `data/study_areas/uljin_real_v1` | Copernicus DEM GLO-30 + OpenStreetMap | required to rebuild |
+| `uljin_real_v2` | Copernicus DEM + ESA WorldCover + OSM roads and facilities | required to rebuild |
+| `naju_real_v1` | the same three, a different geography and belt CRS | required to rebuild |
+| `uljin_real_v1` | Copernicus DEM GLO-30 + OpenStreetMap | required to rebuild |
+| `uljin_valley_synthetic_v1` | synthetic fixtures only | none |
+| `wg_integration_fixture_synthetic_v1` | synthetic fixtures only | none |
 
-`uljin_real_v1` has **no** fuels, population, or facilities layer, because that
-data was not obtained. Those components are absent rather than filled with
-plausible values ([D-0015](docs/DECISIONS.md)); the attempts and their outcomes
-are recorded in
-[`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md#access-attempts--what-was-tried-and-what-happened).
+All five validate with **zero ERROR findings**.
 
-**Attribution obligations** travel with `uljin_real_v1`: terrain © ESA /
-Copernicus Programme (Copernicus DEM GLO-30, free use with attribution); roads ©
-OpenStreetMap contributors (ODbL 1.0, share-alike on derived databases).
+**No bundle has a population layer.** Every authoritative Korean source is
+unreachable from the development environment or needs credentials
+([`reports/SOURCE_ACCESS_STATUS.md`](reports/SOURCE_ACCESS_STATUS.md)), and OSM
+carries no `population` tag in either study box. Nothing was estimated: the
+layer is `ABSENT` and says why, in the bundle's own contract
+([D-0031](docs/DECISIONS.md)).
+
+`uljin_real_v2`'s facilities layer contains **zero refuge candidates**, which is
+a finding rather than a gap. Two of the three OSM facility elements in that box
+would mislead any pipeline that trusted the tag — one `amenity=shelter` is a
+`shelter_type=gazebo`, and one `amenity=school` is the *site of* a demolished
+school. See [`docs/FAILURE_MODES.md`](docs/FAILURE_MODES.md) F-FAC-3.
+
+`naju_real_v1` exists to test whether any of this is Uljin-specific
+([`reports/SECOND_GEOGRAPHY.md`](reports/SECOND_GEOGRAPHY.md)), and
+`wg_integration_fixture_synthetic_v1` is 83 KB with closed-form expected
+answers, for another repository's CI.
+
+**Attribution obligations** travel with every real bundle: terrain © ESA /
+Copernicus Programme (Copernicus DEM GLO-30); land cover © ESA WorldCover 2021
+v200 (CC-BY 4.0); roads and facilities © OpenStreetMap contributors (ODbL 1.0,
+share-alike on derived databases).
 
 ## Synthetic fixtures
 
@@ -159,7 +213,7 @@ tests here:
 ## Tests
 
 ```bash
-python -m pytest -q          # 332 tests, offline and deterministic
+python -m pytest -q          # 446 tests, offline and deterministic
 python -m pytest -m network  # 3 live-source tests, opt-in
 ```
 
@@ -185,21 +239,46 @@ before editing code**, as [`AGENTS.md`](AGENTS.md) requires:
 | [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md) | what is recorded, what was obtained, what failed and why |
 | [`docs/VALIDATION.md`](docs/VALIDATION.md) | the check catalogue, and what validation does *not* check |
 | [`docs/FAILURE_MODES.md`](docs/FAILURE_MODES.md) | how outputs can still be wrong: caught, not caught, and by design |
-| [`docs/INTERFACES.md`](docs/INTERFACES.md) | the stable CLI, and why no data contract is published yet |
+| [`docs/INTERFACES.md`](docs/INTERFACES.md) | the stable CLI and the published bundle contract, and what stays unstable |
 | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) | terms as this repository uses them |
 | [`tasks/`](tasks/) | roadmap, work in flight, and what is finished |
 
+And the investigations, which are evidence rather than narrative:
+
+| Report | What it establishes |
+|---|---|
+| [`reports/PHASE2_INTEGRATION_READINESS.md`](reports/PHASE2_INTEGRATION_READINESS.md) | what may and may not be depended on at `v0.2.0` |
+| [`reports/ULJIN_ROAD_AUDIT.md`](reports/ULJIN_ROAD_AUDIT.md) | the 22 road components were a pipeline defect, not sparse data |
+| [`reports/SECOND_GEOGRAPHY.md`](reports/SECOND_GEOGRAPHY.md) | the schema is not Uljin-specific, and where that is still untested |
+| [`reports/SOURCE_ACCESS_STATUS.md`](reports/SOURCE_ACCESS_STATUS.md) | every source, classified — and why nothing is marked "unavailable" |
+| [`reports/KOREAN_FUELS_CANDIDATES.md`](reports/KOREAN_FUELS_CANDIDATES.md) | 임상도 and the alternatives, on nine axes each |
+| [`reports/LEGACY_DATA_PIPELINE_COMPARISON.md`](reports/LEGACY_DATA_PIPELINE_COMPARISON.md) | measured comparison with the main repository's pipeline |
+| [`reports/BENCHMARK_CROSS_CHECK.md`](reports/BENCHMARK_CROSS_CHECK.md) | an independent suite's 8 relevant cases, run for the first time |
+
 ## Status
 
-Phase 1 (foundation) is complete: installable package, working CLI, provenance
-system, CRS validation, terrain preprocessing, road QA, synthetic fixtures, two
-example study-area bundles, 332 automated tests (plus 3 opt-in live-source tests), and documented failure modes.
-See [`tasks/COMPLETED.md`](tasks/COMPLETED.md) for what was built and
-[`tasks/CURRENT.md`](tasks/CURRENT.md) for what should happen next.
+**Phase 2 complete, frozen at `v0.2.0`.** Five committed bundles with zero ERROR
+findings, two real Korean geographies in different belt CRSs, a versioned
+downstream contract that cannot drift from its own data, 31 decision records,
+and **446 automated tests** (plus 3 opt-in live-source tests, which also pass).
+See [`tasks/COMPLETED.md`](tasks/COMPLETED.md) for what was built — including
+what turned out to be **wrong** — and
+[`tasks/CURRENT.md`](tasks/CURRENT.md) for what is left.
 
-`StudyAreaBundle` and the on-disk bundle layout are **internal and unstable**.
-No downstream WildfireGuardian repository should depend on them yet
-([D-0001](docs/DECISIONS.md)).
+### What a downstream repository may depend on
+
+`bundle_manifest.json` at `bundle_schema_version` 1.0.0, and the `wg-data` CLI.
+That is the contract ([D-0027](docs/DECISIONS.md),
+[`docs/INTERFACES.md`](docs/INTERFACES.md)).
+
+`StudyAreaBundle`, the Python API, `manifest.json` and the provenance sidecars
+remain **internal and unstable** ([D-0001](docs/DECISIONS.md)).
+
+Two things are worth stating before anyone builds on this. There is **no
+population data**, anywhere. And `READY` from `wg-data compatibility` means only
+that a consumer's named inputs are present with interpretable provenance — an
+entirely synthetic bundle is `READY` for all three consumer profiles, which is
+what a fixture is for ([D-0028](docs/DECISIONS.md)).
 
 ## Licence
 

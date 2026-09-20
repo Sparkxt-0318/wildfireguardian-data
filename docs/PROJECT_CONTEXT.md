@@ -2,7 +2,10 @@
 
 **Repository:** `wildfireguardian-data`
 **Role in the WildfireGuardian project:** independent geospatial *data foundation* only.
-**Status:** Phase 1 (foundation) — see `tasks/COMPLETED.md` and `tasks/CURRENT.md`.
+**Status:** Phase 2 complete, frozen at `v0.2.0` — see
+`reports/PHASE2_INTEGRATION_READINESS.md` for what may be depended on,
+`tasks/COMPLETED.md` for what was built and what turned out to be wrong, and
+`tasks/CURRENT.md` for what is left.
 
 ## What WildfireGuardian is
 

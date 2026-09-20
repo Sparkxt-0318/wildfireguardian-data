@@ -102,12 +102,16 @@ repository that imports them today is accepting that.
 `manifest.json` carries `schema_version`. A reader that does not recognise the
 version must fail, not guess.
 
-## Why no data contract is published yet
+## Why the published contract is narrow
 
-The downstream repositories (forecast comparison, evacuation routing, rescue
-routing, OSSE) do not exist. A schema written now would encode this
-repository's current internal convenience as an inter-repository standard, and
-the first real consumer would discover that, for example:
+**Superseded in part.** A contract *is* now published — `bundle_manifest.json`,
+above, since D-0027. What has not changed is the reasoning that kept it narrow,
+so it is kept here rather than deleted.
+
+The argument against publishing anything was that a schema written before a real
+consumer existed would encode this repository's internal convenience as an
+inter-repository standard, and the first real consumer would discover that, for
+example:
 
 - routing needs a **directed** graph with turn restrictions, which this
   repository deliberately does not model (A-RD-1);
@@ -115,8 +119,14 @@ the first real consumer would discover that, for example:
 - rescue-time analysis needs slope-corrected, surface-aware travel costs, not
   the planar lengths here (A-RD-5).
 
-Publishing a contract before those needs are known would either be wrong or
-would force those repositories to work around it.
+Every one of those is still true. So the contract publishes **what each layer is
+and where it came from**, and publishes the refusals as data: each consumer
+profile in `wg-data compatibility` carries a machine-readable
+`not_supplied_here` list naming exactly these gaps (D-0028). A consumer reads
+what it may rely on *and* what it must supply itself, from the same artifact.
+
+What remains unpublished, and deliberately: `StudyAreaBundle`, the Python API,
+`manifest.json` and the provenance sidecars (D-0001).
 
 ## What a downstream consumer must do today
 
