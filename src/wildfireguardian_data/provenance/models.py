@@ -18,6 +18,7 @@ Two rules govern this module:
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from enum import Enum
@@ -28,6 +29,8 @@ from ..errors import ProvenanceError
 __all__ = [
     "UNKNOWN",
     "NOT_APPLICABLE",
+    "combine_data_classes",
+    "governance_class_name",
     "PROVENANCE_SCHEMA_VERSION",
     "DataClass",
     "TemporalProvenance",
@@ -56,16 +59,96 @@ PROVENANCE_SCHEMA_VERSION = "1.0.0"
 
 
 class DataClass(str, Enum):
-    """What kind of thing a layer's values are. Definitions: ``docs/GLOSSARY.md``.
+    """What kind of thing a layer's values are.
+
+    Aligned with ``wildfireguardian-research-governance``
+    ``governance/DATA_CLASSES.md`` (AUTHORITATIVE, Tier 1), whose governing rule
+    is that **there is no unclassified scientific input**. All seven governance
+    classes are present, but this repository only ever *emits* four of them:
+
+    * ``OBSERVED``, ``DERIVED``, ``MODELED``, ``SYNTHETIC`` -- what a data
+      foundation can produce.
+    * ``ASSUMED`` exists so an inbound value can be labelled and so this
+      repository can **refuse** to emit one: ``AGENTS.md`` §3 forbids setting a
+      value from what is typical, which is exactly what ``ASSUMED`` describes.
+    * ``RETROSPECTIVE`` and ``ORACLE_ONLY`` exist for **rejection at the
+      boundary**. This repository produces no oracle quantities, and a
+      retrospective layer is refused as a landscape input for a forecast-time
+      study (D-0023).
 
     There is no default. A layer must declare whether its numbers were measured,
     modelled, derived here, or made up for a test.
+
+    Serialised lowercase in this repository's own artifacts; the export boundary
+    emits **uppercase**, as governance requires (their ``OC-029``). See
+    :func:`governance_class_name`.
     """
 
     OBSERVED = "observed"
     MODELED = "modeled"
     DERIVED = "derived"
     SYNTHETIC = "synthetic"
+    ASSUMED = "assumed"
+    RETROSPECTIVE = "retrospective"
+    ORACLE_ONLY = "oracle_only"
+
+    @property
+    def planner_legal(self) -> bool:
+        """Whether governance permits a planner to consume this class.
+
+        ``RETROSPECTIVE`` and ``ORACLE_ONLY`` are never planner-legal, under any
+        framing -- including "the planner only uses a summary of it", since
+        governance's class algebra states that aggregation does not downgrade
+        class. ``SYNTHETIC`` is legal only through a declared observation
+        operator, which is not something this repository provides, so it is
+        reported as not planner-legal from here.
+        """
+        return self in {
+            DataClass.OBSERVED,
+            DataClass.DERIVED,
+            DataClass.MODELED,
+            DataClass.ASSUMED,
+        }
+
+
+#: Governance's class algebra, in precedence order (``DATA_CLASSES.md`` §2):
+#: any ORACLE_ONLY input makes the result ORACLE_ONLY; else any RETROSPECTIVE
+#: input makes it RETROSPECTIVE; else a model output makes it MODELED; else
+#: DERIVED. Aggregation never downgrades class, "because summarization is the
+#: most common disguise for leakage".
+_CLASS_PRECEDENCE: tuple[DataClass, ...] = (
+    DataClass.ORACLE_ONLY,
+    DataClass.RETROSPECTIVE,
+    DataClass.MODELED,
+    DataClass.ASSUMED,
+    DataClass.DERIVED,
+    DataClass.SYNTHETIC,
+    DataClass.OBSERVED,
+)
+
+
+def combine_data_classes(classes: Iterable[DataClass]) -> DataClass:
+    """Apply governance's class algebra to a set of input classes.
+
+    Used when a layer is derived from several parents. The dominating class
+    wins, so a derivation cannot launder an ``ORACLE_ONLY`` or
+    ``RETROSPECTIVE`` input into something planner-legal.
+    """
+    present = {DataClass(c) for c in classes}
+    if not present:
+        raise ProvenanceError("combine_data_classes needs at least one class")
+    for candidate in _CLASS_PRECEDENCE:
+        if candidate in present:
+            # A pure-SYNTHETIC or pure-OBSERVED set keeps its own class; a mix
+            # of OBSERVED with anything transformed is DERIVED, which is what
+            # the caller passes explicitly.
+            return candidate
+    raise ProvenanceError(f"unrecognised data classes: {present}")
+
+
+def governance_class_name(data_class: DataClass) -> str:
+    """The uppercase spelling governance requires at an integration boundary."""
+    return DataClass(data_class).value.upper()
 
 
 class TemporalProvenance(str, Enum):

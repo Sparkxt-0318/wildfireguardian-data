@@ -52,6 +52,13 @@ from .vector import Feature, VectorLayer
 
 __all__ = [
     "COPERNICUS_GLO30_BUCKET",
+    "WORLDCOVER_BUCKET",
+    "WORLDCOVER_VERSION",
+    "WORLDCOVER_YEAR",
+    "WORLDCOVER_MANUAL_URL",
+    "worldcover_tile_name",
+    "worldcover_tile_url",
+    "fetch_esa_worldcover",
     "COPERNICUS_COLLECTION_PAGE",
     "COPERNICUS_BUCKET_README",
     "OSM_API_MAP_URL",
@@ -576,4 +583,261 @@ def fetch_osm_roads(
         crs="EPSG:4326",
         provenance=provenance,
         feature_kind="road segment",
+    )
+
+# --------------------------------------------------------------------------- #
+# ESA WorldCover 10 m land cover
+# --------------------------------------------------------------------------- #
+#: Public S3 bucket serving ESA WorldCover as 3x3 degree COG tiles.
+WORLDCOVER_BUCKET = "https://esa-worldcover.s3.eu-central-1.amazonaws.com"
+
+#: Version and reference year this repository fetches. Pinned, because the class
+#: set and the vintage are part of the layer's meaning: v100 is 2020 and v200 is
+#: 2021, and silently following "latest" would change a bundle's temporal
+#: reference without changing its config.
+WORLDCOVER_VERSION = "v200"
+WORLDCOVER_YEAR = "2021"
+
+#: Pages and documents this repository fetched and read. Each factual claim in
+#: the WorldCover provenance is attributed to one of these or to the tile's own
+#: metadata (``AGENTS.md`` §4).
+WORLDCOVER_MANUAL_URL = (
+    f"{WORLDCOVER_BUCKET}/{WORLDCOVER_VERSION}/{WORLDCOVER_YEAR}/docs/"
+    "WorldCover_PUM_V2.0.pdf"
+)
+
+
+def worldcover_tile_name(lat_south: int, lon_west: int) -> str:
+    """Tile name for the 3x3 degree tile containing the given SW corner.
+
+    Tiles are named by the SW corner of a 3-degree grid, so the corner must be
+    snapped down to a multiple of 3 -- a point at 36.9N/129.3E lives in tile
+    ``N36E129``, and a point at 35.9N would live in ``N33E129``, not ``N35``.
+    """
+    lat = (lat_south // 3) * 3
+    lon = (lon_west // 3) * 3
+    ns = "N" if lat >= 0 else "S"
+    ew = "E" if lon >= 0 else "W"
+    return f"{ns}{abs(lat):02d}{ew}{abs(lon):03d}"
+
+
+def worldcover_tile_url(lat_south: int, lon_west: int) -> str:
+    """Public URL of the WorldCover map COG for a tile."""
+    tile = worldcover_tile_name(lat_south, lon_west)
+    return (
+        f"{WORLDCOVER_BUCKET}/{WORLDCOVER_VERSION}/{WORLDCOVER_YEAR}/map/"
+        f"ESA_WorldCover_10m_{WORLDCOVER_YEAR}_{WORLDCOVER_VERSION}_{tile}_Map.tif"
+    )
+
+
+def _worldcover_source(url: str, *, tile_tags: dict[str, str] | None = None) -> SourceRecord:
+    """Provenance for a WorldCover tile.
+
+    Every claim is attributed to where it was verified: the tile's own GeoTIFF
+    tags, or Table 3 / section 4 of the Product User Manual in the same bucket.
+    The licence in particular is read from the **file**, not recalled.
+    """
+    tags = tile_tags or {}
+    return SourceRecord(
+        name=(
+            f"ESA WorldCover 10 m {WORLDCOVER_YEAR} {WORLDCOVER_VERSION} "
+            "(land cover)"
+        ),
+        url_or_identifier=url,
+        # The product represents the reference year in full, per the manual's
+        # section 3.4.3 and the tile's own time_start/time_end tags.
+        source_date=WORLDCOVER_YEAR,
+        acquisition_date=utc_now_iso(),
+        publisher=tags.get(
+            "copyright",
+            "ESA WorldCover project / Contains modified Copernicus Sentinel data",
+        ),
+        licence=tags.get("license", UNKNOWN),
+        licence_url="https://creativecommons.org/licenses/by/4.0/",
+        notes=(
+            "VERIFIED FROM THE TILE METADATA: "
+            f"licence {tags.get('license', UNKNOWN)!r}; "
+            f"product_version {tags.get('product_version', UNKNOWN)!r}; "
+            f"time_start {tags.get('time_start', UNKNOWN)!r} to "
+            f"time_end {tags.get('time_end', UNKNOWN)!r}; "
+            f"grid alignment AREA_OR_POINT={tags.get('AREA_OR_POINT', UNKNOWN)!r}; "
+            "EPSG:4326, 1/12000 degree cells, uint8, nodata 0. "
+            f"VERIFIED FROM {WORLDCOVER_MANUAL_URL}: the 11 class codes and "
+            "their definitions (Table 3, page 15), and the limitations recorded "
+            "on the class scheme (section 4). "
+            "THIS IS LAND COVER, NOT FUEL: 'Tree cover' means canopy cover of "
+            "10% or more, with no species, load, or moisture information. "
+            "Mapping these classes onto a fire-behaviour fuel model is a "
+            "modelling step this repository does not perform "
+            "(docs/DECISIONS.md D-0024). Note the manual's own limitation that "
+            "mountain shadows are sometimes misclassified as water, which is "
+            "directly relevant in steep Korean valleys."
+        ),
+    )
+
+
+def fetch_esa_worldcover(
+    bounds_wgs84: Bounds,
+    *,
+    allow_network: bool = False,
+    name: str = "landcover_esa_worldcover",
+    buffer_deg: float = 0.005,
+) -> RasterLayer:
+    """Read an ESA WorldCover window covering ``bounds_wgs84``.
+
+    Returns a **categorical** layer in EPSG:4326 at the product's native 10 m,
+    carrying :data:`~wildfireguardian_data.fuels.classes.ESA_WORLDCOVER_V200_SCHEME`
+    semantics. Reprojection to a metre CRS is the caller's explicit next step,
+    and must use nearest-neighbour resampling: averaging class codes invents
+    classes (A-FU-3).
+
+    Same limitation as the DEM fetcher: a window spanning more than one 3-degree
+    tile raises rather than silently returning part of the request
+    (``docs/FAILURE_MODES.md`` F-BND-5).
+    """
+    _require_network(allow_network, "the ESA WorldCover tile")
+    try:
+        import rasterio
+        from rasterio.windows import from_bounds as window_from_bounds
+    except ImportError as exc:  # pragma: no cover
+        raise OptionalDependencyError(
+            "rasterio", purpose="reading remote ESA WorldCover COG tiles"
+        ) from exc
+
+    from .fuels.classes import ESA_WORLDCOVER_V200_SCHEME
+
+    crs = require_crs(bounds_wgs84.crs, context="fetching ESA WorldCover")
+    if not crs.equals(parse_crs("EPSG:4326")):
+        raise IngestError(
+            f"fetch_esa_worldcover needs bounds in EPSG:4326; got "
+            f"{crs_to_string(crs)}. convert them explicitly -- this function does "
+            "not reproject its input (docs/DECISIONS.md D-0002)."
+        )
+
+    requested = bounds_wgs84.buffered(buffer_deg)
+    import math
+
+    tiles = {
+        worldcover_tile_name(math.floor(lat), math.floor(lon))
+        for lat in (requested.min_y, requested.max_y)
+        for lon in (requested.min_x, requested.max_x)
+    }
+    if len(tiles) > 1:
+        raise IngestError(
+            f"requested extent {requested} spans more than one WorldCover tile "
+            f"({sorted(tiles)}). mosaicking is not implemented; returning one "
+            "tile would give a study area with an artificial straight edge."
+        )
+    url = worldcover_tile_url(math.floor(requested.min_y), math.floor(requested.min_x))
+
+    with rasterio.Env(**_gdal_http_options()):
+        try:
+            with rasterio.open(url) as dataset:
+                window = (
+                    window_from_bounds(
+                        requested.min_x,
+                        requested.min_y,
+                        requested.max_x,
+                        requested.max_y,
+                        dataset.transform,
+                    )
+                    .round_offsets()
+                    .round_lengths()
+                )
+                array = dataset.read(1, window=window)
+                transform = GridTransform.from_affine(dataset.window_transform(window))
+                tile_crs = parse_crs(dataset.crs.to_wkt())
+                file_nodata = dataset.nodatavals[0]
+                tile_tags = dict(dataset.tags())
+        except rasterio.errors.RasterioIOError as exc:
+            raise IngestError(
+                f"could not read ESA WorldCover tile {url}: {exc}. the tile may "
+                "not exist for this location (ocean), or the network may be "
+                "unavailable. document the failure and fall back to fixtures "
+                "rather than substituting another dataset silently (AGENTS.md §4)."
+            ) from exc
+
+    if array.size == 0:
+        raise IngestError(
+            f"ESA WorldCover read for {requested} returned an empty window from {url}"
+        )
+
+    scheme_nodata = ESA_WORLDCOVER_V200_SCHEME.nodata_code
+    if file_nodata is not None and int(file_nodata) != int(scheme_nodata):
+        raise IngestError(
+            f"{url} declares nodata={file_nodata} but the shipped scheme uses "
+            f"nodata_code={scheme_nodata}. two missing-data conventions in one "
+            "layer would leave some missing cells indistinguishable from a real "
+            "class."
+        )
+    undefined = ESA_WORLDCOVER_V200_SCHEME.unknown_codes(
+        int(code) for code in set(array.ravel().tolist())
+    )
+    if undefined:
+        raise IngestError(
+            f"{url} contains class code(s) {list(undefined)} that the shipped "
+            f"scheme {ESA_WORLDCOVER_V200_SCHEME.name!r} does not define. the "
+            "product may have changed; verify against the Product User Manual "
+            "before extending the scheme (AGENTS.md §4)."
+        )
+
+    provenance = ProvenanceRecord(
+        layer_name=name,
+        data_class=DataClass.OBSERVED,
+        # One calendar year, stated by the product. Not STATIC: land cover
+        # changes, and a 2021 map is a statement about 2021.
+        temporal_class=TemporalProvenance.ANNUAL,
+        temporal_reference=WORLDCOVER_YEAR,
+        sources=(_worldcover_source(url, tile_tags=tile_tags),),
+        transformations=(
+            Transformation(
+                operation="fetch_esa_worldcover_window",
+                parameters={
+                    "url": url,
+                    "tile": worldcover_tile_name(
+                        math.floor(requested.min_y), math.floor(requested.min_x)
+                    ),
+                    "product_version": tile_tags.get("product_version", UNKNOWN),
+                    "requested_bounds_wgs84": list(bounds_wgs84.as_tuple()),
+                    "buffer_deg": buffer_deg,
+                    "read_bounds_wgs84": list(requested.as_tuple()),
+                    "window_shape": list(array.shape),
+                    "cell_size_deg": [transform.x_size, transform.y_size],
+                    "file_nodata": repr(file_nodata),
+                    "scheme": ESA_WORLDCOVER_V200_SCHEME.name,
+                    "scheme_kind": ESA_WORLDCOVER_V200_SCHEME.scheme_kind.value,
+                    "classes_present": sorted(
+                        int(code) for code in set(array.ravel().tolist())
+                    ),
+                    "tile_tags": tile_tags,
+                },
+                notes=(
+                    "windowed COG read over HTTPS; no resampling at this stage. "
+                    "categorical: only nearest-neighbour resampling is valid "
+                    "downstream (docs/ASSUMPTIONS.md A-FU-3)"
+                ),
+            ),
+        ),
+        original_crs=crs_to_string(tile_crs),
+        output_crs=crs_to_string(tile_crs),
+        spatial_resolution=(transform.x_size, transform.y_size),
+        resolution_unit="degree",
+        value_unit="class",
+        vertical_datum=NOT_APPLICABLE,
+        nodata_representation=repr(scheme_nodata),
+        checksum=UNKNOWN,
+        notes=(
+            "LAND COVER, NOT A FUEL MODEL. geographic CRS: reproject with "
+            "nearest-neighbour before use on a metre grid (D-0002, D-0010)."
+        ),
+    )
+    return RasterLayer(
+        name=name,
+        data=array,
+        transform=transform,
+        crs=tile_crs,
+        nodata=scheme_nodata,
+        kind=RasterKind.CATEGORICAL,
+        value_unit="class",
+        provenance=provenance,
     )

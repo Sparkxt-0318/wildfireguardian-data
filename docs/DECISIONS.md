@@ -506,3 +506,80 @@ which none of the attributes came from the source.
 should do so in a separate, declared parameter layer so its assumptions stay
 visible. `roads.qa.attribute_availability` gives it the per-attribute counts to
 decide with.
+
+## D-0023 | 2026-09-20 | accepted | `DataClass` carries governance's seven classes, and `RETROSPECTIVE` stays on two axes
+
+**Decision.** `DataClass` is extended from this repository's original four
+values to all seven classes in `wildfireguardian-research-governance`
+`governance/DATA_CLASSES.md` (`OBSERVED`, `MODELED`, `DERIVED`, `SYNTHETIC`,
+`ASSUMED`, `RETROSPECTIVE`, `ORACLE_ONLY`), governance's class algebra is
+implemented in `combine_data_classes`, and `governance_class_name` emits the
+uppercase spelling their `OC-029` requires at an integration boundary. This
+repository still only *produces* `OBSERVED`, `DERIVED`, `MODELED` and
+`SYNTHETIC`; the other three exist so an inbound value can be labelled and
+refused.
+
+**The conflict this resolves.** Governance treats `RETROSPECTIVE` as a *data
+class* — one slot in the same enum as `OBSERVED`. This repository already
+treats retrospectiveness as a *temporal* property, `TemporalProvenance.RETROSPECTIVE`,
+orthogonal to whether a value was measured or modelled. Both readings are
+defensible and they disagree: a burn-scar polygon digitised after a fire is,
+in our terms, `data_class=OBSERVED` **and**
+`temporal_class=RETROSPECTIVE` — two facts governance can only express as one.
+
+**Resolution.** Keep both axes internally; collapse them only at the export
+boundary, with `RETROSPECTIVE` dominant. A layer whose `temporal_class` is
+`RETROSPECTIVE` exports as governance class `RETROSPECTIVE` regardless of how
+its values were obtained, because that is the direction that cannot cause
+leakage: over-reporting retrospectiveness makes a planner refuse data it could
+legally have used, while under-reporting it hands a planner a fact from the
+future.
+
+**Rejected.** (a) Dropping `TemporalProvenance.RETROSPECTIVE` to match
+governance's single axis — it would lose the ability to say *both* that a layer
+is an observation and that it was compiled after the fact, which is precisely
+the distinction `docs/ASSUMPTIONS.md` A-T-1 exists to keep. (b) Ignoring
+governance's class and exporting `OBSERVED` — that is the leakage direction.
+
+**Consequence.** `DataClass.planner_legal` reports `RETROSPECTIVE` and
+`ORACLE_ONLY` as never planner-legal, and reports `SYNTHETIC` as not
+planner-legal *from here*, since governance permits synthetic input only through
+a declared observation operator and this repository provides none. The
+export-boundary collapse is a lossy projection: a consumer that needs both axes
+must read the bundle's own provenance, not only its governance class.
+
+## D-0024 | 2026-09-20 | accepted | ESA WorldCover is carried as land cover, and this repository does not convert it to a fuel model
+
+**Decision.** `fuels.source.kind: esa_worldcover` fetches ESA WorldCover 10 m
+2021 v200 and carries its published 11-class legend as a
+`SchemeKind.SOURCE_CLASS` scheme (`esa_worldcover_v200`). It is warped onto the
+DEM's grid with **nearest-neighbour** resampling (D-0018, A-FU-3) and stored as
+a categorical raster. No crosswalk from those classes to a fire-behaviour fuel
+model (Anderson 13, Scott & Burgan 40, or a Korean equivalent) is shipped,
+computed, or implied.
+
+**Rejected.** Shipping a land-cover-to-fuel-model lookup table, which is what a
+fire-spread consumer actually needs and what would make the layer immediately
+useful.
+
+**Why.** Such a table is a *modelling* artifact, not a property of the data: the
+same WorldCover class 10 (`tree_cover`) is a different fuel in a Korean pine
+plantation than in a riparian broadleaf stand, and the mapping depends on
+species composition, stand age, and season — none of which WorldCover encodes.
+Publishing a crosswalk here would make a modelled parameter indistinguishable
+from an observed class, in the field a rate-of-spread model reads directly. That
+is the `SOURCE_CLASS` versus `MODELED_CROSSWALK` distinction, and it is why
+`VegetationClassScheme` raises if a `MODELED_CROSSWALK` scheme is declared
+`OBSERVED`.
+
+**Naming.** The layer is vegetation/land cover. `FuelClass` and `FuelClassScheme`
+remain as aliases of `VegetationClass` and `VegetationClassScheme` for callers,
+but the primary names say what the data is.
+
+**Consequence.** A downstream fire-behaviour model must supply its own crosswalk
+and declare it `MODELED_CROSSWALK` with its own provenance. That work belongs in
+a fuels repository, not here (`docs/SCOPE.md`). Two WorldCover limitations carry
+straight into Korean study areas and are recorded on the scheme: mountain
+shadows are sometimes classified as water, and the product's 2021 vintage
+predates the 2022 Uljin fire, so it is pre-fire land cover for that event and
+must not be read as post-fire state.

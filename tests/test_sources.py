@@ -10,16 +10,26 @@ import numpy as np
 import pytest
 
 from wildfireguardian_data.bounds import Bounds
-from wildfireguardian_data.errors import IngestError, NetworkAccessError
+from wildfireguardian_data.errors import ConfigError, IngestError, NetworkAccessError
+from wildfireguardian_data.fuels.classes import (
+    ESA_WORLDCOVER_V200_SCHEME,
+    SchemeKind,
+)
 from wildfireguardian_data.provenance import DataClass, TemporalProvenance
 from wildfireguardian_data.sources import (
     COPERNICUS_GLO30_BUCKET,
     DEFAULT_OSM_HIGHWAY_VALUES,
+    WORLDCOVER_BUCKET,
     copernicus_glo30_tile_name,
     copernicus_glo30_tile_url,
     fetch_copernicus_dem,
+    fetch_esa_worldcover,
     fetch_osm_roads,
+    worldcover_tile_name,
+    worldcover_tile_url,
 )
+from wildfireguardian_data.study_area.build import KNOWN_FUEL_SCHEMES
+from wildfireguardian_data.study_area.config import FuelsConfig, StudyAreaConfig
 
 # A small extent over the rural hills inland of Uljin, in EPSG:4326.
 ULJIN_WGS84 = Bounds(129.31, 36.91, 129.33, 36.93, crs="EPSG:4326")
@@ -151,3 +161,89 @@ def test_real_pipeline_produces_slope_in_a_plausible_range():
         "clip_raster",
         "slope",
     ]
+
+
+# --------------------------------------------------------------------------- #
+# ESA WorldCover (Phase 2 item 6) -- no network needed
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize(
+    ("lat", "lon", "expected"),
+    [
+        # The product is tiled on a 3-degree grid, so a tile name is the
+        # *snapped* corner, not the floor of the request.
+        (36, 129, "N36E129"),
+        (35, 128, "N33E126"),
+        (37, 131, "N36E129"),
+        (0, 0, "N00E000"),
+        (-34, 151, "S36E150"),
+        (40, -74, "N39W075"),
+    ],
+)
+def test_worldcover_tile_naming_snaps_to_the_three_degree_grid(lat, lon, expected):
+    assert worldcover_tile_name(lat, lon) == expected
+    url = worldcover_tile_url(lat, lon)
+    assert url.startswith(WORLDCOVER_BUCKET)
+    assert url.endswith(f"ESA_WorldCover_10m_2021_v200_{expected}_Map.tif")
+
+
+def test_worldcover_fetch_is_network_opt_in_and_wgs84_only():
+    with pytest.raises(NetworkAccessError) as excinfo:
+        fetch_esa_worldcover(ULJIN_WGS84)
+    assert "allow_network" in str(excinfo.value)
+    projected = Bounds(227_500.0, 478_500.0, 231_500.0, 482_500.0, crs="EPSG:5187")
+    with pytest.raises(IngestError) as excinfo:
+        fetch_esa_worldcover(projected, allow_network=True)
+    assert "EPSG:4326" in str(excinfo.value)
+
+
+def test_worldcover_multi_tile_request_is_refused():
+    # Tiles are 3 degrees, so this spans the 129E boundary.
+    straddling = Bounds(128.9, 35.5, 129.4, 35.9, crs="EPSG:4326")
+    with pytest.raises(IngestError) as excinfo:
+        fetch_esa_worldcover(straddling, allow_network=True)
+    assert "more than one WorldCover tile" in str(excinfo.value)
+
+
+def test_worldcover_scheme_is_a_source_legend_not_a_fuel_model():
+    # D-0024: the 11 classes are ESA's published land-cover legend. Presenting
+    # them as fire-behaviour fuels would make a modelled parameter look observed.
+    scheme = ESA_WORLDCOVER_V200_SCHEME
+    assert scheme.scheme_kind is SchemeKind.SOURCE_CLASS
+    assert scheme.nodata_code == 0
+    assert scheme.spatial_resolution_m == 10.0
+    assert sorted(scheme.codes) == [10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100]
+    # The vintage is recorded, and it matters: 2021 is pre-2022-Uljin-fire.
+    assert "2021" in scheme.vintage
+    assert scheme.known_limitations
+
+
+def test_worldcover_config_cannot_be_read_through_another_schemes_legend():
+    # Code 10 is tree_cover in WorldCover and something else entirely in the
+    # demo scheme; honouring the mismatch would relabel every cell.
+    with pytest.raises(ConfigError) as excinfo:
+        FuelsConfig.from_dict(
+            {"source": {"kind": "esa_worldcover"}, "scheme": "synthetic_demo_v1"}
+        )
+    assert "esa_worldcover_v200" in str(excinfo.value)
+    ok = FuelsConfig.from_dict(
+        {"source": {"kind": "esa_worldcover"}, "scheme": "esa_worldcover_v200"}
+    )
+    assert ok.source.requires_network is True
+
+
+def test_worldcover_is_a_registered_build_scheme_and_a_fuels_source_kind():
+    assert KNOWN_FUEL_SCHEMES["esa_worldcover_v200"] is ESA_WORLDCOVER_V200_SCHEME
+    # ... and the pipeline refuses it without --allow-network rather than
+    # falling back to a fixture (D-0012).
+    config = StudyAreaConfig.from_dict(
+        {
+            "study_area_id": "worldcover_guard_check",
+            "crs": "EPSG:5187",
+            "bounds": [227_500.0, 478_500.0, 231_500.0, 482_500.0],
+            "fuels": {
+                "source": {"kind": "esa_worldcover"},
+                "scheme": "esa_worldcover_v200",
+            },
+        }
+    )
+    assert config.requires_network is True
