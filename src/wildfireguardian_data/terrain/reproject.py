@@ -213,6 +213,16 @@ def reproject_raster(
             "dst_nodata": repr(dst_nodata),
             "dst_cells_square": new_grid.is_square,
             "target_grid_supplied": target_grid is not None,
+            # The co-registration contract (Phase 2 item 16). The guard above
+            # already *refuses* an averaging method on a categorical layer, but
+            # a refusal leaves no record. Writing the kind and both affines into
+            # provenance means a consumer can audit, after the fact and without
+            # re-running anything, whether class codes were ever averaged and
+            # whether this layer really landed on the grid it claims to share.
+            "raster_kind": layer.kind.value,
+            "categorical_or_continuous": layer.kind.value,
+            "source_grid": layer.transform.to_dict(),
+            "target_grid": new_grid.to_dict(),
         },
         notes=(
             "resampling changes values; cell size and grid origin both change. "

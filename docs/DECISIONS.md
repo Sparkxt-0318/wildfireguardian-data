@@ -583,3 +583,84 @@ straight into Korean study areas and are recorded on the scheme: mountain
 shadows are sometimes classified as water, and the product's 2021 vintage
 predates the 2022 Uljin fire, so it is pre-fire land cover for that event and
 must not be read as post-fire state.
+
+## D-0025 | 2026-09-20 | accepted | Provenance schema 1.1.0: temporal validity, surface model, and explicit migrations
+
+**Decision.** `ProvenanceRecord` gains three fields and
+`PROVENANCE_SCHEMA_VERSION` becomes `1.1.0`:
+
+- **`valid_from` / `valid_to`** — the interval over which the values are claimed
+  to describe the world. Validated by `validate_temporal_string`, so they keep
+  their precision (`"2021"` stays a year), accept `UNKNOWN` and
+  `not_applicable`, and an inverted interval raises.
+- **`surface_model`** — a closed set: `"dsm"`, `"dtm"`, `not_applicable`,
+  `UNKNOWN`. An unrecognised spelling raises.
+
+**Why `valid_from`/`valid_to` are not `temporal_reference`.** They answer
+different questions. `temporal_reference` says *when the data is from*;
+the validity interval says *when it is true of*. A 2021 land-cover product has
+`temporal_reference="2021"`, but whether it is still valid in 2023 is a separate
+claim that the product does not make. Collapsing them would mean a consumer
+asking "is this pre-fire?" had to answer it from an acquisition date, which is
+the reasoning that puts post-event data into a pre-event analysis.
+
+**Why `surface_model` is structured.** It was already in the Copernicus notes
+prose. A consumer cannot be expected to grep a free-text field for a fact that
+decides whether a forested slope is terrain or canopy — and a 20 m canopy step
+across one 30 m cell is a ~34° slope that no terrain has (F-TER-3). It is now a
+field, and `PRV-009` reports it as INFO on every DSM-derived layer.
+
+**What is deliberately *not* filled in.**
+
+- The Copernicus DEM's validity is `UNKNOWN`, **not** its 2011–2015 acquisition
+  window. How long a DSM stays valid is a real open question: the bare-earth
+  component is effectively static while the canopy component is not, and this
+  product does not separate them. Writing the acquisition window into a
+  *validity* interval would assert an expiry date we invented.
+- The 1.0.0 → 1.1.0 migration sets all three fields to `UNKNOWN`. It does **not**
+  infer `surface_model="dsm"` from a Copernicus source name, even though that
+  happens to be true, because afterwards an inference would be indistinguishable
+  from a fact somebody verified (`AGENTS.md` §3).
+- Synthetic fixtures get `surface_model="dtm"` and `not_applicable` validity.
+  `"dtm"` is accurate, not a placeholder — a synthetic surface has no canopy —
+  and it is what lets the analytic tests assert that a computed slope is terrain
+  slope. `not_applicable` rather than `UNKNOWN` because a synthetic construct
+  describes no moment in the world, and only `UNKNOWN` counts as a gap (D-0009).
+
+**Migrations are explicit** (Phase 2 item 26). `_PROVENANCE_MIGRATIONS` maps
+each version to its successor and a function; `migrate_provenance_payload`
+applies the chain one step at a time, so a two-version-old record passes through
+every intermediate migration rather than a hand-written shortcut. A version with
+no registered migration is **refused** — including one *newer* than this reader,
+because a newer writer may have changed the meaning of a field this reader
+thinks it understands. Every migration appends a note saying what it filled and
+that it was not inferred.
+
+**Consequence.** The committed `uljin_real_v1` bundle was written at 1.0.0 and
+still reads, through the migration, with its three new fields `UNKNOWN` — which
+is the honest state for a bundle nobody established those facts for. `PRV-010`
+now fires on it as a WARNING. That is the check doing its job, not a regression.
+
+**Rejected.** Bumping the version without a migration and regenerating the
+committed bundles. Rebuilding `uljin_real_v1` needs network access and the AWS
+tile list is mutable (D-0012), so "just rebuild it" is not available — and a
+schema that cannot read its own published output is not a schema, it is a
+breaking change with a version number on it.
+
+## D-0026 | 2026-09-20 | accepted | Reprojection records the co-registration contract
+
+**Decision.** `reproject_raster` records `raster_kind`,
+`categorical_or_continuous`, `source_grid` and `target_grid` (as
+`GridTransform` dicts, not bare affine tuples) in its `Transformation`
+parameters, alongside the CRSs, resolutions and resampling method it already
+recorded.
+
+**Why.** The guard that refuses an averaging resampler on a `CATEGORICAL` layer
+already existed and raises (A-FU-3). But a refusal leaves no trace, so there was
+no way to establish *after the fact* — from a bundle alone, without re-running
+anything — that class codes were never averaged, or that a layer claiming to
+share the DEM's grid actually landed on it. Two of the things Phase 2 item 16
+asks for were enforced but not auditable.
+
+**Consequence.** `target_grid` is asserted in tests to equal the output layer's
+own transform, so the record cannot drift from the raster it describes.

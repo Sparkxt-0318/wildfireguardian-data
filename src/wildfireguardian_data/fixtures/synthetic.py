@@ -44,6 +44,7 @@ from ..crs import crs_to_string
 from ..fuels.classes import SYNTHETIC_DEMO_SCHEME, FuelClassScheme
 from ..fuels.io import fuel_layer_from_array
 from ..provenance.models import (
+    NOT_APPLICABLE,
     DataClass,
     ProvenanceRecord,
     SourceRecord,
@@ -140,6 +141,16 @@ def _synthetic_raster_provenance(
         value_unit=value_unit,
         vertical_datum="not_applicable (synthetic)",
         nodata_representation=nodata_text,
+        # A synthetic surface has no canopy, so it *is* bare earth. "dtm" is
+        # accurate rather than a placeholder, and it is what lets the analytic
+        # tests assert that a computed slope is terrain slope and not a canopy
+        # artifact (F-TER-3).
+        surface_model="dtm",
+        # A synthetic construct describes no moment in the world, so there is
+        # no validity interval to be unknown about. NOT_APPLICABLE, not
+        # UNKNOWN: only UNKNOWN counts as a gap (D-0009).
+        valid_from=NOT_APPLICABLE,
+        valid_to=NOT_APPLICABLE,
         random_seed=seed,
         notes=("SYNTHETIC. " + notes).strip(),
     )
@@ -165,6 +176,9 @@ def _synthetic_vector_provenance(
         output_crs=crs_to_string(crs),
         value_unit="not_applicable",
         nodata_representation="not_applicable",
+        surface_model=NOT_APPLICABLE,
+        valid_from=NOT_APPLICABLE,
+        valid_to=NOT_APPLICABLE,
         notes=("SYNTHETIC. " + notes).strip(),
     )
 

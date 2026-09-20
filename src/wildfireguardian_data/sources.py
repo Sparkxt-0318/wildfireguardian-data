@@ -374,6 +374,17 @@ def fetch_copernicus_dem(
             "description page, not declared in the tile"
         ),
         nodata_representation="none_declared" if nodata is None else repr(nodata),
+        # Structured, because "is this a DSM?" decides whether a forest slope is
+        # terrain or canopy (F-TER-3), and a consumer should not have to read
+        # the notes field to find out.
+        surface_model="dsm",
+        # UNKNOWN, not the 2011-2015 acquisition window. How long a DSM stays
+        # valid is a real question nobody here has answered: the bare-earth
+        # component is effectively static while the canopy component is not, and
+        # this product does not separate them. Writing the acquisition window
+        # into a *validity* interval would assert an expiry date we invented.
+        valid_from=UNKNOWN,
+        valid_to=UNKNOWN,
         checksum=UNKNOWN,
         notes=(
             "DIGITAL SURFACE MODEL (includes canopy and buildings). geographic "
@@ -534,13 +545,17 @@ def fetch_osm_roads(
             f"{bounds_wgs84}. an empty road layer is reported, not returned."
         )
 
+    # One timestamp used for both the temporal reference and the start of the
+    # validity interval, so the two cannot disagree by however long the rest of
+    # this function takes.
+    retrieved_at = utc_now_iso()
     provenance = ProvenanceRecord(
         layer_name=name,
         data_class=DataClass.OBSERVED,
         # Continuously edited, so the layer is valid as of the download moment,
         # not for a year or indefinitely.
         temporal_class=TemporalProvenance.OBSERVATION_TIME,
-        temporal_reference=utc_now_iso(),
+        temporal_reference=retrieved_at,
         sources=(_osm_source(url),),
         transformations=(
             Transformation(
@@ -570,6 +585,12 @@ def fetch_osm_roads(
         # meaningful.
         resolution_unit=NOT_APPLICABLE,
         vertical_datum=NOT_APPLICABLE,
+        surface_model=NOT_APPLICABLE,
+        # Valid from the moment it was read. No end: OSM is continuously
+        # edited, so this extract does not stop being what OSM said at that
+        # instant, and nobody has established how long it stays *accurate*.
+        valid_from=retrieved_at,
+        valid_to=UNKNOWN,
         checksum=UNKNOWN,
         notes=(
             "ODbL 1.0; attribution to OpenStreetMap contributors required, and "
@@ -825,6 +846,12 @@ def fetch_esa_worldcover(
         value_unit="class",
         vertical_datum=NOT_APPLICABLE,
         nodata_representation=repr(scheme_nodata),
+        surface_model=NOT_APPLICABLE,
+        # The product states the year it describes, so the validity interval is
+        # a fact here rather than a judgement. Year precision, preserved: the
+        # product does not claim a month.
+        valid_from=WORLDCOVER_YEAR,
+        valid_to=WORLDCOVER_YEAR,
         checksum=UNKNOWN,
         notes=(
             "LAND COVER, NOT A FUEL MODEL. geographic CRS: reproject with "

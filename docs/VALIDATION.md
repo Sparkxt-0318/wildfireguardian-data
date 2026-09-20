@@ -49,7 +49,7 @@ validates the directory, then stores the report in
 
 ## Finding catalogue
 
-51 codes. They are stable and greppable, so a CI job can act on a specific
+53 codes. They are stable and greppable, so a CI job can act on a specific
 finding without matching prose. Generated from the code; see
 `validation/checks.py` and `validation/bundle_checks.py`. A test asserts that
 this table and the code agree in both directions, so a new check cannot ship
@@ -77,6 +77,8 @@ undocumented and a removed one cannot linger here.
 | `PRV-006` | INFO | layer is RETROSPECTIVE: not available to any real-time decision; using it as observation-time data is the temporal analogue of data leakage |
 | `PRV-007` | WARNING | non-static layer with no `temporal_reference` |
 | `PRV-008` | WARNING | no checksum recorded |
+| `PRV-009` | INFO | elevation source is a DSM, so forest slope is canopy slope (F-TER-3) |
+| `PRV-010` | WARNING | temporal validity not established (`valid_from`/`valid_to` UNKNOWN) |
 | `VEC-001` | ERROR | vector layer has no features |
 | `VEC-002` | WARNING | mixed geometry types; consumers assuming one type will skip the others |
 | `VEC-003` | ERROR | invalid geometry (self-intersection); area and intersection results undefined |

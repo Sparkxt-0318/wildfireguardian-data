@@ -351,6 +351,32 @@ def check_provenance_consistency(
             "provenance",
             layer=record.layer_name,
         )
+    if record.surface_model == "dsm":
+        report.add(
+            "PRV-009",
+            Severity.INFO,
+            "elevation source is a DIGITAL SURFACE MODEL: over forest, slope "
+            "and aspect describe the canopy top, not the ground. a 20 m canopy "
+            "step across one 30 m cell yields a ~34 degree slope that no "
+            "terrain has (docs/FAILURE_MODES.md F-TER-3)",
+            layer=record.layer_name,
+        )
+    if record.valid_from == UNKNOWN or record.valid_to == UNKNOWN:
+        # WARNING, not ERROR. An unestablished validity interval is an honest
+        # gap -- and for a DSM it is a genuinely open question, not an oversight.
+        # It is called out separately from the PRV-002 count because this is the
+        # field a consumer needs in order to avoid reading post-event data as
+        # pre-event truth, and a line item in a list of nine is easy to miss.
+        report.add(
+            "PRV-010",
+            Severity.WARNING,
+            f"temporal validity is not established (valid_from="
+            f"{record.valid_from!r}, valid_to={record.valid_to!r}). a consumer "
+            "cannot tell from this layer alone whether it describes the world "
+            "before or after a given event, so it must not be treated as "
+            "pre-event truth without establishing that separately",
+            layer=record.layer_name,
+        )
 
 
 # --------------------------------------------------------------------------- #
