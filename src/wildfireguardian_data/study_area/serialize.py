@@ -19,6 +19,7 @@ from ..bounds import Bounds
 from ..crs import crs_to_string, parse_crs
 from ..errors import BundleError
 from ..provenance.checksum import sha256_file, sha256_json
+from ..provenance.models import utc_now_iso
 from ..provenance.store import read_all_provenance, write_provenance
 from ..raster import RasterLayer
 from ..terrain.io import RASTER_SIDECAR_SUFFIX, read_raster, write_raster
@@ -33,7 +34,13 @@ from .bundle import (
     TerrainComponent,
 )
 
-__all__ = ["write_bundle", "read_bundle", "write_validation_report", "MANIFEST_NAME"]
+__all__ = [
+    "write_bundle",
+    "read_bundle",
+    "write_validation_report",
+    "write_bundle_manifest",
+    "MANIFEST_NAME",
+]
 
 MANIFEST_NAME = "manifest.json"
 
@@ -279,7 +286,49 @@ def write_bundle(
         json.dumps(manifest, indent=2, ensure_ascii=False, sort_keys=False) + "\n",
         encoding="utf-8",
     )
+
+    # The canonical contract manifest: what a downstream repository codes
+    # against, written alongside the internal manifest rather than instead of
+    # it (docs/DECISIONS.md D-0027).
+    #
+    # Derived from the bundle **read back from disk**, not from the in-memory
+    # one, for the same reason validation is (D-0014): checksums only exist
+    # once the files do, so the in-memory bundle's provenance still says
+    # UNKNOWN. Deriving from it would put an unchecksummed contract next to a
+    # checksummed bundle -- which BND-023 catches, and which is how this was
+    # found. The extra read also proves the write round-trips.
+    write_bundle_manifest(target, read_bundle(target))
     return target
+
+
+def write_bundle_manifest(
+    directory: str | Path,
+    bundle: StudyAreaBundle,
+    *,
+    created_at: str | None = None,
+    validation: dict[str, Any] | None = None,
+) -> Path:
+    """Write ``bundle_manifest.json``, the canonical downstream contract.
+
+    ``created_at`` defaults to now, which is correct for a *write*. Re-derivation
+    for a drift comparison passes the value already on disk, so the comparison
+    is not defeated by the clock.
+    """
+    from ..integration.manifest import BUNDLE_MANIFEST_NAME, build_bundle_manifest
+
+    target = Path(directory)
+    contract = build_bundle_manifest(
+        bundle,
+        created_at=created_at or utc_now_iso(),
+        validation=validation,
+        absent_reasons=bundle.metadata.get("absent_layer_reasons"),
+    )
+    path = target / BUNDLE_MANIFEST_NAME
+    path.write_text(
+        json.dumps(contract, indent=2, ensure_ascii=False, sort_keys=False) + "\n",
+        encoding="utf-8",
+    )
+    return path
 
 
 def write_validation_report(

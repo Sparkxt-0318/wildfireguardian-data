@@ -2,9 +2,13 @@
 
 ## Summary
 
-This repository has **one** stable public interface — its command-line tool —
-and **no** stable data contract. `StudyAreaBundle` and the on-disk bundle layout
-are **internal and unstable**. See `DECISIONS.md` D-0001.
+This repository has **two** stable public interfaces — its command-line tool
+and `bundle_manifest.json`, the canonical bundle contract (`DECISIONS.md`
+D-0027). `StudyAreaBundle` and the rest of the on-disk bundle layout are
+**internal and unstable**. See `DECISIONS.md` D-0001.
+
+A downstream repository codes against `bundle_manifest.json`. It does not read
+`manifest.json`, the provenance sidecars, or the Python objects.
 
 ## Stable: the CLI
 
@@ -12,9 +16,19 @@ are **internal and unstable**. See `DECISIONS.md` D-0001.
 wg-data build-study-area CONFIG.yaml [--out DIR] [--allow-network] [--force]
 wg-data validate-study-area BUNDLE_DIR [--strict] [--json]
 wg-data summarize-study-area BUNDLE_DIR [--json]
+wg-data provenance BUNDLE_DIR [--layer NAME] [--unknown-only] [--json]
+wg-data compatibility BUNDLE_DIR [--profile NAME] [--json]
 wg-data make-fixtures OUT_DIR [--only NAME]
 wg-data version
 ```
+
+`provenance` exits 1 only when a layer has `UNKNOWN` in one of the three fields
+without which its values cannot be interpreted (`output_crs`, `value_unit`,
+`nodata_representation`) — the same condition `validate-study-area` reports as
+`PRV-001`. Every other `UNKNOWN` is a finding, not a failure (D-0009).
+
+`compatibility` exits 0 whatever it finds: `INCOMPLETE` is a true answer about a
+bundle, not an error in producing one. Gate on `--json` instead.
 
 Exit codes:
 
@@ -47,6 +61,7 @@ repository that imports them today is accepting that.
 
 ```text
 <bundle_dir>/
+  bundle_manifest.json           # STABLE: the downstream contract (D-0027)
   manifest.json                  # bundle-level metadata + layer index + checksums
   provenance/
     <layer_name>.provenance.json # one record per layer
@@ -102,3 +117,52 @@ When a second repository exists, the process is: that repository states its
 required fields and semantics in writing; this repository records the agreement
 as a new `DECISIONS.md` entry that supersedes D-0001; a versioned export module
 is added, with the internal model free to diverge from it. Not before.
+
+## Stable: `bundle_manifest.json`
+
+The canonical bundle contract (`DECISIONS.md` D-0027). Carries its own
+`bundle_schema_version`, independent of `manifest.json`'s `schema_version` and
+of each provenance record's `schema_version` — three versions, because they
+change for three different reasons and a consumer cares about one of them.
+
+```json
+{
+  "bundle_schema_version": "1.0.0",
+  "bundle_id": "...",
+  "created_at": "<ISO-8601, when the bundle was built>",
+  "study_area": {"study_area_id": "...", "bounds": {...}, "extent_m": [...]},
+  "crs": "EPSG:5187",
+  "canonical_grid": {"status": "SHARED | MISMATCHED | NO_RASTERS", ...},
+  "layers": {
+    "terrain":    {"status": "PRESENT | ABSENT", "reason": "...", "layers": [...]},
+    "roads":      {..., "graph": {...}},
+    "fuels":      {..., "class_scheme": {...}},
+    "population": {...},
+    "facilities": {...}
+  },
+  "provenance": {...},
+  "validation": {"status": "...", "counts": {...}},
+  "checksums": {"<layer>": "<sha256>"},
+  "caveats": [...]
+}
+```
+
+Guarantees a consumer may rely on:
+
+- **All five `layers` slots are always present.** A layer this repository does
+  not have is `status: "ABSENT"` with a `reason` — never a missing key. An
+  `ABSENT` slot whose reason is `UNKNOWN` means the gap was not documented,
+  which is itself a finding.
+- **Every present layer carries** `data_class`, `units`, `licence`, `checksum`,
+  `valid_from`/`valid_to`, `surface_model`, its `sources` (with `source_date`
+  and `acquisition_date` kept separate), and machine-readable `limitations`.
+- **`data_class` is uppercase here**, as research governance requires
+  (`OC-029`), and lowercase in this repository's own artifacts. The
+  `RETROSPECTIVE` axis collapse (D-0023) happens at this boundary only.
+- **It cannot drift.** It is derived from the bundle, and `validate-study-area`
+  re-derives it — a mismatch is `BND-023`, an ERROR.
+- **It asserts nothing about validity or safety.** It says what each layer is
+  and where it came from. It does not claim the bundle is scientifically valid,
+  fit for a purpose, or that anything in it is safe, passable or usable
+  (`AGENTS.md` §5). Readiness, reported separately by `wg-data compatibility`,
+  is a statement about *completeness* only — see `DECISIONS.md` D-0028.

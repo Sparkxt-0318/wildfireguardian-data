@@ -117,6 +117,9 @@ undocumented and a removed one cannot linger here.
 | `BND-018` | ERROR | a manifest extra does not match its recorded checksum — the QA report or statistics have been edited since the bundle was written |
 | `BND-019` | ERROR | a provenance sidecar the manifest checksums is missing |
 | `BND-020` | ERROR | a provenance sidecar does not match its recorded checksum — the provenance has been edited |
+| `BND-021` | WARNING | no `bundle_manifest.json`: the bundle carries no downstream contract (D-0027) |
+| `BND-022` | ERROR | `bundle_manifest.json` is unreadable, or declares a `bundle_schema_version` this package cannot re-derive |
+| `BND-023` | ERROR | `bundle_manifest.json` disagrees with what the bundle derives; a consumer reads the contract instead of the data |
 
 ## What the test suite checks, and how
 

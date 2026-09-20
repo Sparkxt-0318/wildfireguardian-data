@@ -1,0 +1,466 @@
+{
+  "bundle_schema_version": "1.0.0",
+  "bundle_id": "uljin_valley_synthetic_v1",
+  "created_at": "2026-09-20T03:28:48.374468+00:00",
+  "study_area": {
+    "study_area_id": "uljin_valley_synthetic_v1",
+    "bounds": {
+      "min_x": 226000.0,
+      "min_y": 477000.0,
+      "max_x": 232000.0,
+      "max_y": 483000.0,
+      "crs": "EPSG:5187"
+    },
+    "extent_m": [
+      6000.0,
+      6000.0
+    ]
+  },
+  "crs": "EPSG:5187",
+  "canonical_grid": {
+    "grid": {
+      "x_origin": 225940.0,
+      "y_origin": 483060.0,
+      "x_size": 30.0,
+      "y_size": 30.0
+    },
+    "shape": [
+      204,
+      204
+    ],
+    "crs": "EPSG:5187",
+    "status": "SHARED"
+  },
+  "layers": {
+    "terrain": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "dem",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "UNKNOWN",
+          "units": {
+            "values": "m",
+            "resolution": "metre",
+            "vertical_datum": "not_applicable (synthetic)"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "8deda840b7215b10b8227380c12651888ea903f53f162c02e94fec3fb759d5dc",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_dem",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to",
+            "surface_model",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "dem"
+          ],
+          "random_seed": 20260919,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        },
+        {
+          "name": "slope_deg",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "UNKNOWN",
+          "units": {
+            "values": "deg",
+            "resolution": "metre",
+            "vertical_datum": "not_applicable (synthetic)"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "8b7aba44ab689b57d275e63dee65b741586c209fced0f97f764041de2b93d92a",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_dem",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to",
+            "surface_model",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "dem"
+          ],
+          "random_seed": 20260919,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        },
+        {
+          "name": "aspect_deg",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "UNKNOWN",
+          "units": {
+            "values": "deg_azimuth_grid_north",
+            "resolution": "metre",
+            "vertical_datum": "not_applicable (synthetic)"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "nan",
+          "checksum": "ade3dc1d9ae3db93e88f435e3661a5d8e7527dfb7b659db0e1dc0f6229c86c84",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_dem",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to",
+            "surface_model",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "dem"
+          ],
+          "random_seed": 20260919,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        }
+      ]
+    },
+    "roads": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "roads",
+          "geometry": "vector",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "UNKNOWN",
+          "units": {
+            "values": "not_applicable",
+            "resolution": "UNKNOWN",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": null,
+          "missing_data_representation": "not_applicable",
+          "checksum": "3b4ba85c382e8689e8a4d53b2a3af09cb42c9dc530cfb4d2512aaecbc335edd8",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_roads",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to",
+            "surface_model",
+            "resolution_unit",
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "roads"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        }
+      ],
+      "graph": {
+        "status": "PRESENT",
+        "source": "road QA report",
+        "node_count": 13,
+        "edge_count": 11,
+        "component_count": 3,
+        "total_length_m": 15138.522990585698,
+        "length_unit": "m",
+        "directed": false,
+        "noting": "counts describe graph topology as digitised. they do not state that any route is passable, any area reachable, or anyone trapped (AGENTS.md section 5). lengths are planar geometry in the analysis CRS, not travel distances (A-RD-5)"
+      }
+    },
+    "fuels": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "fuels",
+          "geometry": "raster",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "UNKNOWN",
+          "units": {
+            "values": "class",
+            "resolution": "metre",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": [
+            30.0,
+            30.0
+          ],
+          "missing_data_representation": "255",
+          "checksum": "b72f3abc6fae8750913568278a71db6567a8fd04e3c7cc60da911c45feb71dc2",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_fuels",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to",
+            "surface_model",
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "fuels"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        }
+      ],
+      "class_scheme": {
+        "status": "PRESENT",
+        "name": "synthetic_demo_v1",
+        "scheme_kind": "source_class",
+        "represents": "UNKNOWN",
+        "class_count": 6,
+        "nodata_code": 255,
+        "spatial_resolution_m": null,
+        "vintage": "UNKNOWN",
+        "licence": "UNKNOWN",
+        "known_limitations": [],
+        "is_fire_behaviour_fuel_model": false
+      }
+    },
+    "population": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "villages",
+          "geometry": "vector",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "UNKNOWN",
+          "units": {
+            "values": "not_applicable",
+            "resolution": "UNKNOWN",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": null,
+          "missing_data_representation": "not_applicable",
+          "checksum": "6f1135062c4aba309e4f20b457de73ce502ecb5f629623336a4cb5ee71a5dc6d",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_villages",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to",
+            "surface_model",
+            "resolution_unit",
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "villages"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        }
+      ]
+    },
+    "facilities": {
+      "status": "PRESENT",
+      "reason": "not_applicable",
+      "layers": [
+        {
+          "name": "facilities",
+          "geometry": "vector",
+          "data_class": "SYNTHETIC",
+          "planner_legal": false,
+          "temporal_class": "static",
+          "temporal_reference": "not_applicable",
+          "valid_from": "UNKNOWN",
+          "valid_to": "UNKNOWN",
+          "surface_model": "UNKNOWN",
+          "units": {
+            "values": "not_applicable",
+            "resolution": "UNKNOWN",
+            "vertical_datum": "UNKNOWN"
+          },
+          "spatial_resolution": null,
+          "missing_data_representation": "not_applicable",
+          "checksum": "6fc21bc0e4fba96775608fb42ac86b89eadfe230c9383c6ea8db50a537453c5f",
+          "checksum_algorithm": "sha256",
+          "sources": [
+            {
+              "name": "wildfireguardian_data.fixtures.synthetic.korean_valley_facilities",
+              "identifier": "in-repository synthetic generator",
+              "publisher": "wildfireguardian-data (this repository)",
+              "source_date": "not_applicable",
+              "acquisition_date": "not_applicable",
+              "licence": "same as this repository",
+              "licence_url": "UNKNOWN"
+            }
+          ],
+          "licence": "same as this repository",
+          "unknown_fields": [
+            "valid_from",
+            "valid_to",
+            "surface_model",
+            "resolution_unit",
+            "vertical_datum",
+            "sources[0].licence_url"
+          ],
+          "derived_from": [
+            "facilities"
+          ],
+          "random_seed": null,
+          "limitations": [
+            "INCOMPLETE_PROVENANCE",
+            "TEMPORAL_VALIDITY_NOT_ESTABLISHED"
+          ]
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "provenance_schema_version": [
+      "1.1.0"
+    ],
+    "internal_bundle_schema_version": "1.1.0",
+    "layer_count": 7,
+    "unknown_field_count": 35,
+    "data_classes_present": [
+      "SYNTHETIC"
+    ]
+  },
+  "validation": {
+    "status": "pass_with_warnings",
+    "strict": false,
+    "counts": {
+      "ERROR": 0,
+      "WARNING": 16,
+      "INFO": 19
+    },
+    "report_path": "validation/report.json"
+  },
+  "checksums": {
+    "dem": "8deda840b7215b10b8227380c12651888ea903f53f162c02e94fec3fb759d5dc",
+    "slope_deg": "8b7aba44ab689b57d275e63dee65b741586c209fced0f97f764041de2b93d92a",
+    "aspect_deg": "ade3dc1d9ae3db93e88f435e3661a5d8e7527dfb7b659db0e1dc0f6229c86c84",
+    "roads": "3b4ba85c382e8689e8a4d53b2a3af09cb42c9dc530cfb4d2512aaecbc335edd8",
+    "fuels": "b72f3abc6fae8750913568278a71db6567a8fd04e3c7cc60da911c45feb71dc2",
+    "villages": "6f1135062c4aba309e4f20b457de73ce502ecb5f629623336a4cb5ee71a5dc6d",
+    "facilities": "6fc21bc0e4fba96775608fb42ac86b89eadfe230c9383c6ea8db50a537453c5f"
+  },
+  "caveats": [
+    "this manifest reports what each layer is and where it came from. it does NOT assert that the bundle is scientifically valid, fit for any particular analysis, or that anything in it is safe, passable, or usable (AGENTS.md sections 5 and 8)",
+    "an ABSENT layer is absent. nothing was estimated, interpolated, or defaulted to fill it (AGENTS.md section 3)",
+    "data_class is uppercase here and lowercase in this repository's own artifacts; see docs/DECISIONS.md D-0023 for the RETROSPECTIVE axis collapse this boundary performs"
+  ]
+}

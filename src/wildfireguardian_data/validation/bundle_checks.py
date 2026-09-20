@@ -361,4 +361,86 @@ def validate_bundle_directory(
                 "written",
                 layer=layer_name,
             )
+
+    _check_contract_manifest(target, bundle, report)
     return report
+
+
+def _check_contract_manifest(
+    target: Path, bundle: Any, report: ValidationReport
+) -> None:
+    """BND-021..023: the downstream contract manifest agrees with the bundle.
+
+    The contract manifest is *derived*, which is what stops it drifting -- but
+    only if somebody re-derives it. That is this check. Without it, a
+    hand-edited ``bundle_manifest.json`` would be exactly the kind of
+    plausible-looking wrong artifact that propagates silently, since a consumer
+    reads it instead of the bundle.
+
+    ``created_at`` and the ``validation`` block are excluded from the
+    comparison: the first records when the bundle was built and cannot be
+    re-derived, and the second is written after validation runs (D-0014), so
+    re-deriving it here would compare this run against the last one.
+    """
+    from ..integration.manifest import (
+        BUNDLE_CONTRACT_SCHEMA_VERSION,
+        BUNDLE_MANIFEST_NAME,
+        build_bundle_manifest,
+    )
+
+    path = target / BUNDLE_MANIFEST_NAME
+    if not path.exists():
+        report.add(
+            "BND-021",
+            Severity.WARNING,
+            f"no {BUNDLE_MANIFEST_NAME}: this bundle carries no downstream "
+            "contract, so a consumer would have to read the internal layout "
+            "instead (docs/DECISIONS.md D-0027). rebuild it with "
+            "'wg-data build-study-area'",
+        )
+        return
+
+    try:
+        on_disk = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        report.add(
+            "BND-022",
+            Severity.ERROR,
+            f"{BUNDLE_MANIFEST_NAME} could not be read: {exc}",
+        )
+        return
+
+    version = on_disk.get("bundle_schema_version")
+    if version != BUNDLE_CONTRACT_SCHEMA_VERSION:
+        report.add(
+            "BND-022",
+            Severity.ERROR,
+            f"{BUNDLE_MANIFEST_NAME} declares bundle_schema_version "
+            f"{version!r}, but this package writes "
+            f"{BUNDLE_CONTRACT_SCHEMA_VERSION!r}. the contract cannot be "
+            "re-derived for comparison across versions, so it is refused "
+            "rather than checked against the wrong shape",
+        )
+        return
+
+    rederived = build_bundle_manifest(
+        bundle,
+        created_at=on_disk.get("created_at", UNKNOWN),
+        validation=on_disk.get("validation"),
+        absent_reasons=bundle.metadata.get("absent_layer_reasons"),
+    )
+    differing = sorted(
+        key
+        for key in set(rederived) | set(on_disk)
+        if rederived.get(key) != on_disk.get(key)
+    )
+    if differing:
+        report.add(
+            "BND-023",
+            Severity.ERROR,
+            f"{BUNDLE_MANIFEST_NAME} does not match what this bundle derives: "
+            f"{differing} differ. a consumer reads the contract instead of the "
+            "bundle, so a contract that disagrees with its own data is worse "
+            "than none",
+            fields=differing,
+        )

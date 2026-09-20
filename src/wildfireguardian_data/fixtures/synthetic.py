@@ -1054,6 +1054,10 @@ def korean_valley_fuels(
         data_class=DataClass.SYNTHETIC,
         temporal_class=TemporalProvenance.STATIC,
         temporal_reference="not_applicable",
+        # A synthetic construct describes no moment in the world, so there is
+        # no validity interval to be unknown about (D-0025).
+        valid_from=NOT_APPLICABLE,
+        valid_to=NOT_APPLICABLE,
         notes=(
             "classes derived from synthetic elevation bands plus seeded noise; "
             f"seed={seed}. a deliberate {(hole[0].stop - hole[0].start)}x"

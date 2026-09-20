@@ -664,3 +664,101 @@ asks for were enforced but not auditable.
 
 **Consequence.** `target_grid` is asserted in tests to equal the output layer's
 own transform, so the record cannot drift from the raster it describes.
+
+## D-0027 | 2026-09-20 | accepted | Two manifests: the writer's record, and the downstream contract
+
+**Decision.** A bundle carries two manifests.
+
+- `manifest.json` (`BUNDLE_SCHEMA_VERSION`, currently 1.1.0) is the **writer's
+  record**: file paths, formats, dtypes, cell counts, per-file checksums. A
+  reader needs it to load the bundle back.
+- `bundle_manifest.json` (`BUNDLE_CONTRACT_SCHEMA_VERSION`, 1.0.0), built by
+  `integration/manifest.py`, is the **contract**: the only thing another
+  WildfireGuardian repository is permitted to code against. It carries
+  `bundle_id`, `bundle_schema_version`, `created_at`, `study_area`, `crs`,
+  `canonical_grid`, a fixed five-slot `layers` object, `provenance`,
+  `validation` and `checksums`.
+
+**Rejected.** One manifest doing both jobs, which is fewer files and less code.
+
+**Why two.**
+
+1. **Absence must be representable.** The contract's `layers` object always has
+   all five slots — `terrain`, `roads`, `fuels`, `population`, `facilities` —
+   each with a `status` and, when `ABSENT`, a reason. The writer's record lists
+   only the layers that exist, so "no population layer" is a *missing key*,
+   which a consumer reads as easily as an oversight as a finding. An absent
+   layer with no documented reason reports its reason as `UNKNOWN`, which is
+   itself the finding: a gap nobody wrote down.
+2. **The contract must be stable when storage is not.** Phase 2 item 34 freezes
+   this schema. If the contract were the writer's record, changing how rasters
+   are stored would break a downstream dependency for no scientific reason.
+3. **Three versions, three reasons to change.** `BUNDLE_SCHEMA_VERSION`,
+   `PROVENANCE_SCHEMA_VERSION` and `BUNDLE_CONTRACT_SCHEMA_VERSION` move
+   independently, and a consumer cares about exactly one of them.
+
+**Drift is impossible by construction, and checked anyway.** The contract is
+*derived*, never hand-maintained — but derivation only helps if somebody
+re-derives it, so `validate-study-area` does: `BND-023` re-derives the contract
+and reports any difference as an ERROR. `created_at` and the `validation` block
+are excluded from that comparison, the first because it cannot be re-derived and
+the second because validation runs after the write (D-0014).
+
+**Derived from the bundle *read back from disk*, not the in-memory one** — for
+exactly the D-0014 reason. Checksums exist only once the files do, so the
+in-memory bundle's provenance still says `UNKNOWN`; deriving the contract from
+it puts an unchecksummed contract next to a checksummed bundle. This is not
+hypothetical: `BND-023` caught it in both the library and the CLI path the first
+time the check ran. The extra read also proves the write round-trips.
+
+**Road topology comes from the persisted QA report, not the live `RoadGraph`.**
+`read_bundle` does not reconstruct the graph object, so a contract sourced from
+it would say different things about the same bundle depending on whether it had
+just been built or read from disk. A contract that disagrees with itself is not
+a contract.
+
+**Consequence.** `data_class` is **uppercase** in the contract and lowercase in
+this repository's own artifacts, as research governance requires (their
+`OC-029`), and the `RETROSPECTIVE` axis collapse described in D-0023 happens at
+this boundary and nowhere else.
+
+## D-0028 | 2026-09-20 | accepted | Readiness is completeness; this repository never claims validity
+
+**Decision.** `wg-data compatibility` reports, per consumer profile
+(`FORECAST_VALUE`, `OSSE`, `ASSISTED_DISPATCH`), one of `READY`,
+`READY_WITH_LIMITATIONS`, `INCOMPLETE`, or
+`OUT_OF_SCOPE_FOR_THIS_REPOSITORY`.
+
+**`READY` means exactly one thing:** every input that consumer named is present
+and carries provenance sufficient to interpret it. It does **not** mean the data
+is accurate, the resolution adequate, the sources authoritative, or that any
+result computed from it would be correct. Phase 2 item 28 requires reporting
+readiness "without claiming scientific validity", and this is how.
+
+**The uncomfortable consequence, accepted deliberately.** A bundle of entirely
+synthetic fixtures is `READY` for all three profiles. That is correct — it is
+what a fixture is *for*, and it is what lets downstream CI run without network
+access. So the report puts `data_classes_present`,
+`all_layers_planner_legal` and `contains_synthetic` next to the verdict, and a
+test asserts that an all-synthetic bundle reporting `READY` also reports
+`all_layers_planner_legal: false`. A reader who takes `READY` as a quality
+claim has to ignore three adjacent fields to do it.
+
+**`not_supplied_here` is part of the contract, not a backlog.** Each profile
+lists, in machine-readable form, what this repository will not provide:
+forecasts and fuel-model crosswalks for `FORECAST_VALUE`; the nature model's
+dynamic state and observation operators for `OSSE`; all mission logic, routing
+and travel-time estimation for `ASSISTED_DISPATCH`. This turns `docs/SCOPE.md`
+from a paragraph somebody has to find into a field somebody's code can read.
+
+**Grid mismatch is scoped to the consumers it affects.** A
+`CANONICAL_GRID_MISMATCHED` bundle is a material limitation for
+`FORECAST_VALUE` and `OSSE`, which index two or more rasters by the same
+(row, col), and not for `ASSISTED_DISPATCH`, which does not. Conversely
+`REPROJECTED_ONTO_ITS_OWN_GRID` is recorded per layer but is deliberately *not*
+material: it is expected of the layer that *defines* the canonical grid, so
+treating it as a problem would flag every bundle for doing the right thing.
+
+**Exit code 0 whatever the readiness.** `INCOMPLETE` is a true and useful answer
+about a bundle, not an error in producing one. A CI job that wants to gate on
+readiness reads `--json`.
